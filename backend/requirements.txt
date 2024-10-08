@@ -1,1 +1,1 @@
-dice-calc==0.0.8
+dice-calc==0.0.10

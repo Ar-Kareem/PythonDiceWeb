@@ -23,12 +23,14 @@ def parse_and_exec():
     data = request.get_json()
     code = data['code']
     pipeline_result = pipeline(to_parse=code, do_exec=True)
+    parsed = pipeline(to_parse=code, do_exec=False)
     if pipeline_result is None:
         return 'Error'
     result = []
-    for i in pipeline_result:
-        result.append(randvar.output(i, print_=False, blocks_width=120))
+    for (args, kwargs) in pipeline_result:
+        result.append(randvar.output(*args, **kwargs, print_=False, blocks_width=120))
     response = {
-        'result': '\n'.join(result)
+        'result': '\n'.join(result),
+        'parsed': parsed,
     }
     return response
