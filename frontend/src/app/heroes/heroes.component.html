@@ -1,0 +1,25 @@
+<div>
+    <textarea 
+        rows="30"
+        cols="100" 
+        pInputTextarea 
+        [(ngModel)]="value"></textarea>
+</div>
+
+<div>
+    <button 
+    pButton 
+    pRipple 
+    label="Submit" 
+    class="p-button-success"
+    (click)="onButtonClick()"></button>
+</div>
+
+<!-- response -->
+<div>
+    <textarea 
+        rows="30"
+        cols="100" 
+        pInputTextarea 
+        [(ngModel)]="response"></textarea>
+</div>
