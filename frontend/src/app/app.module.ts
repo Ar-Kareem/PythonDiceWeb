@@ -2,9 +2,13 @@ import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { provideAnimations } from '@angular/platform-browser/animations';
+
 
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ButtonModule } from 'primeng/button';
+import { PanelModule } from 'primeng/panel';
+import { SidebarModule } from 'primeng/sidebar';
 
 
 import { AppRoutingModule } from './app-routing.module';
@@ -23,10 +27,13 @@ import { HeroesComponent } from './heroes/heroes.component';
     FormsModule,
 
     InputTextareaModule,
-    ButtonModule
+    ButtonModule,
+    PanelModule,
+    SidebarModule,
   ],
   providers: [
-    provideClientHydration()
+    provideClientHydration(),
+    provideAnimations(),
   ],
   bootstrap: [AppComponent]
 })

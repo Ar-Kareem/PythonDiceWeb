@@ -1,25 +1,50 @@
-<div>
-    <textarea 
-        rows="30"
-        cols="100" 
-        pInputTextarea 
-        [(ngModel)]="value"></textarea>
+<div class="wrapper">
+
+  <p-sidebar [(visible)]="sidebarVisible" [modal]="false" class="left-panel" [showCloseIcon]="true">
+    <ng-template pTemplate="closeicon">
+      <i class="pi pi-arrow-left"></i> 
+    </ng-template>
+    <h3>Sidebar</h3>
+    <p>
+        Lorem ipsum dolor sit amet...
+    </p>
+  </p-sidebar>
+
+  <div [ngClass]="{'main-content': true}">
+
+    <p-button (onClick)="toggleSidebar()" icon="pi pi-arrow-right"  label="" [ngClass]="{'margin-right-bttn': true, 'hidden': sidebarVisible}"></p-button>
+
+    <div [ngClass]="{'shifted': sidebarVisible}"></div>
+
+    <div class="inpout-content">
+      <div class="code-input">
+          <textarea 
+              rows="20"
+              style="width: 100%; max-width: 100%; font-family: 'Courier New', Courier, monospace; font-size: 16px;"
+              pInputTextarea 
+              [(ngModel)]="value"
+              (input)="saveInputLocalStorage()"
+              ></textarea>
+      </div>
+      <div>
+          <p-button 
+          pButton 
+          pRipple 
+          label="Calculate" 
+          class="p-button-success"
+          (click)="onButtonClick()"></p-button>
+      </div>
+      <div class="code-output">
+          <textarea 
+              #autoResizeTextarea
+              class="code-output"
+              style="width: 100%; max-width: 100%; font-family: 'Courier New', Courier, monospace; font-size: 16px;"
+              [readOnly]="true"
+              [ngModel]="response"></textarea>
+      </div>
+
+    </div>
+
+  </div>
 </div>
 
-<div>
-    <button 
-    pButton 
-    pRipple 
-    label="Submit" 
-    class="p-button-success"
-    (click)="onButtonClick()"></button>
-</div>
-
-<!-- response -->
-<div>
-    <textarea 
-        rows="30"
-        cols="100" 
-        pInputTextarea 
-        [(ngModel)]="response"></textarea>
-</div>
