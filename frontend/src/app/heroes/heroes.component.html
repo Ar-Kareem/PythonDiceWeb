@@ -1,5 +1,9 @@
 <div class="wrapper">
 
+  <div [ngClass]="{'margin-right-bttn': true, 'hidden-bttn': sidebarVisible}">
+    <p-button (onClick)="toggleSidebar()" icon="pi pi-bars"  label=""></p-button>
+  </div>
+
   <p-sidebar [(visible)]="sidebarVisible" [modal]="false" class="left-panel" [showCloseIcon]="true">
     <ng-template pTemplate="closeicon">
       <i class="pi pi-arrow-left"></i> 
@@ -11,10 +15,6 @@
   </p-sidebar>
 
   <div [ngClass]="{'main-content': true}">
-
-    <div [ngClass]="{'margin-right-bttn': true, 'hidden-bttn': sidebarVisible}">
-      <p-button (onClick)="toggleSidebar()" icon="pi pi-arrow-right"  label=""></p-button>
-    </div>
 
     <div [ngClass]="{'shifted': sidebarVisible}"></div>
 

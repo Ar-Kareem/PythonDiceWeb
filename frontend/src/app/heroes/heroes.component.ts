@@ -12,7 +12,7 @@ export class HeroesComponent implements AfterViewInit {
 
   constructor(private http: HttpClient, private cd: ChangeDetectorRef) { }
 
-  sidebarVisible: boolean = true;
+  sidebarVisible: boolean = false;
 
   @ViewChild('autoResizeTextarea') textarea: ElementRef<HTMLTextAreaElement>;
 

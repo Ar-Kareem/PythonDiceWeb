@@ -28,7 +28,6 @@ p-sidebar {  // sidebar
 
 .margin-right-bttn {
   padding-top: 8px;
-  padding-right: 8px;
   padding-left: 8px;
   &.hidden-bttn {
     display: none;
@@ -45,7 +44,8 @@ p-sidebar {  // sidebar
 
 .code-input {
   width: 100%;
-  padding: 10px;
+  padding-left: 10px;
+  padding-top: 10px;
   background-color: #093145;
   textarea {
     width: 100%;
@@ -59,7 +59,9 @@ p-sidebar {  // sidebar
 }
 
 .bttn-padding {
-  padding: 6px;
+  padding-left: 8px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   .calculate-bttn {
     padding: 0px;
   }
