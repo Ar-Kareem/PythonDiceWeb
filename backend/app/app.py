@@ -3,6 +3,7 @@ from flask import jsonify, request, json
 from werkzeug.exceptions import HTTPException
 
 import time
+from multiprocessing import Pool, TimeoutError
 
 
 from dice_calc import randvar
@@ -52,6 +53,8 @@ def ParseExecController():
         raise InvalidAPIUsage("LEX", status_code=400, payload=model.error_payload)
     if model.is_yacc_illegal:
         raise InvalidAPIUsage("YACC", status_code=400, payload=model.error_payload)
+    if model.is_timeout:
+        raise InvalidAPIUsage("TIMEOUT", status_code=400)
     return {
         'result': '\n'.join(model.data),
         'parsed': model.parsed_python,
@@ -81,8 +84,26 @@ def ParseExecService(to_parse):
         return res
     python_str = parse_and_exec.do_resolve(yacc_ret)
     res.parsed_python = python_str
-    exec_res = parse_and_exec.safe_exec(python_str, global_vars={})
+    exec_res = exec_with_timeout(f, args=(python_str, {}), timeout=5)
+    if exec_res is None:
+        res.is_timeout = True
+        app.logger.debug('Timeout')
+        return res
     for (args, kwargs) in exec_res:
         res.data.append(randvar.output(*args, **kwargs, print_=False, blocks_width=100))
     res.resp_time = time.time() - s
     return res
+
+def f(python_str, global_vars):
+    return parse_and_exec.safe_exec(python_str, global_vars=global_vars)
+
+def exec_with_timeout(f, args, timeout):
+    pool = Pool(processes=1)
+    result = pool.apply_async(f, args)
+    try:
+        r = result.get(timeout=timeout)
+        pool.terminate()
+        return r
+    except TimeoutError:
+        pool.terminate()
+        return None

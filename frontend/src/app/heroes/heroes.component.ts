@@ -86,12 +86,18 @@ output (1d20 + 1d4 + 2) > 10
         let char = payload[0][0];
         let linepos = payload[0][2];
         let code_snippet = inp_code.split('\n')[linepos-1];
-        this.setResponse(`Error: Illegal Character found "${char}" in line number ${linepos}.\nCode snippet:\n${code_snippet}`);
+        this.setResponse(`Illegal Character found "${char}" in line number ${linepos}.\nCode snippet:\n${code_snippet}`);
       } else if (code === 'YACC') {
-        let char = payload[0][0];
-        let linepos = payload[0][2];
-        let code_snippet = inp_code.split('\n').slice(linepos-1, linepos+2).join('\n');
-        this.setResponse(`Error: Illegal Token found. The error started in "${char}" in line number ${linepos}.\nCode snippet:\n${code_snippet}`);
+        if (payload.length > 0) {
+          let char = payload[0][0];
+          let linepos = payload[0][2];
+          let code_snippet = inp_code.split('\n').slice(linepos-1, linepos+2).join('\n');
+          this.setResponse(`Illegal Token found. The error started in "${char}" in line number ${linepos}.\nCode snippet:\n${code_snippet}`);
+        } else {  // YACC EOF error
+          this.setResponse('Unexpected EOF while parsing.\nAre you missing a closing bracket? Or not finishing the last statement?');
+        }
+      } else if (code == 'TIMEOUT') {
+        this.setResponse('Timeout: Execution took too long.');
       } else {
         this.setResponse(`Unexpected Error: ${resp.error}`);
       }
