@@ -96,6 +96,8 @@ output (1d20 + 1d4 + 2) > 10
         } else {  // YACC EOF error
           this.setResponse('Unexpected EOF while parsing.\nAre you missing a closing bracket? Or not finishing the last statement?');
         }
+      } else if (code == 'RESOLVER') {
+        this.setResponse(payload.message + '\nError in Resolver');
       } else if (code == 'TIMEOUT') {
         this.setResponse('Timeout: Execution took too long.');
       } else {

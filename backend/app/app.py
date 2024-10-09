@@ -53,6 +53,8 @@ def ParseExecController():
         raise InvalidAPIUsage("LEX", status_code=400, payload=model.error_payload)
     if model.is_yacc_illegal:
         raise InvalidAPIUsage("YACC", status_code=400, payload=model.error_payload)
+    if model.is_resolver_illegal:
+        raise InvalidAPIUsage("RESOLVER", status_code=400, payload=model.error_payload)
     if model.is_timeout:
         raise InvalidAPIUsage("TIMEOUT", status_code=400)
     return {
@@ -82,7 +84,13 @@ def ParseExecService(to_parse):
         res.error_payload = lexer.YACC_ILLEGALs
         app.logger.debug('Yacc Illegal tokens found: ' + str(lexer.YACC_ILLEGALs))
         return res
-    python_str = parse_and_exec.do_resolve(yacc_ret)
+    try:
+        python_str = parse_and_exec.do_resolve(yacc_ret)
+    except Exception as e:
+        res.is_resolver_illegal = True
+        res.error_payload = {'message': str(e)}
+        app.logger.debug('Resolver error: ' + str(e))
+        return res
     res.parsed_python = python_str
     exec_res = exec_with_timeout(f, args=(python_str, {}), timeout=5)
     if exec_res is None:

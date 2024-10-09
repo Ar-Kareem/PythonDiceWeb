@@ -20,6 +20,7 @@ class ParseExecModel:
         self.is_empty = False
         self.is_lex_illegal = False
         self.is_yacc_illegal = False
+        self.is_resolver_illegal = False
         self.is_timeout = False
         self.error_payload: dict|None = None
         
