@@ -12,7 +12,9 @@
 
   <div [ngClass]="{'main-content': true}">
 
-    <p-button (onClick)="toggleSidebar()" icon="pi pi-arrow-right"  label="" [ngClass]="{'margin-right-bttn': true, 'hidden': sidebarVisible}"></p-button>
+    <div [ngClass]="{'margin-right-bttn': true, 'hidden-bttn': sidebarVisible}">
+      <p-button (onClick)="toggleSidebar()" icon="pi pi-arrow-right"  label=""></p-button>
+    </div>
 
     <div [ngClass]="{'shifted': sidebarVisible}"></div>
 
@@ -20,26 +22,29 @@
       <div class="code-input">
           <textarea 
               rows="20"
-              style="width: 100%; max-width: 100%; font-family: 'Courier New', Courier, monospace; font-size: 16px;"
               pInputTextarea 
               [(ngModel)]="value"
               (input)="saveInputLocalStorage()"
               ></textarea>
       </div>
-      <div>
-          <p-button 
-          pButton 
-          pRipple 
-          label="Calculate" 
-          class="p-button-success"
-          (click)="onButtonClick()"></p-button>
+
+      <div class="bttn-padding">
+        <div class="calculate-bttn">
+            <p-button 
+            pButton 
+            pRipple 
+            label="Calculate"
+            [ngClass]="{'calculate-bttn': true}"
+            (click)="onButtonClick()"></p-button>
+        </div>
       </div>
+
       <div class="code-output">
           <textarea 
               #autoResizeTextarea
-              class="code-output"
-              style="width: 100%; max-width: 100%; font-family: 'Courier New', Courier, monospace; font-size: 16px;"
+              pInputTextarea
               [readOnly]="true"
+              [autoResize]="true"
               [ngModel]="response"></textarea>
       </div>
 

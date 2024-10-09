@@ -36,8 +36,8 @@ output (1d20 + 1d4 + 2) > 10
   ngAfterViewInit() {
     this.autoOutputHeight();
     
-    // Load input from localStorage
-    if (localStorage.getItem('input')) {
+    // to fix 'localStorage is not defined' error: 
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('input')) {
       this.value = localStorage.getItem('input');
       this.cd.detectChanges();
     }
@@ -45,7 +45,7 @@ output (1d20 + 1d4 + 2) > 10
 
   lastSave;
   saveInputLocalStorage() {
-    if (this.lastSave && Date.now() - this.lastSave < 3000) {
+    if (localStorage && this.lastSave && Date.now() - this.lastSave < 3000) {
       return;
     }
     console.log('saveInputLocalStorage');
@@ -57,7 +57,7 @@ output (1d20 + 1d4 + 2) > 10
     console.log('autoOutputHeight');
     const textarea = this.textarea.nativeElement;
     textarea.style.height = 'auto'; // Reset height to auto to shrink if needed
-    textarea.style.height = `${textarea.scrollHeight}px`; // Set height based on scrollHeight
+    textarea.style.height = `${textarea.scrollHeight + 4}px`; // Set height based on scrollHeight
     this.cd.detectChanges();
   }
 
@@ -65,16 +65,37 @@ output (1d20 + 1d4 + 2) > 10
     this.sidebarVisible = !this.sidebarVisible
   }
 
+  setResponse(response: string) {
+    this.response = response;
+    this.autoOutputHeight();
+  }
+
   onButtonClick() {
-    const body = {
-      code: this.value
-    }
-    this.response = 'Loading...';
-    this.http.post<any>('/api/parse_and_exec', body).subscribe(data => {
-      this.response = data.result;
-      setTimeout(() => {
-        this.autoOutputHeight();
-      }, 1);
+    this.setResponse('Loading...');
+    let inp_code = this.value;
+    this.http.post<any>('/api/ParseExec', {code: inp_code}).subscribe(data => {
+      this.setResponse(data.result);
+      console.log('Python code:\n', data.parsed);
+      console.log('Python time:\n', data.time.toFixed(2));
+    }, resp => {
+      let code = resp.error.message;
+      let payload = resp.error.payload;
+      if (code === 'EMPTY') {
+        this.setResponse('');
+      } else if (code === 'LEX') {
+        let char = payload[0][0];
+        let linepos = payload[0][2];
+        let code_snippet = inp_code.split('\n')[linepos-1];
+        this.setResponse(`Error: Illegal Character found "${char}" in line number ${linepos}.\nCode snippet:\n${code_snippet}`);
+      } else if (code === 'YACC') {
+        let char = payload[0][0];
+        let linepos = payload[0][2];
+        let code_snippet = inp_code.split('\n').slice(linepos-1, linepos+2).join('\n');
+        this.setResponse(`Error: Illegal Token found. The error started in "${char}" in line number ${linepos}.\nCode snippet:\n${code_snippet}`);
+      } else {
+        this.setResponse(`Unexpected Error: ${resp.error}`);
+      }
+      console.log('Error:', resp);
     })
   }
 

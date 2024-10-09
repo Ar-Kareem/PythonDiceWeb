@@ -6,19 +6,25 @@
     // margin-left: 0px; /* Offset the content to the right of the left panel */
     // padding: 20px;
     width: 100vw;
-    background-color: red;
+    // slightly different background color
+    background-color: #b3c9ff;
     display: flex;
     flex-direction: row;
 }
 
+.left-panel {
+  background-color: #333;
+}
+
 .shifted {
-  margin-left: 265px; /* Margin when sidebar is open */
+  margin-left: 320px; /* Margin when sidebar is open */
 }
 
 .margin-right-bttn {
-  margin-right: 8px;
-  margin-left: 8px;
-  .hidden {
+  padding-top: 8px;
+  padding-right: 8px;
+  padding-left: 8px;
+  &.hidden-bttn {
     display: none;
   }
 }
@@ -28,11 +34,6 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  textarea {
-    width: 100%;
-    padding: 10px;
-    background-color: #f1f1f1;
-  }
 }
 
 
@@ -40,16 +41,37 @@
   width: 100%;
   padding: 10px;
   background-color: #f1f1f1;
+  textarea {
+    width: 100%;
+    padding: 10px;
+    background-color: #f1f1f1;
+    max-width: 100%;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
+  }
 }
+
+.bttn-padding {
+  padding: 6px;
+  .calculate-bttn {
+    padding: 0px;
+  }
+}
+
 
 .code-output {
   user-select: none; /* Prevent text selection */
   overflow: hidden; /* Prevent scrollbars */
   resize: none; /* Disable manual resizing */
   width: 100%;
+  padding: 10px;
+  background-color: #f1f1f1;
   textarea {
     width: 100%;
     padding: 10px;
     background-color: #f1f1f1;
+    max-width: 100%;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
   }
 }
