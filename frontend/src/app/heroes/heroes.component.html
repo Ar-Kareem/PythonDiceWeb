@@ -1,10 +1,10 @@
 <div class="wrapper">
 
-  <div [ngClass]="{'margin-right-bttn': true, 'hidden-bttn': sidebarVisible}">
-    <p-button (onClick)="toggleSidebar()" rounded="true" icon="pi pi-bars"  label=""></p-button>
+  <div [ngClass]="{'margin-right-bttn': true, 'hidden-bttn': (sidebarVisible$ | async)}">
+    <p-button (onClick)="toggleSidebar()" rounded="true" icon="pi pi-bars" styleclass="w-2rem h-2rem p-0" label=""></p-button>
   </div>
 
-  <p-sidebar [visible]="sidebarVisible" [modal]="false" class="left-panel" [showCloseIcon]="true"
+  <p-sidebar [visible]="(sidebarVisible$ | async)!" [modal]="false" class="left-panel" [showCloseIcon]="true"
     (onHide)="toggleSidebar()"
   >
     <ng-template pTemplate="closeicon">
@@ -18,7 +18,7 @@
 
   <div class="main-content">
 
-    <div [ngClass]="{'shifted': sidebarVisible}"></div>
+    <div [ngClass]="{'shifted': (sidebarVisible$ | async)}"></div>
 
     <div class="inpout-content">
 
