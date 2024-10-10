@@ -2,8 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { provideAnimations } from '@angular/platform-browser/animations';
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ButtonModule } from 'primeng/button';
@@ -25,6 +24,7 @@ import { HeroesComponent } from './heroes/heroes.component';
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
+    BrowserAnimationsModule,
 
     InputTextareaModule,
     ButtonModule,
@@ -33,7 +33,6 @@ import { HeroesComponent } from './heroes/heroes.component';
   ],
   providers: [
     provideClientHydration(),
-    provideAnimations(),
   ],
   bootstrap: [AppComponent]
 })
