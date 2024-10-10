@@ -31,6 +31,7 @@
 // <div [ngStyle]="{'background-color': 'var(--highlight-bg)'}" style="height: 50px;">highlight-bg</div>
 // <div [ngStyle]="{'background-color': 'var(--highlight-text-color)'}" style="height: 50px;">highlight-text-color</div>
 
+@import "primeflex/primeflex.css";
 
 body {
     margin: 0;
