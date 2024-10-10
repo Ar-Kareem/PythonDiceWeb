@@ -63,6 +63,18 @@ output (1d20 + 1d4 + 2) > 10
         this.setResponse(payload.message + '\nError in Resolver');
       } else if (code == 'TIMEOUT') {
         this.setResponse('Timeout: Execution took too long.');
+      } else if (code == 'PYTHONERROR') {
+        if (payload.message == "name '_print_' is not defined") {
+          this.setResponse('Error: You cannot use print function in Python code. Use output(...) instead.');
+        } else if (payload.message == "__import__ not found") {
+          this.setResponse('Error: Importing is not allowed. Useful modules such as math/functools/itertools/random are already provided and can be used directly.');
+        } else if (payload.message.includes('is an invalid variable name because it starts with "_"')) {
+          let lineno: string = payload.message;
+          lineno = lineno.split(':')[0].substring(2);
+          this.setResponse(`Error: Illegal variable name in ${lineno}, variables cannot start with an "_".`);
+        } else {
+          this.setResponse('Error in Python:\n' + payload.message);
+        }
       } else {
         this.setResponse(`Unexpected Error: ${response.error}`);
       }
@@ -119,6 +131,7 @@ output (1d20 + 1d4 + 2) > 10
   onButtonClick() {
     this.setResponse('Loading...');
     this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: this.value }));
+    // this.store.dispatch(CodeApiActions.execPythonCodeRequest({ code: this.value }));
   }
 
 }

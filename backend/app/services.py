@@ -59,7 +59,7 @@ def ExecPythonService(python_str):
         return res
     try:
         exec_res = exec_with_timeout(f, args=(python_str, {}), timeout=5)
-    except (SyntaxError, NameError, ValueError) as e:
+    except (SyntaxError, NameError, ValueError, ImportError) as e:
         res.is_error = True
         res.error_payload = {'message': str(e)}
         logger.debug('Exec error: ' + str(e))

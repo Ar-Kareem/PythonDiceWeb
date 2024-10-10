@@ -18,6 +18,9 @@ export const CodeApiActions = createActionGroup({
     'Exec dice code Request': props<{ code: string }>(),
     'Exec dice code Success': props<{ response: any }>(),
     'Exec dice code Failure': props<{ error: any }>(),
+    'Exec python code Request': props<{ code: string }>(),
+    'Exec python code Success': props<{ response: any }>(),
+    'Exec python code Failure': props<{ error: any }>(),
   },
 });
 
@@ -43,10 +46,10 @@ export const herosFeature = createFeature({
     on(SidebarActions.setSidebar, (state, { newState }) => {
       return { ...state, sidebarVisible: newState };
     }),
-    on(CodeApiActions.execDiceCodeSuccess, (state, { response }) => {
+    on(CodeApiActions.execDiceCodeSuccess, CodeApiActions.execPythonCodeSuccess, (state, { response }) => {
       return { ...state, diceExecResult: response, diceExecFailure: null };
     }),
-    on(CodeApiActions.execDiceCodeFailure, (state, { error }) => {
+    on(CodeApiActions.execDiceCodeFailure, CodeApiActions.execPythonCodeFailure, (state, { error }) => {
       return { ...state, diceExecFailure: error, diceExecResult: null };
     }),
   ),

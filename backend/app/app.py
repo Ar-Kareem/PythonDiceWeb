@@ -78,7 +78,7 @@ def ExecPythonController():
     if model.is_timeout:
         raise InvalidAPIUsage("TIMEOUT", status_code=400)
     if model.is_error:
-        raise InvalidAPIUsage("ERROR", status_code=400, payload=model.error_payload)
+        raise InvalidAPIUsage("PYTHONERROR", status_code=400, payload=model.error_payload)
     return {
         'result': '\n'.join(model.data),
         'time': model.resp_time,

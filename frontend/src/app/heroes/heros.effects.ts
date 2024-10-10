@@ -24,6 +24,16 @@ export class HerosEffects {
     )
   );
 
+  execPythonCode$ = createEffect(() => 
+    this.actions$.pipe(
+    ofType(CodeApiActions.execPythonCodeRequest),
+    switchMap(action => this.herosService.postPythonCode(action.code)
+      .pipe(
+        map(response => CodeApiActions.execPythonCodeSuccess({ response })),
+        catchError((response) => of(CodeApiActions.execPythonCodeFailure({ error: {response: response, inp_code: action.code} })))
+      ))
+    )
+  );
   constructor(
     private actions$: Actions,
     private herosService: HerosService,
@@ -43,4 +53,9 @@ export class HerosService {
     );
   }
 
+  postPythonCode(code: string): Observable<any> {
+    return this.http.post('/api/ExecPython', { code }).pipe(
+      map((response: any) => response),
+    );
+  }
 }
