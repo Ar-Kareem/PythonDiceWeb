@@ -1,7 +1,6 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, ChangeDetectorRef  } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Store } from '@ngrx/store';
-import { filter, Observable } from 'rxjs';
+import { filter, Observable, Subject, throttleTime } from 'rxjs';
 
 import { CodeApiActions, herosSelectors, SidebarActions } from './heros.reducer';
 
@@ -15,19 +14,13 @@ export class HeroesComponent implements AfterViewInit {
 
   @ViewChild('autoResizeTextarea') textarea: ElementRef<HTMLTextAreaElement> | undefined;
 
-  // value is stored in primeng textarea 
-  value: string = `
-output 5d2
-output 1d20 + 1d4 + 2
-output (1d20 + 1d4 + 2) > 10
-`;
-  // response is stored in primeng 
-  response: string = '';
+  // textarea 
+  ngValue: string = `\noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`;
+  private inputSubject = new Subject<string>();
+  ngResponse: string = '';
 
-
-  sidebarVisible$: Observable<boolean>
-  constructor(private http: HttpClient, private cd: ChangeDetectorRef, private store: Store) {
-    this.sidebarVisible$ = this.store.select(herosSelectors.selectSidebarVisible);
+  sidebarVisible$: Observable<boolean> = this.store.select(herosSelectors.selectSidebarVisible);
+  constructor(private cd: ChangeDetectorRef, private store: Store) {
     this.sidebarVisible$.subscribe(() => {this.autoOutputHeight()});  // sidebar change causes output height to change
     
     this.store.select(herosSelectors.selectDiceExecResult).pipe(
@@ -82,6 +75,9 @@ output (1d20 + 1d4 + 2) > 10
       console.log('Input code:', inp_code);
     });
 
+    this.inputSubject.pipe(
+      throttleTime(3000) // Save to localstorage once every 3 seconds
+    ).subscribe((value: string) => {console.log('Saving to localstorage', value.length);localStorage.setItem('input', value)});
   }
 
 
@@ -93,19 +89,13 @@ output (1d20 + 1d4 + 2) > 10
     this.autoOutputHeight();
     
     if (typeof localStorage !== 'undefined' && localStorage.getItem('input')) {
-      this.value = localStorage.getItem('input') || '';
+      this.ngValue = localStorage.getItem('input') || '';
       this.cd.detectChanges();
     }
   }
 
-  lastSave: number = 0;
-  saveInputLocalStorage() {
-    if (localStorage && this.lastSave && Date.now() - this.lastSave < 3000) {
-      return;
-    }
-    console.log('saveInputLocalStorage');
-    this.lastSave = Date.now();
-    localStorage.setItem('input', this.value);
+  saveInputLocalStorage(event: Event) {
+    this.inputSubject.next((event.target as HTMLTextAreaElement).value); 
   }
 
   autoOutputHeight() {
@@ -124,14 +114,14 @@ output (1d20 + 1d4 + 2) > 10
   }
 
   setResponse(response: string) {
-    this.response = response;
+    this.ngResponse = response;
     this.autoOutputHeight();
   }
 
   onButtonClick() {
     this.setResponse('Loading...');
-    this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: this.value }));
-    // this.store.dispatch(CodeApiActions.execPythonCodeRequest({ code: this.value }));
+    this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: this.ngValue }));
+    // this.store.dispatch(CodeApiActions.execPythonCodeRequest({ code: this.ngValue }));
   }
 
 }

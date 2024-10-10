@@ -26,8 +26,8 @@
           <textarea 
               rows="20"
               pInputTextarea 
-              [(ngModel)]="value"
-              (input)="saveInputLocalStorage()"
+              [(ngModel)]="ngValue"
+              (input)="saveInputLocalStorage($event)"
               ></textarea>
       </div>
 
@@ -48,7 +48,7 @@
               pInputTextarea
               [readOnly]="true"
               [autoResize]="true"
-              [ngModel]="response"></textarea>
+              [ngModel]="ngResponse"></textarea>
       </div>
 
 
