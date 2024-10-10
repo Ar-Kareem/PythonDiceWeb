@@ -63,6 +63,9 @@ output (1d20 + 1d4 + 2) > 10
 
   toggleSidebar() {
     this.sidebarVisible = !this.sidebarVisible
+    setTimeout(() => {
+      this.autoOutputHeight();  // sidebar change causes output height to change
+    }, 5);
   }
 
   setResponse(response: string) {

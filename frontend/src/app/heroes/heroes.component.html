@@ -1,10 +1,12 @@
 <div class="wrapper">
 
   <div [ngClass]="{'margin-right-bttn': true, 'hidden-bttn': sidebarVisible}">
-    <p-button (onClick)="toggleSidebar()" icon="pi pi-bars"  label=""></p-button>
+    <p-button (onClick)="toggleSidebar()" rounded="true" icon="pi pi-bars"  label=""></p-button>
   </div>
 
-  <p-sidebar [(visible)]="sidebarVisible" [modal]="false" class="left-panel" [showCloseIcon]="true">
+  <p-sidebar [visible]="sidebarVisible" [modal]="false" class="left-panel" [showCloseIcon]="true"
+    (onHide)="toggleSidebar()"
+  >
     <ng-template pTemplate="closeicon">
       <i class="pi pi-arrow-left"></i> 
     </ng-template>
@@ -14,11 +16,12 @@
     </p>
   </p-sidebar>
 
-  <div [ngClass]="{'main-content': true}">
+  <div class="main-content">
 
     <div [ngClass]="{'shifted': sidebarVisible}"></div>
 
     <div class="inpout-content">
+
       <div class="code-input">
           <textarea 
               rows="20"
@@ -47,6 +50,9 @@
               [autoResize]="true"
               [ngModel]="response"></textarea>
       </div>
+
+
+
 
     </div>
 

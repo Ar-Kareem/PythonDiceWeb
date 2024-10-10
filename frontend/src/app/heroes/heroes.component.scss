@@ -1,14 +1,10 @@
 .wrapper {  // contains sidebar and main-content
-  height: 100vh;
-  background-color: #093145;
+  min-height: 100vh;
+  background-color: var(--surface-ground);
 }
 
 .main-content {  // contains button, shifted-div, and inpout-content
-    // margin-left: 0px; /* Offset the content to the right of the left panel */
-    // padding: 20px;
     width: 100vw;
-    // slightly different background color
-    background-color: #093145;
     display: flex;
     flex-direction: row;
 }
@@ -17,7 +13,7 @@ p-sidebar {  // sidebar
   &.left-panel {
     ::ng-deep * {
       color: #ffffff;
-      background-color: #0b3e57;
+      background-color: var(--indigo-900);
     }
   }
 }
@@ -46,11 +42,11 @@ p-sidebar {  // sidebar
   width: 100%;
   padding-left: 10px;
   padding-top: 10px;
-  background-color: #093145;
+  // background-color: var(--surface-ground);
   textarea {
     width: 100%;
     padding: 10px;
-    background-color: inherit;
+    // background-color: inherit;
     color: #ffffff;  // text color
     max-width: 100%;
     font-family: 'Courier New', Courier, monospace;
@@ -74,12 +70,11 @@ p-sidebar {  // sidebar
   resize: none; /* Disable manual resizing */
   width: 100%;
   padding: 10px;
-  background-color: #f1f1f1;
+  // background-color: var(--surface-ground);
   textarea {
     width: 100%;
     padding: 10px;
-    background-color: #f1f1f1;
-    color: #000000;  // text color
+    // background-color: var(--surface-ground);
     max-width: 100%;
     font-family: 'Courier New', Courier, monospace;
     font-size: 16px;
