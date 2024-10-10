@@ -1,10 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { EMPTY, of } from 'rxjs';
-import { map, exhaustMap, catchError, switchMap } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { map, catchError, switchMap } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
-import { HerosService } from './heros.services';
 import { CodeApiActions } from './heros.reducer';
+
+
+// EFFECTS
 
 @Injectable()
 export class HerosEffects {
@@ -24,4 +28,19 @@ export class HerosEffects {
     private actions$: Actions,
     private herosService: HerosService,
   ) {}
+}
+
+
+// SERVICE
+
+@Injectable({ providedIn: 'root' })
+export class HerosService {
+  constructor(private http: HttpClient) {}
+
+  postCode(code: string): Observable<any> {
+    return this.http.post('/api/ParseExec', { code }).pipe(
+      map((response: any) => response),
+    );
+  }
+
 }
