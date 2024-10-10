@@ -49,6 +49,30 @@ def ParseExecService(to_parse):
     res.resp_time = time.time() - s
     return res
 
+
+def ExecPythonService(python_str):
+    s = time.time()
+    res = models.ExecPythonModel()
+    if python_str is None or python_str.strip() == '':
+        res.is_empty = True
+        logger.debug('Empty string')
+        return res
+    try:
+        exec_res = exec_with_timeout(f, args=(python_str, {}), timeout=5)
+    except (SyntaxError, NameError, ValueError) as e:
+        res.is_error = True
+        res.error_payload = {'message': str(e)}
+        logger.debug('Exec error: ' + str(e))
+        return res
+    if exec_res is None:
+        res.is_timeout = True
+        logger.debug('Timeout')
+        return res
+    for (args, kwargs) in exec_res:
+        res.data.append(randvar.output(*args, **kwargs, print_=False, blocks_width=100))
+    res.resp_time = time.time() - s
+    return res
+
 def f(python_str, global_vars):
     return parse_and_exec.safe_exec(python_str, global_vars=global_vars)
 

@@ -6,7 +6,7 @@ from werkzeug.exceptions import HTTPException
 
 import models
 from models import InvalidAPIUsage
-from services import ParseExecService
+import services
 
 
 def setup_logging():
@@ -50,7 +50,7 @@ def hello_world():
 def ParseExecController():
     data = request.get_json()
     code = data['code']
-    model = ParseExecService(code)
+    model = services.ParseExecService(code)
     if model.is_empty:
         raise InvalidAPIUsage("EMPTY", status_code=400)
     if model.is_lex_illegal:
@@ -64,6 +64,23 @@ def ParseExecController():
     return {
         'result': '\n'.join(model.data),
         'parsed': model.parsed_python,
+        'time': model.resp_time,
+    }
+
+
+@app.route('/ExecPython', methods=['POST'])
+def ExecPythonController():
+    data = request.get_json()
+    code = data['code']
+    model = services.ExecPythonService(code)
+    if model.is_empty:
+        raise InvalidAPIUsage("EMPTY", status_code=400)
+    if model.is_timeout:
+        raise InvalidAPIUsage("TIMEOUT", status_code=400)
+    if model.is_error:
+        raise InvalidAPIUsage("ERROR", status_code=400, payload=model.error_payload)
+    return {
+        'result': '\n'.join(model.data),
         'time': model.resp_time,
     }
 

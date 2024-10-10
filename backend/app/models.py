@@ -27,3 +27,13 @@ class ParseExecModel:
         self.parsed_python: str|None = None
         self.data = []
         self.resp_time: float|None = None
+
+class ExecPythonModel:
+    def __init__(self):
+        self.is_empty = False
+        self.is_timeout = False
+        self.is_error = False
+        self.error_payload: dict|None = None
+        
+        self.data = []
+        self.resp_time: float|None = None
