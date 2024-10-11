@@ -25,6 +25,7 @@ import { herosFeatureKey, herosReducer } from './heroes/heros.reducer';
 import { toastFeatureKey, toastReducer } from './toast/toast.reducer';
 import { HerosEffects } from './heroes/heros.effects';
 import { TabviewComponent } from './tabview/tabview.component';
+import { tabviewFeatureKey, tabviewReducer } from './tabview/tabview.reducer';
 
 @NgModule({
   declarations: [
@@ -54,6 +55,7 @@ import { TabviewComponent } from './tabview/tabview.component';
     StoreModule.forRoot({ 
       [herosFeatureKey]: herosReducer,
       [toastFeatureKey]: toastReducer,
+      [tabviewFeatureKey]: tabviewReducer,
     }),
   ],
   providers: [

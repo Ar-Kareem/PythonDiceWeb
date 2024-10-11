@@ -1,21 +1,32 @@
 <div class="main-div">
-  <p-tabView [(activeIndex)]="activeIndex" class="tabview-custom" (onClose)="requestTabClose($event.index)" [controlClose]="true" (activeIndexChange)="activeIndexChange($event)">
-    <p-tabPanel *ngFor="let tab of scrollableTabs; index as i" [header]="tab.title" [closable]="i > 0" />
-  
-    <!-- plus button -->
-    <p-tabPanel headerStyleClass="tab-panel-plus-bttn" [closable]="false">
-      <ng-template pTemplate="header">
-        <p-button #plusBtn icon="pi pi-plus" (click)="requestNewTab()" styleClass="plus-bttn" />
-      </ng-template>
-    </p-tabPanel>
-  </p-tabView>
-  
-  <p-dropdown #dd
-    class="hidden-dropdown"
-    styleClass="ddcustom"
-    [autoOptionFocus]="false"
-    [options]="test" 
-    [(ngModel)]="selectedDropdown"
-    (onChange)="onDropdownChange($event)"
-  />
+<p-tabView 
+  [(activeIndex)]="ngActiveIndex" 
+  class="tabview-custom" 
+  (onClose)="requestTabClose($event.index)" 
+  [controlClose]="true" 
+  (activeIndexChange)="activeIndexChange($event)"
+  >
+  <p-tabPanel 
+    *ngFor="let tab of ngTabPanels; index as i" 
+    [header]="tab.title" 
+    [closable]="i > 0" 
+    >
+  </p-tabPanel>
+
+  <!-- plus button -->
+  <p-tabPanel headerStyleClass="tab-panel-plus-bttn" [closable]="false">
+    <ng-template pTemplate="header">
+      <p-button #plusBtn icon="pi pi-plus" (click)="requestNewTab()" styleClass="plus-bttn" />
+    </ng-template>
+  </p-tabPanel>
+</p-tabView>
+
+<p-dropdown #dd
+  class="hidden-dropdown"
+  styleClass="ddcustom"
+  [autoOptionFocus]="false"
+  [options]="ngDropdownNamed" 
+  [(ngModel)]="ngDropdownModel"
+  (onChange)="onDropdownChange($event)"
+/>
 </div>

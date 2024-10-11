@@ -1,8 +1,9 @@
-import { ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Dropdown, DropdownChangeEvent } from 'primeng/dropdown';
 
 import { ToastActions } from '../toast/toast.reducer';
+import { ITab, tabviewActions, tabviewSelectors } from './tabview.reducer';
 
 
 @Component({
@@ -10,20 +11,48 @@ import { ToastActions } from '../toast/toast.reducer';
   templateUrl: './tabview.component.html',
   styleUrl: './tabview.component.scss'
 })
-export class TabviewComponent {
+export class TabviewComponent implements AfterViewInit {
 
   @ViewChild('dd') dropdown: Dropdown | undefined;
   @ViewChild('dd', {read: ElementRef, static:false}) dropdownElement: ElementRef | undefined;
   @ViewChild('plusBtn', {read: ElementRef, static:false}) plusBtn: ElementRef | undefined;
 
-  activeIndex: number = 1;
-  prevActiveIndex: number = this.activeIndex;
-  scrollableTabs = [{title: 'test1'}, {title: 'test2'}, {title: 'test3'}];
+  ngDropdownNamed: string[] = ['test1' , 'test2', 'test3'];
+  ngTabPanels: ITab[] = [{title: 'test1'}];
+  ngDropdownModel: string|undefined;
+  ngActiveIndex: number = 0;
 
-  selectedDropdown: string|undefined;
-  test = ['test1' , 'test2', 'test3'];
+  preActiveIndex: number = 0;  // only used to deny tab change
 
   constructor(private cd: ChangeDetectorRef, private store: Store) { }
+
+  ngAfterViewInit() {
+    (window as any).tabview = this;
+    (window as any).tabviewActions = tabviewActions;
+
+    this.store.dispatch(tabviewActions.changeOpenTabs({openTabs: [{title: 'test1'}, {title: 'test2'}, {title: 'test3'}]}));
+    this.store.dispatch(tabviewActions.changeActiveIndex({newIndex: 0}));
+    this.store.dispatch(tabviewActions.changeAllowedNewTabs({allowedNewTabs: ['test4', 'test5', 'test6']}));
+
+    this.store.select(tabviewSelectors.selectAllowedNewTabs).subscribe((allowedNewTabs) => {
+      this.ngDropdownNamed = allowedNewTabs;
+      this.cd.detectChanges();
+    });
+
+    this.store.select(tabviewSelectors.selectOpenTabs).subscribe((tabs) => {
+      console.log('openTabs is set', tabs);
+      this.ngTabPanels = tabs;
+      this.cd.detectChanges();
+    });
+
+    this.store.select(tabviewSelectors.selectActiveIndex).subscribe((index) => {
+      console.log('activeIndex is set', index);
+      this.ngActiveIndex = index;
+      this.preActiveIndex = index;
+      this.cd.detectChanges();
+    });
+
+  }
 
   requestNewTab() {
     let br = this.plusBtn?.nativeElement.getBoundingClientRect();
@@ -34,26 +63,26 @@ export class TabviewComponent {
   }
 
   activeIndexChange(newIndex: number) {
-    let preventTabChange = newIndex >= this.scrollableTabs.length;  // clicked on the plus button
+    let preventTabChange = newIndex >= this.ngTabPanels.length;  // clicked on the plus button
     if (preventTabChange) {
-      setTimeout(() => {
-        this.activeIndex = this.prevActiveIndex;
-      }, 0);
+        setTimeout(() => {
+          this.ngActiveIndex = this.preActiveIndex;
+        }, 0);
     } else {
-      this.prevActiveIndex = this.activeIndex;
+      console.log('dispatched?', newIndex);
+      this.store.dispatch(tabviewActions.changeActiveIndex({newIndex: newIndex}));
     }
   }
 
   onDropdownChange(event: DropdownChangeEvent) {
-    console.log('onDropdownChange', event);
     this.cd.detectChanges();
-    this.selectedDropdown = undefined;
+    this.ngDropdownModel = undefined;
   }
 
   closeTab(index: number) {
-    this.scrollableTabs.splice(index, 1);
-    if (index >= this.activeIndex) {
-      this.activeIndex = this.activeIndex - 1;
+    this.store.dispatch(tabviewActions.changeOpenTabs({openTabs: this.ngTabPanels.filter((_, i) => i !== index)}));
+    if (index >= this.ngActiveIndex) {
+      this.store.dispatch(tabviewActions.changeActiveIndex({newIndex: this.ngActiveIndex - 1}));
     }
   }
 
