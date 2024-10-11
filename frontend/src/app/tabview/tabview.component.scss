@@ -1,0 +1,50 @@
+.main-div {
+  width: fit-content;
+  height: fit-content;
+  padding-left: 18px;
+}
+
+.tabview-custom {
+  // width: fit-content;
+  // padding: 10px;
+  // padding-bottom: 0px;
+  
+  ::ng-deep .p-tabview-nav-link {
+    padding: 10px;
+  }
+  ::ng-deep .p-tabview-panels {
+    display: none;
+  }
+  ::ng-deep .tab-panel-plus-bttn {  // tab-panel for the plus button
+    a {
+      padding: 0px;
+      padding-bottom: 0px;
+      border-bottom: 0px;
+      margin-bottom: 0px;
+    }
+    ::ng-deep .plus-bttn {
+      padding: 0px;
+      width: 38px;
+      height: 38px;
+    }
+  }
+}
+
+.hidden-dropdown {
+  // position: fixed;
+  position: absolute;
+  width: fit-content;
+  
+  // margin-bottom: -200px;
+  ::ng-deep div.ddcustom {  // a 1px border thats tiny and annoying
+    border: none;
+  }
+  ::ng-deep .p-dropdown-trigger {  // hide dropdown
+    display: none;
+    // background-color: red;
+  }
+  ::ng-deep .p-dropdown-label {  // hide dropdown
+    display: none;
+    // background-color: red;
+  }
+}

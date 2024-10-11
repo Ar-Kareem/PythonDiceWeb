@@ -22,9 +22,7 @@
 
     <div class="inpout-content">
 
-      <p-tabView [(activeIndex)]="activeIndex" class="tabview-custom" (onClose)="onTabClose($event)" [controlClose]="true">
-        <p-tabPanel *ngFor="let tab of scrollableTabs; index as i" [header]="tab.title" [closable]="i > 0" />
-      </p-tabView>
+      <app-tabview></app-tabview>
 
       <div class="code-input">
           <textarea 
@@ -54,9 +52,6 @@
               [autoResize]="true"
               [ngModel]="ngResponse"></textarea>
       </div>
-
-
-
 
     </div>
 

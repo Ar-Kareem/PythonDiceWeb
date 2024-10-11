@@ -9,29 +9,15 @@
     flex-direction: row;
 }
 
-p-sidebar {  // sidebar
-  &.left-panel {
-    ::ng-deep * {
-      color: #ffffff;
-      background-color: var(--indigo-900);
-    }
+p-sidebar.left-panel {
+  ::ng-deep * {
+    color: #ffffff;
+    background-color: var(--indigo-900);
   }
 }
 
 .shifted {  // hidden div to push content
   margin-left: 320px; /* Margin when sidebar is open */
-}
-
-.tabview-custom {
-  width: fit-content;
-  padding: 10px;
-  padding-bottom: 0px;
-  ::ng-deep .p-tabview-nav-link {
-    padding: 10px;
-  }
-  ::ng-deep .p-tabview-panels {
-    display: none;
-  }
 }
 
 .margin-right-bttn {
