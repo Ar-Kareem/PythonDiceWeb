@@ -5,7 +5,7 @@ import { createFeature } from '@ngrx/store';
 // STATE
 export interface ITab {
   title: string,
-  isPlusBtn?: boolean,
+  closable?: boolean,
 };
 
 interface State {

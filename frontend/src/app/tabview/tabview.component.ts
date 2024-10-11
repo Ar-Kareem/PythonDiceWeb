@@ -17,9 +17,9 @@ export class TabviewComponent implements AfterViewInit {
   @ViewChild('dd', {read: ElementRef, static:false}) dropdownElement: ElementRef | undefined;
   @ViewChild('plusBtn', {read: ElementRef, static:false}) plusBtn: ElementRef | undefined;
 
-  ngDropdownNamed: string[] = ['test1' , 'test2', 'test3'];
-  ngTabPanels: ITab[] = [{title: 'test1'}];
   ngDropdownModel: string|undefined;
+  ngDropdownNamed: string[] = [];
+  ngTabPanels: ITab[] = [{title: 'test1'}];
   ngActiveIndex: number = 0;
 
   preActiveIndex: number = 0;  // only used to deny tab change
@@ -36,20 +36,20 @@ export class TabviewComponent implements AfterViewInit {
 
     this.store.select(tabviewSelectors.selectAllowedNewTabs).subscribe((allowedNewTabs) => {
       this.ngDropdownNamed = allowedNewTabs;
-      this.cd.detectChanges();
+      // this.cd.detectChanges();
     });
 
     this.store.select(tabviewSelectors.selectOpenTabs).subscribe((tabs) => {
-      console.log('openTabs is set', tabs);
+      // console.log('openTabs is set', tabs);
       this.ngTabPanels = tabs;
-      this.cd.detectChanges();
+      // this.cd.detectChanges();
     });
 
     this.store.select(tabviewSelectors.selectActiveIndex).subscribe((index) => {
-      console.log('activeIndex is set', index);
+      // console.log('activeIndex is set', index);
       this.ngActiveIndex = index;
       this.preActiveIndex = index;
-      this.cd.detectChanges();
+      // this.cd.detectChanges();
     });
 
   }
@@ -75,15 +75,19 @@ export class TabviewComponent implements AfterViewInit {
   }
 
   onDropdownChange(event: DropdownChangeEvent) {
+    let selected = event.value;
+    if (selected) {
+      this.store.dispatch(tabviewActions.changeOpenTabs({openTabs: [...this.ngTabPanels, {title: selected}]}));
+    }
     this.cd.detectChanges();
-    this.ngDropdownModel = undefined;
+    this.ngDropdownModel = undefined;  // reset dropdown
   }
 
   closeTab(index: number) {
-    this.store.dispatch(tabviewActions.changeOpenTabs({openTabs: this.ngTabPanels.filter((_, i) => i !== index)}));
-    if (index >= this.ngActiveIndex) {
+    if (index >= this.ngActiveIndex && this.ngActiveIndex > 0) {
       this.store.dispatch(tabviewActions.changeActiveIndex({newIndex: this.ngActiveIndex - 1}));
     }
+    this.store.dispatch(tabviewActions.changeOpenTabs({openTabs: this.ngTabPanels.filter((_, i) => i !== index)}));
   }
 
   requestTabClose(index: number) {

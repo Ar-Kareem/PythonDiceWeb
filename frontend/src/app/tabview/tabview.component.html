@@ -1,17 +1,16 @@
 <div class="main-div">
 <p-tabView 
-  [(activeIndex)]="ngActiveIndex" 
-  class="tabview-custom" 
-  (onClose)="requestTabClose($event.index)" 
-  [controlClose]="true" 
+  [(activeIndex)]="ngActiveIndex"
+  class="tabview-custom"
+  (onClose)="requestTabClose($event.index)"
+  [controlClose]="true"
   (activeIndexChange)="activeIndexChange($event)"
   >
   <p-tabPanel 
     *ngFor="let tab of ngTabPanels; index as i" 
     [header]="tab.title" 
-    [closable]="i > 0" 
-    >
-  </p-tabPanel>
+    [closable]="!!tab.closable || tab.closable === undefined"
+  />
 
   <!-- plus button -->
   <p-tabPanel headerStyleClass="tab-panel-plus-bttn" [closable]="false">
