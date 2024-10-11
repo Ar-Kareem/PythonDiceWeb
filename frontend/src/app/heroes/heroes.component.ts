@@ -3,7 +3,7 @@ import { Store } from '@ngrx/store';
 import { filter, Observable, Subject, throttleTime } from 'rxjs';
 
 import { CodeApiActions, herosSelectors, SidebarActions } from './heros.reducer';
-import { ITab, tabviewSelectors } from '../tabview/tabview.reducer';
+import { ITab, tabviewActions, tabviewSelectors } from '../tabview/tabview.reducer';
 import { ToastActions } from '../toast/toast.reducer';
 
 
@@ -27,12 +27,21 @@ export class HeroesComponent implements AfterViewInit {
   constructor(private cd: ChangeDetectorRef, private store: Store) { }
 
   ngAfterViewInit() {
+    if (typeof window !== 'undefined') {(window as any).heros = this}
+
     this.ngContents.set('DiceCode', `\noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`);
+    this.initFromLocalStorage();
 
     this.sidebarVisible$.subscribe(() => {this.autoOutputHeight()});  // sidebar change causes output height to change
 
-    this.store.select(tabviewSelectors.selectOpenTabs).subscribe((tabs) => {this.allTabs = tabs});
-    this.store.select(tabviewSelectors.selectActiveIndex).subscribe((index) => {this.selectedTabIndex = index});
+    this.store.select(tabviewSelectors.selectOpenTabs).subscribe((tabs) => {
+      this.allTabs = tabs
+      this.cd.detectChanges();
+    });
+    this.store.select(tabviewSelectors.selectActiveIndex).subscribe((index) => {
+      this.selectedTabIndex = index
+      localStorage.setItem('selectedTabIndex', index.toString());
+    });
 
     this.store.select(herosSelectors.selectDiceExecResult).pipe(
       filter(data => !!data)  // filter out null values
@@ -93,14 +102,29 @@ export class HeroesComponent implements AfterViewInit {
       localStorage.setItem('input.' + title, content)
     });
 
-
-    if (typeof window !== 'undefined') {(window as any).heros = this}
-
     this.autoOutputHeight();
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('input.DiceCode')) {
-      this.ngContents.set('DiceCode', localStorage.getItem('input.DiceCode') || '');
-      this.cd.detectChanges();
+  }
+
+  initFromLocalStorage() {
+    let loaded: string[] = [];
+    ['DiceCode', 'Python'].forEach((title) => {
+      let content = localStorage.getItem('input.' + title);
+      if (content) {
+        this.ngContents.set(title, content);
+        loaded.push(title);
+      }
+    });
+    if (loaded.length > 0) {
+      let selectedTabIndex = parseInt(localStorage.getItem('selectedTabIndex') || '0');
+      selectedTabIndex = Math.min(selectedTabIndex, loaded.length - 1);
+      this.store.dispatch(tabviewActions.changeOpenTabs({
+        openTabs: [...loaded.map(title => ({title}))],
+        newIndex: selectedTabIndex,
+      }));
+    } else {
+      this.store.dispatch(tabviewActions.changeActiveIndex({newIndex: 0}));  // initial tab
     }
+    this.cd.detectChanges();
   }
 
   saveInputLocalStorage(event: string, tabTitle: string) {

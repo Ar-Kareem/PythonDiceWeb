@@ -13,9 +13,6 @@ export class AppComponent implements AfterViewInit{
   constructor(private store: Store) {}
 
   ngAfterViewInit(): void {
-    this.store.dispatch(tabviewActions.changeOpenTabs({openTabs: [{title: 'DiceCode', closable: false}]}));  // initial tab
-    this.store.dispatch(tabviewActions.changeActiveIndex({newIndex: 0}));  // initial tab
-
   }
 
 }
