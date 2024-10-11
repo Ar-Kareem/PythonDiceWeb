@@ -10,18 +10,25 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ButtonModule } from 'primeng/button';
 import { PanelModule } from 'primeng/panel';
 import { SidebarModule } from 'primeng/sidebar';
+import { TabViewModule } from 'primeng/tabview';
+import { MessagesModule } from 'primeng/messages';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HeroesComponent } from './heroes/heroes.component';
+import { ToastComponent } from './toast/toast.component';
 
 import { herosFeatureKey, herosReducer } from './heroes/heros.reducer';
+import { toastFeatureKey, toastReducer } from './toast/toast.reducer';
 import { HerosEffects } from './heroes/heros.effects';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HeroesComponent
+    HeroesComponent,
+    ToastComponent,
   ],
   imports: [
     BrowserModule,
@@ -33,8 +40,17 @@ import { HerosEffects } from './heroes/heros.effects';
     ButtonModule,
     PanelModule,
     SidebarModule,
-    EffectsModule.forRoot([HerosEffects]),
-    StoreModule.forRoot({ [herosFeatureKey]: herosReducer }),
+    TabViewModule,
+    MessagesModule,
+    ConfirmDialogModule,
+    ToastModule,
+    EffectsModule.forRoot([
+      HerosEffects
+    ]),
+    StoreModule.forRoot({ 
+      [herosFeatureKey]: herosReducer,
+      [toastFeatureKey]: toastReducer,
+    }),
   ],
   providers: [
     provideClientHydration(),

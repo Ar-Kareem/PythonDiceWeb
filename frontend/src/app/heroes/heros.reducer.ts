@@ -36,7 +36,7 @@ const initialState: State = {
   diceExecFailure: null,
 };
 
-export const herosFeature = createFeature({
+export const feature = createFeature({
   name: 'heros',
   reducer: createReducer(
     initialState,
@@ -58,14 +58,10 @@ export const herosFeature = createFeature({
 export const {
   name: herosFeatureKey,
   reducer: herosReducer,
-  selectHerosState,
-  selectSidebarVisible,
-  selectDiceExecResult,
-  selectDiceExecFailure,
-} = herosFeature
+} = feature
 
 export const herosSelectors = {
-  selectSidebarVisible,
-  selectDiceExecResult,
-  selectDiceExecFailure,
+  selectSidebarVisible: feature.selectSidebarVisible,
+  selectDiceExecResult: feature.selectDiceExecResult,
+  selectDiceExecFailure: feature.selectDiceExecFailure,
 };
