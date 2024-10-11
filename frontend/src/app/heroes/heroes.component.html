@@ -1,5 +1,6 @@
 <div class="wrapper">
 
+
   <div [ngClass]="{'margin-right-bttn': true, 'hidden-bttn': (sidebarVisible$ | async)}">
     <p-button (onClick)="toggleSidebar()" rounded="true" icon="pi pi-bars" styleclass="w-2rem h-2rem p-0" label=""></p-button>
   </div>
@@ -16,21 +17,27 @@
     </p>
   </p-sidebar>
 
+
+
+
+
   <div class="main-content">
 
     <div [ngClass]="{'shifted': (sidebarVisible$ | async)}"></div>
 
     <div class="inpout-content">
 
-      <app-tabview></app-tabview>
+      <app-tabview />
 
-      <div class="code-input">
-          <textarea 
-              rows="20"
-              pInputTextarea 
-              [(ngModel)]="ngValue"
-              (input)="saveInputLocalStorage($event)"
-              ></textarea>
+      <div *ngFor="let tab of allTabs; let i = index">
+        <div class="code-input" *ngIf="selectedTabIndex === i">
+            <textarea 
+                rows="20"
+                pInputTextarea 
+                [ngModel]="ngContents.get(tab.title)"
+                (ngModelChange)="saveInputLocalStorage($event, tab.title)"
+                ></textarea>
+        </div>
       </div>
 
       <div class="bttn-padding">

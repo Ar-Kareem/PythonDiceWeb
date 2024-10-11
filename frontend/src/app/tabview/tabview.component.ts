@@ -4,6 +4,7 @@ import { Dropdown, DropdownChangeEvent } from 'primeng/dropdown';
 
 import { ToastActions } from '../toast/toast.reducer';
 import { ITab, tabviewActions, tabviewSelectors } from './tabview.reducer';
+import { TabView } from 'primeng/tabview';
 
 
 @Component({
@@ -19,7 +20,7 @@ export class TabviewComponent implements AfterViewInit {
 
   ngDropdownModel: string|undefined;
   ngDropdownNamed: string[] = [];
-  ngTabPanels: ITab[] = [{title: 'test1'}];
+  ngTabPanels: ITab[] = [];
   ngActiveIndex: number = 0;
 
   preActiveIndex: number = 0;  // only used to deny tab change
@@ -29,18 +30,17 @@ export class TabviewComponent implements AfterViewInit {
   ngAfterViewInit() {
     (window as any).tabview = this;
     (window as any).tabviewActions = tabviewActions;
-
-    this.store.dispatch(tabviewActions.changeOpenTabs({openTabs: [{title: 'test1'}, {title: 'test2'}, {title: 'test3'}]}));
-    this.store.dispatch(tabviewActions.changeActiveIndex({newIndex: 0}));
-    this.store.dispatch(tabviewActions.changeAllowedNewTabs({allowedNewTabs: ['test4', 'test5', 'test6']}));
-
     this.store.select(tabviewSelectors.selectAllowedNewTabs).subscribe((allowedNewTabs) => {
       this.ngDropdownNamed = allowedNewTabs;
-      // this.cd.detectChanges();
+      this.cd.detectChanges();
     });
 
     this.store.select(tabviewSelectors.selectOpenTabs).subscribe((tabs) => {
-      // console.log('openTabs is set', tabs);
+      const allDropDowns = ['DiceCode', 'Python', 'GUI']
+      const tabTitles = tabs.map(tab => tab.title);
+      this.store.dispatch(tabviewActions.changeAllowedNewTabs({
+        allowedNewTabs: allDropDowns.filter(tab => !tabTitles.includes(tab))
+      }));
       this.ngTabPanels = tabs;
       // this.cd.detectChanges();
     });
@@ -54,12 +54,12 @@ export class TabviewComponent implements AfterViewInit {
 
   }
 
-  requestNewTab() {
+  plusButtonClicked() {
     let br = this.plusBtn?.nativeElement.getBoundingClientRect();
     let scroll = document.documentElement.scrollTop
     this.dropdownElement!.nativeElement.style.top = br.top + scroll + 20 + 'px';
     this.dropdownElement!.nativeElement.style.left = br.left + 'px';
-    this.dropdown?.show(true)
+    this.dropdown?.show();
   }
 
   activeIndexChange(newIndex: number) {
@@ -69,7 +69,6 @@ export class TabviewComponent implements AfterViewInit {
           this.ngActiveIndex = this.preActiveIndex;
         }, 0);
     } else {
-      console.log('dispatched?', newIndex);
       this.store.dispatch(tabviewActions.changeActiveIndex({newIndex: newIndex}));
     }
   }
@@ -77,10 +76,12 @@ export class TabviewComponent implements AfterViewInit {
   onDropdownChange(event: DropdownChangeEvent) {
     let selected = event.value;
     if (selected) {
-      this.store.dispatch(tabviewActions.changeOpenTabs({openTabs: [...this.ngTabPanels, {title: selected}]}));
+      this.store.dispatch(tabviewActions.changeOpenTabs({openTabs: [...this.ngTabPanels, {title: selected}], newIndex: this.ngTabPanels.length}));
     }
-    this.cd.detectChanges();
+    this.cd.detectChanges();  // otherwise this.ngDropdownModel is not set to undefined and the option is still highlighted
     this.ngDropdownModel = undefined;  // reset dropdown
+    this.dropdown?.hide();
+    this.cd.detectChanges();  // otherwise the dropdown is not hidden
   }
 
   closeTab(index: number) {

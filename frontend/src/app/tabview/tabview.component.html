@@ -1,5 +1,5 @@
 <div class="main-div">
-<p-tabView 
+<p-tabView
   [(activeIndex)]="ngActiveIndex"
   class="tabview-custom"
   (onClose)="requestTabClose($event.index)"
@@ -10,12 +10,13 @@
     *ngFor="let tab of ngTabPanels; index as i" 
     [header]="tab.title" 
     [closable]="!!tab.closable || tab.closable === undefined"
+    [selected]="ngActiveIndex === i"
   />
 
   <!-- plus button -->
-  <p-tabPanel headerStyleClass="tab-panel-plus-bttn" [closable]="false">
+  <p-tabPanel headerStyleClass="tab-panel-plus-bttn" [closable]="false" *ngIf="ngDropdownNamed.length > 0">
     <ng-template pTemplate="header">
-      <p-button #plusBtn icon="pi pi-plus" (click)="requestNewTab()" styleClass="plus-bttn" />
+      <p-button #plusBtn icon="pi pi-plus" (click)="plusButtonClicked()" styleClass="plus-bttn" />
     </ng-template>
   </p-tabPanel>
 </p-tabView>

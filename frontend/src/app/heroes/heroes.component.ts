@@ -3,6 +3,8 @@ import { Store } from '@ngrx/store';
 import { filter, Observable, Subject, throttleTime } from 'rxjs';
 
 import { CodeApiActions, herosSelectors, SidebarActions } from './heros.reducer';
+import { ITab, tabviewSelectors } from '../tabview/tabview.reducer';
+import { ToastActions } from '../toast/toast.reducer';
 
 
 @Component({
@@ -14,15 +16,24 @@ export class HeroesComponent implements AfterViewInit {
 
   @ViewChild('autoResizeTextarea') textarea: ElementRef<HTMLTextAreaElement> | undefined;
 
-  // textarea 
-  ngValue: string = `\noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`;
-  private inputSubject = new Subject<string>();
+  private inputSubject = new Subject<{title: string, content: string}>();
   ngResponse: string = '';
+  ngContents = new Map<string, string>();
 
+  selectedTabIndex: number|undefined;
+  allTabs: ITab[] = [];
   sidebarVisible$: Observable<boolean> = this.store.select(herosSelectors.selectSidebarVisible);
-  constructor(private cd: ChangeDetectorRef, private store: Store) {
+
+  constructor(private cd: ChangeDetectorRef, private store: Store) { }
+
+  ngAfterViewInit() {
+    this.ngContents.set('DiceCode', `\noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`);
+
     this.sidebarVisible$.subscribe(() => {this.autoOutputHeight()});  // sidebar change causes output height to change
-    
+
+    this.store.select(tabviewSelectors.selectOpenTabs).subscribe((tabs) => {this.allTabs = tabs});
+    this.store.select(tabviewSelectors.selectActiveIndex).subscribe((index) => {this.selectedTabIndex = index});
+
     this.store.select(herosSelectors.selectDiceExecResult).pipe(
       filter(data => !!data)  // filter out null values
     ).subscribe((data) => {
@@ -76,26 +87,25 @@ export class HeroesComponent implements AfterViewInit {
     });
 
     this.inputSubject.pipe(
-      throttleTime(3000) // Save to localstorage once every 3 seconds
-    ).subscribe((value: string) => {console.log('Saving to localstorage', value.length);localStorage.setItem('input', value)});
-  }
+      throttleTime(3000, undefined, { leading: true, trailing: true }) // Save to localstorage once every 3 seconds
+    ).subscribe(({title, content}) => {
+      console.log('Saving to localstorage', content.length);
+      localStorage.setItem('input.' + title, content)
+    });
 
 
-  ngOnInit(): void {
     if (typeof window !== 'undefined') {(window as any).heros = this}
-  }
 
-  ngAfterViewInit() {
     this.autoOutputHeight();
-    
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('input')) {
-      this.ngValue = localStorage.getItem('input') || '';
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('input.DiceCode')) {
+      this.ngContents.set('DiceCode', localStorage.getItem('input.DiceCode') || '');
       this.cd.detectChanges();
     }
   }
 
-  saveInputLocalStorage(event: Event) {
-    this.inputSubject.next((event.target as HTMLTextAreaElement).value); 
+  saveInputLocalStorage(event: string, tabTitle: string) {
+    this.ngContents.set(tabTitle, event);
+    this.inputSubject.next({title: tabTitle, content: event});
   }
 
   autoOutputHeight() {
@@ -119,9 +129,21 @@ export class HeroesComponent implements AfterViewInit {
   }
 
   onButtonClick() {
-    this.setResponse('Loading...');
-    this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: this.ngValue }));
-    // this.store.dispatch(CodeApiActions.execPythonCodeRequest({ code: this.ngValue }));
+    const title = this.allTabs[this.selectedTabIndex!].title;
+    const toExec = this.ngContents.get(title);
+    if (!toExec || toExec.trim() === '') {
+      this.store.dispatch(ToastActions.warningNotification({ title: 'No code to execute', message: '' }));
+      return;
+    }
+    if (title === 'DiceCode') {
+      this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: toExec }));
+      this.setResponse('Loading...');
+    } else if (title === 'Python') {
+      this.store.dispatch(CodeApiActions.execPythonCodeRequest({ code: toExec }));
+      this.setResponse('Loading...');
+    } else {
+      this.store.dispatch(ToastActions.errorNotification({ title: 'Cant execute for this tab', message: '' }));
+    }
   }
 
 }
