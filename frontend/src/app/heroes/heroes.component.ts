@@ -1,8 +1,10 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, ChangeDetectorRef  } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { filter, Observable, Subject, throttleTime } from 'rxjs';
+import { TabViewCloseEvent } from 'primeng/tabview';
 
 import { CodeApiActions, herosSelectors, SidebarActions } from './heros.reducer';
+import { ToastActions } from '../toast/toast.reducer';
 
 
 @Component({
@@ -18,6 +20,9 @@ export class HeroesComponent implements AfterViewInit {
   ngValue: string = `\noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`;
   private inputSubject = new Subject<string>();
   ngResponse: string = '';
+
+  activeIndex = 1
+  scrollableTabs = [{title: 'test1', content: 'test1'}, {title: 'test2', content: 'test2'}, {title: 'test3', content: 'test3'}]
 
   sidebarVisible$: Observable<boolean> = this.store.select(herosSelectors.selectSidebarVisible);
   constructor(private cd: ChangeDetectorRef, private store: Store) {
@@ -91,6 +96,25 @@ export class HeroesComponent implements AfterViewInit {
     if (typeof localStorage !== 'undefined' && localStorage.getItem('input')) {
       this.ngValue = localStorage.getItem('input') || '';
       this.cd.detectChanges();
+    }
+  }
+
+  onTabClose($event: TabViewCloseEvent) {
+    console.log('Tab Closed', $event);
+    this.store.dispatch(ToastActions.dialogNotification({
+      title: 'Tab Closed',
+      message: `Are you sure you want to close the tab?`,
+      callback: { 
+        onConfirm: () => {
+          this.closeTab($event.index);
+        }, onReject: () => {} }
+    }));
+  }
+
+  closeTab(index: number) {
+    this.scrollableTabs.splice(index, 1);
+    if (index >= this.activeIndex) {
+      this.activeIndex = this.activeIndex - 1;
     }
   }
 
