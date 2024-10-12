@@ -33,7 +33,9 @@ export class HeroesComponent implements AfterViewInit {
     this.ngContentsInput.set('DiceCode', `\noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`);
     this.initFromLocalStorage();
 
-    this.sidebarVisible$.subscribe(() => {this.autoOutputHeight()});  // sidebar change causes output height to change
+    this.sidebarVisible$.subscribe(() => {
+      this.autoOutputHeight();  // sidebar change causes output height to change
+    });
 
     this.store.select(tabviewSelectors.selectOpenTabs).subscribe((tabs) => {
       this.allTabs = tabs
@@ -55,49 +57,11 @@ export class HeroesComponent implements AfterViewInit {
       console.log('Python code:\n', data.parsed);
       console.log('Python time:\n', data.time.toFixed(2));
     });
-    
+
     this.store.select(herosSelectors.selectDiceExecFailure).pipe(
       filter(error => !!error)  // filter out null values
     ).subscribe(({response, inp_code}) => {
-      let code = response.error.message;
-      let payload = response.error.payload;
-      if (code === 'EMPTY') {
-        this.setResponse('');
-      } else if (code === 'LEX') {
-        let char = payload[0][0];
-        let linepos = payload[0][2];
-        let code_snippet = inp_code.split('\n')[linepos-1];
-        this.setResponse(`Illegal Character found "${char}" in line number ${linepos}.\nCode snippet:\n${code_snippet}`);
-      } else if (code === 'YACC') {
-        if (payload.length > 0) {
-          let char = payload[0][0];
-          let linepos = payload[0][2];
-          let code_snippet = inp_code.split('\n').slice(linepos-1, linepos+2).join('\n');
-          this.setResponse(`Illegal Token found. The error started in "${char}" in line number ${linepos}.\nCode snippet:\n${code_snippet}`);
-        } else {  // YACC EOF error
-          this.setResponse('Unexpected EOF while parsing.\nAre you missing a closing bracket? Or not finishing the last statement?');
-        }
-      } else if (code == 'RESOLVER') {
-        this.setResponse(payload.message + '\nError in Resolver');
-      } else if (code == 'TIMEOUT') {
-        this.setResponse('Timeout: Execution took too long.');
-      } else if (code == 'PYTHONERROR') {
-        if (payload.message == "name '_print_' is not defined") {
-          this.setResponse('Error: You cannot use print function in Python code. Use output(...) instead.');
-        } else if (payload.message == "__import__ not found") {
-          this.setResponse('Error: Importing is not allowed. Useful modules such as math/functools/itertools/random are already provided and can be used directly.');
-        } else if (payload.message.includes('is an invalid variable name because it starts with "_"')) {
-          let lineno: string = payload.message;
-          lineno = lineno.split(':')[0].substring(2);
-          this.setResponse(`Error: Illegal variable name in ${lineno}, variables cannot start with an "_".`);
-        } else {
-          this.setResponse('Error in Python:\n' + payload.message);
-        }
-      } else {
-        this.setResponse(`Unexpected Error: ${response.error}`);
-      }
-      console.log('Error:', response);
-      console.log('Input code:', inp_code);
+      this.setResponse(this.getServerErrorMsg(response, inp_code));
     });
 
     this.store.select(herosSelectors.selectServTranslateRes).pipe(
@@ -155,6 +119,48 @@ export class HeroesComponent implements AfterViewInit {
       this.store.dispatch(tabviewActions.changeActiveIndex({newIndex: 0}));  // initial tab
     }
     this.cd.detectChanges();
+  }
+
+  getServerErrorMsg(error: any, inp_code: string) {
+    console.log('Error:', error);
+    console.log('Input code:', inp_code);
+    let code = error.message;
+    let payload = error.payload;
+    if (code === 'EMPTY') {
+      return '';
+    } else if (code === 'LEX') {
+      let char = payload[0][0];
+      let linepos = payload[0][2];
+      let code_snippet = inp_code.split('\n')[linepos-1];
+      return `Illegal Character found "${char}" in line number ${linepos}.\nCode snippet:\n${code_snippet}`;
+    } else if (code === 'YACC') {
+      if (payload.length > 0) {
+        let char = payload[0][0];
+        let linepos = payload[0][2];
+        let code_snippet = inp_code.split('\n').slice(linepos-1, linepos+2).join('\n');
+        return `Illegal Token found. The error started in "${char}" in line number ${linepos}.\nCode snippet:\n${code_snippet}`;
+      } else {  // YACC EOF error
+        return 'Unexpected EOF while parsing.\nAre you missing a closing bracket? Or not finishing the last statement?';
+      }
+    } else if (code == 'RESOLVER') {
+      return payload.message + '\nError in Resolver';
+    } else if (code == 'TIMEOUT') {
+      return 'Timeout: Execution took too long.';
+    } else if (code == 'PYTHONERROR') {
+      if (payload.message == "name '_print_' is not defined") {
+        return 'Error: You cannot use print function in Python code. Use output(...) instead.';
+      } else if (payload.message == "__import__ not found") {
+        return 'Error: Importing is not allowed. Useful modules such as math/functools/itertools/random are already provided and can be used directly.';
+      } else if (payload.message.includes('is an invalid variable name because it starts with "_"')) {
+        let lineno: string = payload.message;
+        lineno = lineno.split(':')[0].substring(2);
+        return `Error: Illegal variable name in ${lineno}, variables cannot start with an "_".`;
+      } else {
+        return 'Error in Python:\n' + payload.message;
+      }
+    } else {
+      return `Unexpected Error: ${error}`;
+    }
   }
 
   onInputChange(event: string, tabTitle: string) {

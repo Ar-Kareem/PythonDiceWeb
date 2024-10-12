@@ -43,6 +43,7 @@ export class TabviewComponent implements AfterViewInit {
         allowedNewTabs: allDropDowns.filter(tab => !tabTitles.includes(tab))
       }));
       this.ngTabPanels = tabs;
+      this.convertBtnViewable = this.ngTabPanels[this.ngActiveIndex]?.title === 'DiceCode';
       // this.cd.detectChanges();
     });
 
@@ -50,7 +51,7 @@ export class TabviewComponent implements AfterViewInit {
       // console.log('activeIndex is set', index);
       this.ngActiveIndex = index;
       this.preActiveIndex = index;
-      this.convertBtnViewable = this.ngTabPanels[index]?.title === 'DiceCode';
+      this.convertBtnViewable = this.ngTabPanels[this.ngActiveIndex]?.title === 'DiceCode';
       // this.cd.detectChanges();
     });
 
