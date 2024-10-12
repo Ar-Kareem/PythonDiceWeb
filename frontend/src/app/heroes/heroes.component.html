@@ -34,7 +34,7 @@
           <textarea
             rows="20"
             pInputTextarea 
-            [ngModel]="ngContents.get(tab.title)"
+            [ngModel]="ngContentsInput.get(tab.title)"
             (ngModelChange)="onInputChange($event, tab.title)"
             (keydown.tab)="onInputKeyPress($event, 'tab')"
             (keydown.enter)="onInputKeyPress($event, 'enter')"

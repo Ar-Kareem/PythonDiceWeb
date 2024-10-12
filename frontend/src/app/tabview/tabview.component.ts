@@ -24,6 +24,7 @@ export class TabviewComponent implements AfterViewInit {
   ngActiveIndex: number = 0;
 
   preActiveIndex: number = 0;  // only used to deny tab change
+  convertBtnViewable: boolean = false;
 
   constructor(private cd: ChangeDetectorRef, private store: Store) { }
 
@@ -49,6 +50,7 @@ export class TabviewComponent implements AfterViewInit {
       // console.log('activeIndex is set', index);
       this.ngActiveIndex = index;
       this.preActiveIndex = index;
+      this.convertBtnViewable = this.ngTabPanels[index]?.title === 'DiceCode';
       // this.cd.detectChanges();
     });
 

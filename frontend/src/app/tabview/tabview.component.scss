@@ -1,7 +1,11 @@
 .main-div {
-  width: fit-content;
+  // width: fit-content;
+  width: 98%;
   height: fit-content;
   padding-left: 18px;
+  display: flex;
+  flex-flow: row nowrap;
+  // justify-content: space-between;
 }
 
 .tabview-custom {
@@ -41,10 +45,18 @@
   }
   ::ng-deep .p-dropdown-trigger {  // hide dropdown
     display: none;
-    // background-color: red;
   }
   ::ng-deep .p-dropdown-label {  // hide dropdown
     display: none;
-    // background-color: red;
   }
 }
+
+.btnConvertNg {
+  margin-left: auto;  // in flex container, push to right  https://stackoverflow.com/questions/33924655/position-last-flex-item-at-the-end-of-container
+  ::ng-deep .btnConvert {
+    width: 60px;
+    height: 38px;
+    padding: 3px 2px;  // make the text centered  https://stackoverflow.com/a/27576899/6173665
+  }
+}
+

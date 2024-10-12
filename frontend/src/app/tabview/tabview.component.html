@@ -21,6 +21,8 @@
   </p-tabPanel>
 </p-tabView>
 
+<p-button #plusBtn label="To Python" size="small" [ngClass]="{'btnConvertNg': true, 'hidden': !convertBtnViewable}" styleClass="btnConvert text-xs" />
+
 <p-dropdown #dd
   class="hidden-dropdown"
   styleClass="ddcustom"

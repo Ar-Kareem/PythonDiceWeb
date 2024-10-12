@@ -17,7 +17,7 @@ export class HeroesComponent implements AfterViewInit {
   @ViewChild('autoResizeTextarea') textarea: ElementRef<HTMLTextAreaElement> | undefined;
 
   private inputSubject = new Subject<{title: string, content: string}>();
-  ngContents = new Map<string, string>();
+  ngContentsInput = new Map<string, string>();
   ngContentsOutput = new Map<string, string>();
 
   selectedTabIndex: number|undefined;
@@ -30,7 +30,7 @@ export class HeroesComponent implements AfterViewInit {
   ngAfterViewInit() {
     if (typeof window !== 'undefined') {(window as any).heros = this}
 
-    this.ngContents.set('DiceCode', `\noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`);
+    this.ngContentsInput.set('DiceCode', `\noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`);
     this.initFromLocalStorage();
 
     this.sidebarVisible$.subscribe(() => {this.autoOutputHeight()});  // sidebar change causes output height to change
@@ -126,7 +126,7 @@ export class HeroesComponent implements AfterViewInit {
     this.inputSubject.pipe(
       throttleTime(3000, undefined, { leading: true, trailing: true }) // Save to localstorage once every 3 seconds
     ).subscribe(({title, content}) => {
-      console.log('Saving to localstorage', content.length);
+      // console.log('Saving to localstorage', content.length);
       localStorage.setItem('input.' + title, content)
     });
 
@@ -138,7 +138,7 @@ export class HeroesComponent implements AfterViewInit {
     ['DiceCode', 'Python'].forEach((title) => {
       let content = localStorage.getItem('input.' + title);
       if (content) {
-        this.ngContents.set(title, content);
+        this.ngContentsInput.set(title, content);
         loaded.push(title);
       }
     });
@@ -156,7 +156,7 @@ export class HeroesComponent implements AfterViewInit {
   }
 
   onInputChange(event: string, tabTitle: string) {
-    this.ngContents.set(tabTitle, event);
+    this.ngContentsInput.set(tabTitle, event);
     this.inputSubject.next({title: tabTitle, content: event});
   }
 
@@ -209,7 +209,7 @@ export class HeroesComponent implements AfterViewInit {
       this.store.dispatch(ToastActions.errorNotification({ title: 'No tab selected', message: '' }));
       return;
     }
-    const toExec = this.ngContents.get(title);
+    const toExec = this.ngContentsInput.get(title);
     if (!toExec || toExec.trim() === '') {
       this.store.dispatch(ToastActions.warningNotification({ title: 'No code to execute', message: '' }));
       return;
@@ -231,7 +231,7 @@ export class HeroesComponent implements AfterViewInit {
       this.store.dispatch(ToastActions.errorNotification({ title: 'Can only translate DiceCode', message: '' }));
       return;
     }
-    const toTranslate = this.ngContents.get(title);
+    const toTranslate = this.ngContentsInput.get(title);
     if (!toTranslate || toTranslate.trim() === '') {
       this.store.dispatch(ToastActions.warningNotification({ title: 'No code to translate', message: '' }));
       return;
