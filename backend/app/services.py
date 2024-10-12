@@ -47,6 +47,8 @@ def ParseExecService(to_parse):
     s = time.time()
     res = ParseService(to_parse)
     python_str = res.parsed_python
+    if python_str is None:
+        return res
     exec_res = exec_with_timeout(f, args=(python_str, {}), timeout=5)
     if exec_res is None:
         res.is_timeout = True
