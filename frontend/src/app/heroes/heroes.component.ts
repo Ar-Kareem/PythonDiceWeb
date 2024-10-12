@@ -177,7 +177,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     this.inputSubject.next({title: tabTitle, content: event});
   }
 
-  onInputKeyPress($event: Event, type: 'tab' | 'enter') {
+  onInputKeyPress($event: Event, type: 'tab' | 'enter' | 'shift-enter') {
     if (type === 'tab') {
       document.execCommand("insertText", false, '  ');  // insert 2 spaces
       $event.preventDefault();
@@ -188,6 +188,9 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       const numSpaces = lastLine.match(/^\s*/)![0].length;
       const spaces = ' '.repeat(numSpaces);
       document.execCommand("insertText", false, '\n' + spaces);  // insert newline with same indentation
+      $event.preventDefault();
+    } else if (type === 'shift-enter') {
+      this.onButtonClick();
       $event.preventDefault();
     }
   }
