@@ -30,12 +30,14 @@
       <app-tabview />
 
       <div *ngFor="let tab of allTabs; let i = index">
-        <div class="code-input" *ngIf="selectedTabIndex === i">
+        <div class="code-input" [ngClass]="{'myhidediv': selectedTabIndex !== i}">
           <textarea
             rows="20"
             pInputTextarea 
             [ngModel]="ngContents.get(tab.title)"
             (ngModelChange)="onInputChange($event, tab.title)"
+            (keydown.tab)="onInputKeyPress($event, 'tab')"
+            (keydown.enter)="onInputKeyPress($event, 'enter')"
           ></textarea>
         </div>
       </div>
@@ -51,7 +53,7 @@
       </div>
 
       <ng-container *ngFor="let tab of allTabs; let i = index">
-        <div class="code-output" *ngIf="selectedTabIndex === i">
+        <div class="code-output" [ngClass]="{'myhidediv': selectedTabIndex !== i}">
           <textarea
             #autoResizeTextarea
             pInputTextarea

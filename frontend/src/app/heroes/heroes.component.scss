@@ -61,6 +61,12 @@ p-sidebar.left-panel {
   }
 }
 
+.myhidediv{
+  // display: none;  // display none makes ctrl-z not work
+  // workaround to hide div without breaking ctrl-z
+  visibility: hidden;
+  height: 0;
+}
 
 .code-output {
   user-select: none; /* Prevent text selection */

@@ -160,6 +160,21 @@ export class HeroesComponent implements AfterViewInit {
     this.inputSubject.next({title: tabTitle, content: event});
   }
 
+  onInputKeyPress($event: Event, type: 'tab' | 'enter') {
+    if (type === 'tab') {
+      document.execCommand("insertText", false, '  ');  // insert 2 spaces
+      $event.preventDefault();
+    } else if (type === 'enter') {
+      const textarea = $event.target as HTMLTextAreaElement;
+      const start = textarea.selectionStart;
+      const lastLine = textarea.value.substring(0, start).split('\n').pop()!;
+      const numSpaces = lastLine.match(/^\s*/)![0].length;
+      const spaces = ' '.repeat(numSpaces);
+      document.execCommand("insertText", false, '\n' + spaces);  // insert newline with same indentation
+      $event.preventDefault();
+    }
+  }
+
   autoOutputHeight() {
     console.log('autoOutputHeight');
     if (!this.textarea) {
