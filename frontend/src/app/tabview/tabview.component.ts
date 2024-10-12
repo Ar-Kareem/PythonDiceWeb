@@ -29,8 +29,8 @@ export class TabviewComponent implements AfterViewInit {
   constructor(private cd: ChangeDetectorRef, private store: Store) { }
 
   ngAfterViewInit() {
-    (window as any).tabview = this;
-    (window as any).tabviewActions = tabviewActions;
+    if (typeof window !== 'undefined') (window as any).tabview = this;
+    if (typeof window !== 'undefined') (window as any).tabviewActions = tabviewActions;
     this.store.select(tabviewSelectors.selectAllowedNewTabs).subscribe((allowedNewTabs) => {
       this.ngDropdownNamed = allowedNewTabs;
       this.cd.detectChanges();

@@ -41,8 +41,8 @@ export class HeroesComponent implements AfterViewInit {
     });
     this.store.select(tabviewSelectors.selectActiveIndex).subscribe((index) => {
       this.selectedTabIndex = index
-      localStorage.setItem('selectedTabIndex', index.toString());
       this.cd.detectChanges();
+      if (typeof localStorage !== 'undefined') {localStorage.setItem('selectedTabIndex', index.toString())};
     });
     this.store.select(tabviewSelectors.selectSelectedTab).subscribe((tab) => {
       this.selectedTab = tab
@@ -135,9 +135,11 @@ export class HeroesComponent implements AfterViewInit {
 
   initFromLocalStorage() {
     let loaded: string[] = [];
+    console.log('initFromLocalStorage');
     ['DiceCode', 'Python'].forEach((title) => {
-      let content = localStorage.getItem('input.' + title);
-      if (content) {
+      if (typeof localStorage == 'undefined') return;
+      let content = localStorage?.getItem('input.' + title);
+      if (!!content) {
         this.ngContentsInput.set(title, content);
         loaded.push(title);
       }

@@ -17,7 +17,6 @@ export class ToastComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.store.select(selectToastState).subscribe((state) => {
-      console.log('toast changed', state);
       if (state.visible && state.type === 'dialog') {
         this.confirmationService.confirm({
           message: state.message?.message,
