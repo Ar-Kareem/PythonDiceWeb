@@ -64,7 +64,7 @@ p-sidebar.left-panel {
 .myhidediv{
   // display: none;  // display none makes ctrl-z not work
   // workaround to hide div without breaking ctrl-z
-  visibility: hidden;
+  visibility: collapse;
   height: 0;
 }
 
