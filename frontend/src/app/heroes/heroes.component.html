@@ -31,34 +31,36 @@
 
       <div *ngFor="let tab of allTabs; let i = index">
         <div class="code-input" *ngIf="selectedTabIndex === i">
-            <textarea 
-                rows="20"
-                pInputTextarea 
-                [ngModel]="ngContents.get(tab.title)"
-                (ngModelChange)="saveInputLocalStorage($event, tab.title)"
-                ></textarea>
+          <textarea
+            rows="20"
+            pInputTextarea 
+            [ngModel]="ngContents.get(tab.title)"
+            (ngModelChange)="onInputChange($event, tab.title)"
+          ></textarea>
         </div>
       </div>
 
       <div class="bttn-padding">
-        <div class="calculate-bttn">
-            <p-button 
-            pButton 
-            pRipple 
-            label="Calculate"
-            [ngClass]="{'calculate-bttn': true}"
-            (click)="onButtonClick()"></p-button>
-        </div>
+        <p-button 
+          pButton 
+          pRipple 
+          label="Calculate"
+          [ngClass]="{'calculate-bttn': true}"
+          (click)="onButtonClick()" 
+        />
       </div>
 
-      <div class="code-output">
-          <textarea 
-              #autoResizeTextarea
-              pInputTextarea
-              [readOnly]="true"
-              [autoResize]="true"
-              [ngModel]="ngResponse"></textarea>
-      </div>
+      <ng-container *ngFor="let tab of allTabs; let i = index">
+        <div class="code-output" *ngIf="selectedTabIndex === i">
+          <textarea
+            #autoResizeTextarea
+            pInputTextarea
+            [readOnly]="true"
+            [autoResize]="true"
+            [ngModel]="ngContentsOutput.get(tab.title)"
+          ></textarea>
+        </div>
+      </ng-container>
 
     </div>
 

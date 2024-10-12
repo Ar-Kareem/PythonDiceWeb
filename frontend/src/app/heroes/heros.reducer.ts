@@ -3,6 +3,13 @@ import { createActionGroup, props, emptyProps } from '@ngrx/store';
 import { createFeature } from '@ngrx/store';
 
 
+
+interface TranslateResp {
+  response: any,
+  err: boolean,
+  inp_code: string,
+}
+
 // ACTIONS
 export const SidebarActions = createActionGroup({
   source: 'Sidebar',
@@ -21,6 +28,8 @@ export const CodeApiActions = createActionGroup({
     'Exec python code Request': props<{ code: string }>(),
     'Exec python code Success': props<{ response: any }>(),
     'Exec python code Failure': props<{ error: any }>(),
+    'Translate dice code Request': props<{ code: string }>(),
+    'Translate dice code Respone': props<TranslateResp>(),
   },
 });
 
@@ -29,11 +38,13 @@ interface State {
   sidebarVisible: boolean,
   diceExecResult: any,
   diceExecFailure: any,
+  servTranslateRes: TranslateResp | null, 
 };
 const initialState: State = {
   sidebarVisible: false,
   diceExecResult: null,
   diceExecFailure: null,
+  servTranslateRes: null,
 };
 
 export const feature = createFeature({
@@ -52,6 +63,9 @@ export const feature = createFeature({
     on(CodeApiActions.execDiceCodeFailure, CodeApiActions.execPythonCodeFailure, (state, { error }) => {
       return { ...state, diceExecFailure: error, diceExecResult: null };
     }),
+    on(CodeApiActions.translateDiceCodeRespone, (state, response) => {
+      return { ...state, servTranslateRes: response};
+    }),
   ),
 });
 
@@ -64,4 +78,5 @@ export const herosSelectors = {
   selectSidebarVisible: feature.selectSidebarVisible,
   selectDiceExecResult: feature.selectDiceExecResult,
   selectDiceExecFailure: feature.selectDiceExecFailure,
+  selectServTranslateRes: feature.selectServTranslateRes,
 };

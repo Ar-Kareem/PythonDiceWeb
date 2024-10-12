@@ -84,3 +84,20 @@ def ExecPythonController():
         'time': model.resp_time,
     }
 
+
+@app.route('/Translate', methods=['POST'])
+def TranslateController():
+    data = request.get_json()
+    code = data['code']
+    model = services.ParseService(code)
+    if model.is_empty:
+        raise InvalidAPIUsage("EMPTY", status_code=400)
+    if model.is_lex_illegal:
+        raise InvalidAPIUsage("LEX", status_code=400, payload=model.error_payload)
+    if model.is_yacc_illegal:
+        raise InvalidAPIUsage("YACC", status_code=400, payload=model.error_payload)
+    if model.is_resolver_illegal:
+        raise InvalidAPIUsage("RESOLVER", status_code=400, payload=model.error_payload)
+    return {
+        'result': model.parsed_python,
+    }

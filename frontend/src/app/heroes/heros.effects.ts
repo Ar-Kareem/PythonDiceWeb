@@ -34,6 +34,17 @@ export class HerosEffects {
       ))
     )
   );
+
+  translateDiceCode$ = createEffect(() => 
+    this.actions$.pipe(
+    ofType(CodeApiActions.translateDiceCodeRequest),
+    switchMap(action => this.herosService.postTranslateCode(action.code)
+      .pipe(
+        map(response => CodeApiActions.translateDiceCodeRespone({ response, inp_code: action.code, err: false })),
+        catchError((response) => of(CodeApiActions.translateDiceCodeRespone({ response, inp_code: action.code, err: true })))
+      ))
+    ));
+
   constructor(
     private actions$: Actions,
     private herosService: HerosService,
@@ -55,6 +66,12 @@ export class HerosService {
 
   postPythonCode(code: string): Observable<any> {
     return this.http.post('/api/ExecPython', { code }).pipe(
+      map((response: any) => response),
+    );
+  }
+
+  postTranslateCode(code: string): Observable<any> {
+    return this.http.post('/api/Translate', { code }).pipe(
       map((response: any) => response),
     );
   }

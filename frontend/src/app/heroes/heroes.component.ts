@@ -17,11 +17,12 @@ export class HeroesComponent implements AfterViewInit {
   @ViewChild('autoResizeTextarea') textarea: ElementRef<HTMLTextAreaElement> | undefined;
 
   private inputSubject = new Subject<{title: string, content: string}>();
-  ngResponse: string = '';
   ngContents = new Map<string, string>();
+  ngContentsOutput = new Map<string, string>();
 
   selectedTabIndex: number|undefined;
   allTabs: ITab[] = [];
+  selectedTab: ITab|null = null;
   sidebarVisible$: Observable<boolean> = this.store.select(herosSelectors.selectSidebarVisible);
 
   constructor(private cd: ChangeDetectorRef, private store: Store) { }
@@ -41,6 +42,10 @@ export class HeroesComponent implements AfterViewInit {
     this.store.select(tabviewSelectors.selectActiveIndex).subscribe((index) => {
       this.selectedTabIndex = index
       localStorage.setItem('selectedTabIndex', index.toString());
+      this.cd.detectChanges();
+    });
+    this.store.select(tabviewSelectors.selectSelectedTab).subscribe((tab) => {
+      this.selectedTab = tab
     });
 
     this.store.select(herosSelectors.selectDiceExecResult).pipe(
@@ -95,6 +100,29 @@ export class HeroesComponent implements AfterViewInit {
       console.log('Input code:', inp_code);
     });
 
+    this.store.select(herosSelectors.selectServTranslateRes).pipe(
+      filter(data => !!data)  // filter out null values
+    ).subscribe((data) => {
+      if (!data.err) {  // translation successful
+        this.onInputChange(data.response.result, 'Python');
+        this.setResponse('', 'Python');
+        const pythonActiveIndex = this.allTabs.findIndex(tab => tab.title === 'Python');
+        if (pythonActiveIndex !== -1) {  // change existing tab
+          this.store.dispatch(tabviewActions.changeActiveIndex({
+            newIndex: pythonActiveIndex,
+          }));
+        } else {  // python tab not found, add new tab
+          this.store.dispatch(tabviewActions.changeOpenTabs({
+            openTabs: [...this.allTabs, {title: 'Python'}],
+            newIndex: this.allTabs.length,
+          }));
+        }
+        this.store.dispatch(ToastActions.successNotification({ title: 'Translation successful', message: '' }));
+      } else {  // error in translation
+        this.store.dispatch(ToastActions.errorNotification({ title: 'Error in translation', message: data.response.result }));
+      }
+    });
+
     this.inputSubject.pipe(
       throttleTime(3000, undefined, { leading: true, trailing: true }) // Save to localstorage once every 3 seconds
     ).subscribe(({title, content}) => {
@@ -127,7 +155,7 @@ export class HeroesComponent implements AfterViewInit {
     this.cd.detectChanges();
   }
 
-  saveInputLocalStorage(event: string, tabTitle: string) {
+  onInputChange(event: string, tabTitle: string) {
     this.ngContents.set(tabTitle, event);
     this.inputSubject.next({title: tabTitle, content: event});
   }
@@ -147,13 +175,25 @@ export class HeroesComponent implements AfterViewInit {
     this.store.dispatch(SidebarActions.toggleSidebar());
   }
 
-  setResponse(response: string) {
-    this.ngResponse = response;
+  setResponse(response: string, title?: string) {
+    if (!title) {
+      title = this.selectedTab?.title;
+    }
+    if (!title) {  // no tab selected
+      console.error('No tab selected!!!');
+      return;
+    }
+    // this.ngResponse = response;
+    this.ngContentsOutput.set(title, response);
     this.autoOutputHeight();
   }
 
   onButtonClick() {
-    const title = this.allTabs[this.selectedTabIndex!].title;
+    const title = this.selectedTab?.title;
+    if (!title) {
+      this.store.dispatch(ToastActions.errorNotification({ title: 'No tab selected', message: '' }));
+      return;
+    }
     const toExec = this.ngContents.get(title);
     if (!toExec || toExec.trim() === '') {
       this.store.dispatch(ToastActions.warningNotification({ title: 'No code to execute', message: '' }));
@@ -168,6 +208,20 @@ export class HeroesComponent implements AfterViewInit {
     } else {
       this.store.dispatch(ToastActions.errorNotification({ title: 'Cant execute for this tab', message: '' }));
     }
+  }
+
+  onTranslateRequest() {
+    const title = this.selectedTab?.title;
+    if (title !== 'DiceCode') {
+      this.store.dispatch(ToastActions.errorNotification({ title: 'Can only translate DiceCode', message: '' }));
+      return;
+    }
+    const toTranslate = this.ngContents.get(title);
+    if (!toTranslate || toTranslate.trim() === '') {
+      this.store.dispatch(ToastActions.warningNotification({ title: 'No code to translate', message: '' }));
+      return;
+    }
+    this.store.dispatch(CodeApiActions.translateDiceCodeRequest({ code: toTranslate }));
   }
 
 }

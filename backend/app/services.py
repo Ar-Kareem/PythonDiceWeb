@@ -11,7 +11,7 @@ import models
 logger = logging.getLogger(__name__)
 
 
-def ParseExecService(to_parse):
+def ParseService(to_parse):
     s = time.time()
     res = models.ParseExecModel()
     if to_parse is None or to_parse.strip() == '':
@@ -39,6 +39,14 @@ def ParseExecService(to_parse):
         logger.debug('Resolver error: ' + str(e))
         return res
     res.parsed_python = python_str
+    res.resp_time = time.time() - s
+    return res
+
+
+def ParseExecService(to_parse):
+    s = time.time()
+    res = ParseService(to_parse)
+    python_str = res.parsed_python
     exec_res = exec_with_timeout(f, args=(python_str, {}), timeout=5)
     if exec_res is None:
         res.is_timeout = True
