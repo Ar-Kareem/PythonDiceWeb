@@ -57,7 +57,7 @@
       </div>
 
       <ng-container *ngFor="let tab of allTabs; let i = index">
-        <div class="code-output" [ngClass]="{'myhidediv': selectedTabIndex !== i}">
+        <div class="code-output" [ngClass]="{'myhidediv': selectedTabIndex !== i}"  *ngIf="ngContentsOutput.get(tab.title) && ['DiceCode', 'Python'].includes(tab.title)">
           <textarea
             #autoResizeTextarea
             pInputTextarea
@@ -65,6 +65,10 @@
             [autoResize]="true"
             [ngModel]="ngContentsOutput.get(tab.title)"
           ></textarea>
+        </div>
+        <!-- GUI -->
+        <div *ngIf="tab.title === 'GUI'">
+          <app-gui-output [inputXML]="ngContentsInput.get('GUI') ?? ''"></app-gui-output>
         </div>
       </ng-container>
 

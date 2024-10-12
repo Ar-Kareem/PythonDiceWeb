@@ -109,7 +109,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   initFromLocalStorage() {
     let loaded: string[] = [];
     console.log('initFromLocalStorage');
-    ['DiceCode', 'Python'].forEach((title) => {
+    ['DiceCode', 'Python', 'GUI'].forEach((title) => {
       if (typeof localStorage == 'undefined') return;
       let content = localStorage?.getItem('input.' + title);
       if (!!content) {

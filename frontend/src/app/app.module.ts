@@ -15,17 +15,20 @@ import { MessagesModule } from 'primeng/messages';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { DropdownModule } from 'primeng/dropdown';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HeroesComponent } from './heroes/heroes.component';
 import { ToastComponent } from './toast/toast.component';
+import { GuiOutputComponent } from './gui-output/gui-output.component';
+import { TabviewComponent } from './tabview/tabview.component';
 
 import { herosFeatureKey, herosReducer } from './heroes/heros.reducer';
 import { toastFeatureKey, toastReducer } from './toast/toast.reducer';
-import { HerosEffects } from './heroes/heros.effects';
-import { TabviewComponent } from './tabview/tabview.component';
 import { tabviewFeatureKey, tabviewReducer } from './tabview/tabview.reducer';
+import { HerosEffects } from './heroes/heros.effects';
+import { GuiCompComponent } from './gui-output/gui-comp/gui-comp.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +36,8 @@ import { tabviewFeatureKey, tabviewReducer } from './tabview/tabview.reducer';
     HeroesComponent,
     ToastComponent,
     TabviewComponent,
+    GuiOutputComponent,
+    GuiCompComponent,
   ],
   imports: [
     BrowserModule,
@@ -49,6 +54,7 @@ import { tabviewFeatureKey, tabviewReducer } from './tabview/tabview.reducer';
     ConfirmDialogModule,
     ToastModule,
     DropdownModule,
+    OverlayPanelModule,
     EffectsModule.forRoot([
       HerosEffects
     ]),
