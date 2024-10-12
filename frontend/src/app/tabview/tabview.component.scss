@@ -54,6 +54,8 @@
 .btnConvertNg {
   margin-left: auto;  // in flex container, push to right  https://stackoverflow.com/questions/33924655/position-last-flex-item-at-the-end-of-container
   ::ng-deep .btnConvert {
+    font-size: 0.7rem;
+    line-height: 15px;
     width: 60px;
     height: 38px;
     padding: 3px 2px;  // make the text centered  https://stackoverflow.com/a/27576899/6173665
