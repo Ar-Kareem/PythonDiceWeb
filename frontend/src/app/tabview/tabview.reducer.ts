@@ -28,6 +28,7 @@ export const tabviewActions = createActionGroup({
     'Change Active Index': props<{ newIndex: number }>(),
     'Change Allowed New Tabs': props<{ allowedNewTabs: string[] }>(),
     'Change Open Tabs': props<{ openTabs: ITab[], newIndex?: number }>(),
+    'To Python Button Clicked': emptyProps(),
   },
 });
 

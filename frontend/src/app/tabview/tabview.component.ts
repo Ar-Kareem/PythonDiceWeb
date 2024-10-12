@@ -54,7 +54,6 @@ export class TabviewComponent implements AfterViewInit {
       this.convertBtnViewable = this.ngTabPanels[this.ngActiveIndex]?.title === 'DiceCode';
       // this.cd.detectChanges();
     });
-
   }
 
   plusButtonClicked() {
@@ -63,6 +62,10 @@ export class TabviewComponent implements AfterViewInit {
     this.dropdownElement!.nativeElement.style.top = br.top + scroll + 20 + 'px';
     this.dropdownElement!.nativeElement.style.left = br.left + 'px';
     this.dropdown?.show();
+  }
+
+  convertToPython() {
+    this.store.dispatch(tabviewActions.toPythonButtonClicked());
   }
 
   activeIndexChange(newIndex: number) {

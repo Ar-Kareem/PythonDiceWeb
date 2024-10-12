@@ -1,6 +1,7 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, ChangeDetectorRef  } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, ChangeDetectorRef, OnDestroy  } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { filter, Observable, Subject, throttleTime } from 'rxjs';
+import { Actions, ofType } from '@ngrx/effects';
+import { filter, Observable, Subject, takeUntil, throttleTime } from 'rxjs';
 
 import { CodeApiActions, herosSelectors, SidebarActions } from './heros.reducer';
 import { ITab, tabviewActions, tabviewSelectors } from '../tabview/tabview.reducer';
@@ -12,7 +13,7 @@ import { ToastActions } from '../toast/toast.reducer';
   templateUrl: './heroes.component.html',
   styleUrl: './heroes.component.scss'
 })
-export class HeroesComponent implements AfterViewInit {
+export class HeroesComponent implements AfterViewInit, OnDestroy {
 
   @ViewChild('autoResizeTextarea') textarea: ElementRef<HTMLTextAreaElement> | undefined;
 
@@ -23,15 +24,23 @@ export class HeroesComponent implements AfterViewInit {
   selectedTabIndex: number|undefined;
   allTabs: ITab[] = [];
   selectedTab: ITab|null = null;
-  sidebarVisible$: Observable<boolean> = this.store.select(herosSelectors.selectSidebarVisible);
 
-  constructor(private cd: ChangeDetectorRef, private store: Store) { }
+  sidebarVisible$: Observable<boolean> = this.store.select(herosSelectors.selectSidebarVisible);
+  private destroyed$ = new Subject<boolean>();
+  constructor(private cd: ChangeDetectorRef, private store: Store, private actions$: Actions) { }
 
   ngAfterViewInit() {
     if (typeof window !== 'undefined') {(window as any).heros = this}
 
     this.ngContentsInput.set('DiceCode', `\noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`);
     this.initFromLocalStorage();
+
+    this.actions$.pipe(
+      ofType(tabviewActions.toPythonButtonClicked),
+      takeUntil(this.destroyed$),
+    ).subscribe(() => {
+      this.onTranslateRequest();
+    });
 
     this.sidebarVisible$.subscribe(() => {
       this.autoOutputHeight();  // sidebar change causes output height to change
@@ -121,11 +130,11 @@ export class HeroesComponent implements AfterViewInit {
     this.cd.detectChanges();
   }
 
-  getServerErrorMsg(error: any, inp_code: string) {
-    console.log('Error:', error);
+  getServerErrorMsg(response: any, inp_code: string) {
+    console.log('Error:', response);
     console.log('Input code:', inp_code);
-    let code = error.message;
-    let payload = error.payload;
+    let code = response.error.message;
+    let payload = response.error.payload;
     if (code === 'EMPTY') {
       return '';
     } else if (code === 'LEX') {
@@ -159,7 +168,7 @@ export class HeroesComponent implements AfterViewInit {
         return 'Error in Python:\n' + payload.message;
       }
     } else {
-      return `Unexpected Error: ${error}`;
+      return `Unexpected Error: ${response}`;
     }
   }
 
@@ -245,6 +254,11 @@ export class HeroesComponent implements AfterViewInit {
       return;
     }
     this.store.dispatch(CodeApiActions.translateDiceCodeRequest({ code: toTranslate }));
+  }
+
+  ngOnDestroy() {
+    this.destroyed$.next(true);
+    this.destroyed$.complete();
   }
 
 }
