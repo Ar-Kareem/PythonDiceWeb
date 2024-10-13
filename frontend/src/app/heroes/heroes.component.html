@@ -47,7 +47,7 @@
         </div>
       </div>
 
-      <p-progressBar mode="indeterminate" [style]="{ height: '6px' }" />
+      <p-progressBar *ngIf="isLoading" mode="indeterminate" [style]="{ height: '6px' }" />
 
       <div class="bttn-padding">
         <p-button 

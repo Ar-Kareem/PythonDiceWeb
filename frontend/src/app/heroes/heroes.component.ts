@@ -14,6 +14,7 @@ import { ToastActions } from '../toast/toast.reducer';
   styleUrl: './heroes.component.scss'
 })
 export class HeroesComponent implements AfterViewInit, OnDestroy {
+  private readonly LOADING = 'Loading...';
 
   @ViewChild('autoResizeTextarea') textarea: ElementRef<HTMLTextAreaElement> | undefined;
 
@@ -21,6 +22,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   ngContentsInput = new Map<string, string>();
   ngContentsOutput = new Map<string, string>();
 
+  isLoading = false;
   selectedTabIndex: number|undefined;
   allTabs: ITab[] = [];
   selectedTab: ITab|null = null;
@@ -32,7 +34,6 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     if (typeof window !== 'undefined') {(window as any).heros = this}
 
-    this.ngContentsInput.set('DiceCode', `\noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`);
     this.initFromLocalStorage();
 
     this.actions$.pipe(
@@ -62,6 +63,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     this.store.select(herosSelectors.selectDiceExecResult).pipe(
       filter(data => !!data)  // filter out null values
     ).subscribe((data) => {
+      this.isLoading = false;
       this.setResponse(data.result);
       console.log('Python code:\n', data.parsed);
       console.log('Python time:\n', data.time.toFixed(2));
@@ -70,6 +72,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     this.store.select(herosSelectors.selectDiceExecFailure).pipe(
       filter(error => !!error)  // filter out null values
     ).subscribe(({response, inp_code}) => {
+      this.isLoading = false;
       this.setResponse(this.getServerErrorMsg(response, inp_code));
     });
 
@@ -78,6 +81,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     ).subscribe((data) => {
       if (!data.err) {  // translation successful
         this.onInputChange(data.response.result, 'Python');
+        this.isLoading = false;
         this.setResponse('', 'Python');
         const pythonActiveIndex = this.allTabs.findIndex(tab => tab.title === 'Python');
         if (pythonActiveIndex !== -1) {  // change existing tab
@@ -117,6 +121,11 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
         loaded.push(title);
       }
     });
+    // if no code, set default code
+    if (!this.ngContentsInput.has('DiceCode')) {
+      this.ngContentsInput.set('DiceCode', `\noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`);
+      loaded.push('DiceCode');
+    }
     if (loaded.length > 0) {
       let selectedTabIndex = parseInt(localStorage.getItem('selectedTabIndex') || '0');
       selectedTabIndex = Math.min(selectedTabIndex, loaded.length - 1);
@@ -211,14 +220,11 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   }
 
   setResponse(response: string, title?: string) {
-    if (!title) {
-      title = this.selectedTab?.title;
-    }
+    title = title || this.selectedTab?.title;
     if (!title) {  // no tab selected
       console.error('No tab selected!!!');
       return;
     }
-    // this.ngResponse = response;
     this.ngContentsOutput.set(title, response);
     this.autoOutputHeight();
   }
@@ -236,10 +242,12 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     }
     if (title === 'DiceCode') {
       this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: toExec }));
-      this.setResponse('Loading...');
+      this.isLoading = true;
+      this.setResponse(this.LOADING);
     } else if (title === 'Python') {
       this.store.dispatch(CodeApiActions.execPythonCodeRequest({ code: toExec }));
-      this.setResponse('Loading...');
+      this.isLoading = true;
+      this.setResponse(this.LOADING);
     } else {
       this.store.dispatch(ToastActions.errorNotification({ title: 'Cant execute for this tab', message: '' }));
     }
