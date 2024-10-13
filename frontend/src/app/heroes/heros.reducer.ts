@@ -1,4 +1,4 @@
-import { createReducer, on } from '@ngrx/store';
+import { createReducer, createSelector, on } from '@ngrx/store';
 import { createActionGroup, props, emptyProps } from '@ngrx/store';
 import { createFeature } from '@ngrx/store';
 
@@ -16,6 +16,7 @@ export const SidebarActions = createActionGroup({
   events: {
     'Toggle Sidebar': emptyProps(),
     'Set Sidebar': props<{ newState: boolean }>(),
+    'GUI Variable Change': props<{ varname: string, value: any }>(),
   },
 });
 
@@ -39,12 +40,14 @@ interface State {
   diceExecResult: any,
   diceExecFailure: any,
   servTranslateRes: TranslateResp | null, 
+  GUIVariables: { [varname: string]: any },
 };
 const initialState: State = {
   sidebarVisible: false,
   diceExecResult: null,
   diceExecFailure: null,
   servTranslateRes: null,
+  GUIVariables: {},
 };
 
 export const feature = createFeature({
@@ -66,7 +69,16 @@ export const feature = createFeature({
     on(CodeApiActions.translateDiceCodeRespone, (state, response) => {
       return { ...state, servTranslateRes: response};
     }),
+    on(SidebarActions.gUIVariableChange, (state, { varname, value }) => {
+      return { ...state, GUIVariables: { ...state.GUIVariables, [varname]: value } };
+    }),
   ),
+  extraSelectors: (G) => ({
+    // selector with props
+    selectSingleGUIVariable: (varname: string) => createSelector(G.selectGUIVariables, (GUIVariables) => {
+      return GUIVariables[varname];
+    }),
+  }),
 });
 
 export const {
@@ -79,4 +91,5 @@ export const herosSelectors = {
   selectDiceExecResult: feature.selectDiceExecResult,
   selectDiceExecFailure: feature.selectDiceExecFailure,
   selectServTranslateRes: feature.selectServTranslateRes,
+  selectSingleGUIVariable: feature.selectSingleGUIVariable,
 };

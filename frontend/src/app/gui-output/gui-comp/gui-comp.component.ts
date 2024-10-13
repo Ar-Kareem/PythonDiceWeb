@@ -1,6 +1,8 @@
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { ElemTypes, GUIElement } from '../GUIModels';
 import { Store } from '@ngrx/store';
+import { herosSelectors, SidebarActions } from '../../heroes/heros.reducer';
+import { filter, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-gui-comp',
@@ -16,11 +18,12 @@ export class GuiCompComponent implements OnInit {
   @Input()
   set inputGUI(inpGUI: GUIElement | null) {
     this._inputGUI = inpGUI;
-    if (!!inpGUI && this.hasName(inpGUI)) {
+    if (!!inpGUI && this.hasName(inpGUI) && inpGUI.varname !== this.varName) {  // if varname has changed
       this.varName = inpGUI.varname;
+      this.subscribeToStoreVarName(inpGUI.varname);
     }
     if (!!inpGUI && this.hasDefaultVal(inpGUI) && inpGUI.defaultVal !== this.origDefaultVal) {  // if default value has changed
-      console.log(this.varName, 'default set to', inpGUI.defaultVal);
+      console.log('INPUT CHANGE', this.varName, 'default set to', inpGUI.defaultVal);
       this.varValue = inpGUI.defaultVal;
       this.origDefaultVal = inpGUI.defaultVal;
     }
@@ -33,12 +36,35 @@ export class GuiCompComponent implements OnInit {
   constructor (private store: Store, private cd: ChangeDetectorRef) {}
 
   ngOnInit() {
-    console.log('GUIComp init');
+    // console.log('GUIComp init');
+    
+  }
+
+  private ngDestroyed$ = new Subject();
+  subscribeToStoreVarName(varname: string) {
+    // new subscription, unsubscribe from previous
+    this.ngDestroyed$.next(0);
+    this.store.select(herosSelectors.selectSingleGUIVariable(varname))
+    .pipe(
+      takeUntil(this.ngDestroyed$),
+      filter((value) => value !== undefined)
+    ).subscribe((value) => {
+      console.log('STORE CHANGE', 'subscribed to', varname, 'got', value);
+      this.varValue = value;
+      this.cd.detectChanges();
+    });
   }
 
   onVarValueChange(event: any) {
     this.varValue = event;
-    console.log(this.displayOnly, this.varName, 'set to', this.varValue);
+    console.log('GUI CHANGE', this.displayOnly?'dryrun':'prod', this.varName, 'set to', this.varValue);
+    if (!this.varName) {
+      console.log('ERROR: varName not set');
+      return;
+    }
+    if (!this.displayOnly) {
+      this.store.dispatch(SidebarActions.gUIVariableChange({ varname: this.varName, value: this.varValue }));
+    }
   }
 
 
