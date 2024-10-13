@@ -1,13 +1,9 @@
-<div *ngIf="inputGUI" style="display: flex; flex-direction: inherit; gap: 10px">
+<div *ngIf="inputGUI" class="main">
 @switch (inputGUI.type) {
   @case (TYPES.Box) {
-    <div [ngStyle]="{ 
-      'display': 'flex', 
-      'flex-direction': inputGUI.direction === 'row' ? 'row' : 'column', 
-      'gap': '10px'}"
-      >
+    <div class="box" [ngClass]="{'row': inputGUI.direction === 'row', 'column': inputGUI.direction !== 'row'}">
       <ng-container *ngFor="let child of inputGUI.children">
-        <app-gui-comp [inputGUI]="child" style="flex-direction: inherit;" />
+        <app-gui-comp [inputGUI]="child" class="child-recursion" />
       </ng-container>
     </div>
   }
@@ -22,21 +18,17 @@
     </div>
   }
   @case (TYPES.Input) {
-    <div>
-      <p-inputNumber 
-        [(ngModel)]="inputGUI.defaultVal"
-        inputId="{{ inputGUI.label }}"
-      ></p-inputNumber>
-    </div>
+    <label>{{ inputGUI.label }}</label>
+    <p-inputNumber 
+      [(ngModel)]="inputGUI.defaultVal"
+    ></p-inputNumber>
   }
   @case (TYPES.Output) {
-    <div>
-      <p-inputNumber 
-        [ngModel]="'None'"
-        inputId="{{ inputGUI.label }}"
-        [disabled]="true"
-      ></p-inputNumber>
-    </div>
+    <label>{{ inputGUI.label }}</label>
+    <p-inputNumber 
+      [ngModel]="'None'"
+      [disabled]="true"
+    ></p-inputNumber>
   }
   @case (TYPES.Radio) {
     <label>{{ inputGUI.label }}</label>
@@ -57,8 +49,8 @@
         [options]="inputGUI.options" 
         [(ngModel)]="inputGUI.defaultVal"
         optionLabel="label" 
-        optionValue="value">
-      </p-dropdown>
+        optionValue="value"
+      ></p-dropdown>
     </div>
   }
 
