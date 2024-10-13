@@ -84,6 +84,7 @@ function xmldocToGUIElement(rootxml: string): GUIElement {
 
 function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
   switch (node.name.toLowerCase()) {
+    case 'root':  // root same as box
     case ElemTypes.Box.toLowerCase(): {
       const direction = getAttribute(node, 'direction', 'column');
       assertAttrValues(node, 'direction', direction, ['row', 'column']);
@@ -122,7 +123,6 @@ function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
           assertName(option, 'option');
           return new DropdownOption(getAttribute(option, 'label'), getAttribute(option, 'value'));
       });
-      // assert that options > 0
       if (options.length === 0) {
         throw new INTERNAL_ParseError(`<Radio> must have at least 1 <option>`, node);
       }
@@ -140,7 +140,6 @@ function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
           assertName(option, 'option');
           return new DropdownOption(getAttribute(option, 'label'), getAttribute(option, 'value'));
       });
-      // assert that options > 0
       if (options.length === 0) {
         throw new INTERNAL_ParseError(`<Dropdown> must have at least 1 <option>`, node);
       }
@@ -153,6 +152,7 @@ function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
       throw new INTERNAL_ParseError(`Unknown <${node.name}>`, node);
   }
 }
+
 function assertName(node: XmlElement, ...names: string[]) {
   if (!names.includes(node.name)) {
     throw new INTERNAL_ParseError(`<${node.name}> invalid. Must be <${names.join(', ')}>`, node);

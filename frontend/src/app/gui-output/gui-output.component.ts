@@ -35,6 +35,8 @@ export class GuiOutputComponent implements AfterViewInit {
   }
 
   private compileXML(rootxml: string): void {
+    // wrap rootxml with <box>
+    rootxml = `<root>${rootxml}</root>`;
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(rootxml, 'application/xml');
     this.parseError = xmlDoc.querySelector("parsererror")?.textContent
