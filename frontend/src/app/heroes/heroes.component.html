@@ -67,7 +67,7 @@
           ></textarea>
         </div>
         <!-- GUI -->
-        <div *ngIf="tab.title === 'GUI'">
+        <div *ngIf="tab.title === 'GUI' && i === selectedTabIndex">
           <app-gui-output [inputXML]="ngContentsInput.get('GUI') ?? ''"></app-gui-output>
         </div>
       </ng-container>
