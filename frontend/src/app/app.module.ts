@@ -19,6 +19,7 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { RadioButtonModule } from 'primeng/radiobutton';
+import { ProgressBarModule } from 'primeng/progressbar';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -61,6 +62,7 @@ import { HerosEffects } from './heroes/heros.effects';
     CheckboxModule,
     InputNumberModule,
     RadioButtonModule,
+    ProgressBarModule,
     EffectsModule.forRoot([
       HerosEffects
     ]),

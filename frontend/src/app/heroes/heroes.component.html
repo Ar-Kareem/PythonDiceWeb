@@ -1,10 +1,11 @@
-<div class="wrapper">
+<div class="main">
 
-
+  <!-- TOGGLE SIDEBAR BUTTON -->
   <div [ngClass]="{'margin-right-bttn': true, 'hidden-bttn': (sidebarVisible$ | async)}">
     <p-button (onClick)="toggleSidebar()" rounded="true" icon="pi pi-bars" styleclass="w-2rem h-2rem p-0" label=""></p-button>
   </div>
 
+  <!-- SIDEBAR -->
   <p-sidebar [visible]="(sidebarVisible$ | async)!" [modal]="false" class="left-panel" [showCloseIcon]="true"
     (onHide)="toggleSidebar()"
   >
@@ -45,6 +46,8 @@
           ></textarea>
         </div>
       </div>
+
+      <p-progressBar mode="indeterminate" [style]="{ height: '6px' }" />
 
       <div class="bttn-padding">
         <p-button 
