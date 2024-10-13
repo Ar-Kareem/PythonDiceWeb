@@ -2,8 +2,8 @@
 
 <!-- error div -->
 <div #overlayTarget class="error-div">
-  <p-overlayPanel #op appendTo="body" [dismissable]="false" [style]="{width: '300px'}">
-    <div style="white-space: pre-wrap">{{parseError}}</div>
+  <p-overlayPanel #op appendTo="body" [dismissable]="false" [style]="{width: 'fit-content'}">
+    <div style="white-space: pre-wrap; font-family: Courier New, Courier, monospace;">{{parseError}}</div>
   </p-overlayPanel>
 </div>
 
