@@ -43,8 +43,9 @@
             ],
             "scripts": [
               "node_modules/sax/lib/sax.js",
-              { "input": "src/asset/semicolon.js", "inject": true },
-              "node_modules/xmldoc/lib/xmldoc.js"
+              "src/asset/semicolon.js",
+              "node_modules/xmldoc/lib/xmldoc.js",
+              "src/asset/xmldoc.js"
             ],
             "server": "src/main.server.ts",
             "prerender": true,
