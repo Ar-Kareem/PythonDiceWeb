@@ -58,6 +58,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     });
     this.store.select(tabviewSelectors.selectSelectedTab).subscribe((tab) => {
       this.selectedTab = tab
+      this.cd.detectChanges();
     });
 
     this.store.select(herosSelectors.selectDiceExecResult).pipe(
