@@ -1,6 +1,6 @@
 <div *ngIf="inputGUI" style="display: flex; flex-direction: inherit; gap: 10px">
 @switch (inputGUI.type) {
-  @case ('Box') {
+  @case (TYPES.Box) {
     <div [ngStyle]="{ 
       'display': 'flex', 
       'flex-direction': inputGUI.direction === 'row' ? 'row' : 'column', 
@@ -11,7 +11,7 @@
       </ng-container>
     </div>
   }
-  @case ('Checkbox') {
+  @case (TYPES.Checkbox) {
     <div>
       <p-checkbox 
         [(ngModel)]="inputGUI.defaultVal" 
@@ -21,7 +21,7 @@
       ></p-checkbox>
     </div>
   }
-  @case ('Input') {
+  @case (TYPES.Input) {
     <div>
       <p-inputNumber 
         [(ngModel)]="inputGUI.defaultVal"
@@ -29,7 +29,7 @@
       ></p-inputNumber>
     </div>
   }
-  @case ('Output') {
+  @case (TYPES.Output) {
     <div>
       <p-inputNumber 
         [ngModel]="'None'"
@@ -38,7 +38,7 @@
       ></p-inputNumber>
     </div>
   }
-  @case ('Radio') {
+  @case (TYPES.Radio) {
     <label>{{ inputGUI.label }}</label>
     <div *ngFor="let option of inputGUI.options">
       <p-radioButton 
@@ -50,7 +50,7 @@
       <label for="{{ option.value }}">{{ option.label }}</label>
     </div>
   }
-  @case ('Dropdown') {
+  @case (TYPES.Dropdown) {
     <div>
       <label>{{ inputGUI.label }}</label>
       <p-dropdown 

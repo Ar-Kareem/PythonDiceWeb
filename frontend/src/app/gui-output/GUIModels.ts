@@ -1,31 +1,37 @@
-
+export enum ElemTypes {
+  Box = 'Box',
+  Checkbox = 'Checkbox',
+  Input = 'Input',
+  Output = 'Output',
+  Radio = 'Radio',
+  Dropdown = 'Dropdown',
+}
 interface BaseElement {
   readonly label: string;
   readonly varname: string;
 }
-
 export class BoxElement {
-  readonly type = 'Box';
+  readonly type = ElemTypes.Box;
   constructor(readonly direction: 'row' | 'column', readonly children: GUIElement[]) {}
 }
 
 class CheckboxElement implements BaseElement {
-  readonly type = 'Checkbox';
+  readonly type = ElemTypes.Checkbox;
   constructor(readonly label: string, readonly varname: string, readonly defaultVal: boolean) {}
 }
 
 class InputElement implements BaseElement {
-  readonly type = 'Input';
+  readonly type = ElemTypes.Input;
   constructor(readonly label: string, readonly varname: string, readonly defaultVal: number) {}
 }
 
 class OutputElement implements BaseElement {
-  readonly type = 'Output';
+  readonly type = ElemTypes.Output;
   constructor(readonly label: string, readonly varname: string) {}
 }
 
 class RadioElement implements BaseElement {
-  readonly type = 'Radio';
+  readonly type = ElemTypes.Radio;
   constructor(readonly label: string, readonly varname: string, readonly defaultVal: string, readonly options: RadioOption[]) {}
 }
 class RadioOption {
@@ -33,7 +39,7 @@ class RadioOption {
 }
 
 class DropdownElement implements BaseElement {
-  readonly type = 'Dropdown';
+  readonly type = ElemTypes.Dropdown;
   constructor(readonly label: string, readonly varname: string, readonly defaultVal: string, readonly options: DropdownOption[]) {}
 }
 class DropdownOption {
@@ -81,7 +87,7 @@ export function xmldocToGUIElement(rootxml: string): GUIElement {
 
 function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
   switch (node.name.toLowerCase()) {
-    case 'box': {
+    case ElemTypes.Box.toLowerCase(): {
       const direction = getAttribute(node, 'direction') || 'row';
       assertAttrValues(node, 'direction', direction, ['row', 'column']);
       const children: GUIElement[] = Array.from(node.children)
@@ -89,7 +95,7 @@ function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
         .map(child => xmldocToGUIElement_helper(child));
       return new BoxElement(direction as ('row' | 'column'), children);
     }
-    case 'checkbox': {
+    case ElemTypes.Checkbox.toLowerCase(): {
       const label = getAttribute(node, 'label');
       const varname = getAttribute(node, 'var');
       const valStr = getAttribute(node, 'default') || 'false';
@@ -97,7 +103,7 @@ function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
       const defaultVal = (valStr === 'true') || (valStr === '1') || (valStr === 'on');
       return new CheckboxElement(label, varname, defaultVal);
     }
-    case 'input': {
+    case ElemTypes.Input.toLowerCase(): {
       const label = getAttribute(node, 'label');
       const varname = getAttribute(node, 'var');
       const valStr = getAttribute(node, 'default') || '0';
@@ -105,12 +111,12 @@ function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
       const defaultVal = Number(valStr);
       return new InputElement(label, varname, defaultVal);
     }
-    case 'output': {
+    case ElemTypes.Output.toLowerCase(): {
       const label = getAttribute(node, 'label');
       const varname = getAttribute(node, 'var');
       return new OutputElement(label, varname);
     }
-    case 'radio': {
+    case ElemTypes.Radio.toLowerCase(): {
       const label = getAttribute(node, 'label');
       const varname = getAttribute(node, 'var');
       const options = Array.from(node.children)
@@ -124,7 +130,7 @@ function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
       assertAttrValues(node, 'default', defaultVal, options.map(option => option.value));
       return new RadioElement(label, varname, defaultVal, options);
     }
-    case 'dropdown': {
+    case ElemTypes.Dropdown.toLowerCase(): {
       const label = getAttribute(node, 'label');
       const varname = getAttribute(node, 'var');
       const options = Array.from(node.children)

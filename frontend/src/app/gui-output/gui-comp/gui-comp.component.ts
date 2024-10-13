@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, Input } from '@angular/core';
-import { BoxElement, GUIElement, } from '../GUIModels';
+import { ElemTypes, GUIElement, } from '../GUIModels';
 
 @Component({
   selector: 'app-gui-comp',
@@ -9,5 +9,7 @@ import { BoxElement, GUIElement, } from '../GUIModels';
 export class GuiCompComponent {
 
   @Input() inputGUI: GUIElement | null = null;
+
+  public TYPES = ElemTypes
 
 }
