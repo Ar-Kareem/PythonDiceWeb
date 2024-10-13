@@ -6,6 +6,7 @@ import { filter, Observable, Subject, takeUntil, throttleTime } from 'rxjs';
 import { CodeApiActions, herosSelectors, SidebarActions } from './heros.reducer';
 import { ITab, tabviewActions, tabviewSelectors } from '../tabview/tabview.reducer';
 import { ToastActions } from '../toast/toast.reducer';
+import { TabTitles } from '../tabview/tabview.component';
 
 
 @Component({
@@ -15,6 +16,8 @@ import { ToastActions } from '../toast/toast.reducer';
 })
 export class HeroesComponent implements AfterViewInit, OnDestroy {
   private readonly LOADING = 'Loading...';
+  readonly TabsWithOutput: string[] = [TabTitles.DICE_CODE, TabTitles.PYTHON];
+  readonly TabTitles = TabTitles;
 
   @ViewChild('autoResizeTextarea') textarea: ElementRef<HTMLTextAreaElement> | undefined;
 
@@ -81,17 +84,17 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       filter(data => !!data)  // filter out null values
     ).subscribe((data) => {
       if (!data.err) {  // translation successful
-        this.onInputChange(data.response.result, 'Python');
+        this.onInputChange(data.response.result, TabTitles.PYTHON);
         this.isLoading = false;
-        this.setResponse('', 'Python');
-        const pythonActiveIndex = this.allTabs.findIndex(tab => tab.title === 'Python');
+        this.setResponse('', TabTitles.PYTHON);
+        const pythonActiveIndex = this.allTabs.findIndex(tab => tab.title === TabTitles.PYTHON);
         if (pythonActiveIndex !== -1) {  // change existing tab
           this.store.dispatch(tabviewActions.changeActiveIndex({
             newIndex: pythonActiveIndex,
           }));
         } else {  // python tab not found, add new tab
           this.store.dispatch(tabviewActions.changeOpenTabs({
-            openTabs: [...this.allTabs, {title: 'Python'}],
+            openTabs: [...this.allTabs, {title: TabTitles.PYTHON}],
             newIndex: this.allTabs.length,
           }));
         }
@@ -114,7 +117,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   initFromLocalStorage() {
     let loaded: string[] = [];
     console.log('initFromLocalStorage');
-    ['DiceCode', 'Python', 'GUI'].forEach((title) => {
+    Object.values(TabTitles).forEach((title) => {
       if (typeof localStorage == 'undefined') return;
       let content = localStorage?.getItem('input.' + title);
       if (!!content) {
@@ -123,9 +126,9 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       }
     });
     // if no code, set default code
-    if (!this.ngContentsInput.has('DiceCode')) {
-      this.ngContentsInput.set('DiceCode', `\noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`);
-      loaded.push('DiceCode');
+    if (!this.ngContentsInput.has(TabTitles.DICE_CODE)) {
+      this.ngContentsInput.set(TabTitles.DICE_CODE, `\noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`);
+      loaded.push(TabTitles.DICE_CODE);
     }
     if (loaded.length > 0) {
       let selectedTabIndex = parseInt(localStorage.getItem('selectedTabIndex') || '0');
@@ -241,11 +244,11 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       this.store.dispatch(ToastActions.warningNotification({ title: 'No code to execute', message: '' }));
       return;
     }
-    if (title === 'DiceCode') {
+    if (title === TabTitles.DICE_CODE) {
       this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: toExec }));
       this.isLoading = true;
       this.setResponse(this.LOADING);
-    } else if (title === 'Python') {
+    } else if (title === TabTitles.PYTHON) {
       this.store.dispatch(CodeApiActions.execPythonCodeRequest({ code: toExec }));
       this.isLoading = true;
       this.setResponse(this.LOADING);
@@ -256,7 +259,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
 
   onTranslateRequest() {
     const title = this.selectedTab?.title;
-    if (title !== 'DiceCode') {
+    if (title !== TabTitles.DICE_CODE) {
       this.store.dispatch(ToastActions.errorNotification({ title: 'Can only translate DiceCode', message: '' }));
       return;
     }

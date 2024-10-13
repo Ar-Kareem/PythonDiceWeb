@@ -4,8 +4,12 @@ import { Dropdown, DropdownChangeEvent } from 'primeng/dropdown';
 
 import { ToastActions } from '../toast/toast.reducer';
 import { ITab, tabviewActions, tabviewSelectors } from './tabview.reducer';
-import { TabView } from 'primeng/tabview';
 
+export enum TabTitles {
+  DICE_CODE = 'DiceCode',
+  PYTHON = 'Python',
+  GUI = 'GUI',
+}
 
 @Component({
   selector: 'app-tabview',
@@ -37,13 +41,13 @@ export class TabviewComponent implements AfterViewInit {
     });
 
     this.store.select(tabviewSelectors.selectOpenTabs).subscribe((tabs) => {
-      const allDropDowns = ['DiceCode', 'Python', 'GUI']
+      const allDropDowns = Object.values(TabTitles);
       const tabTitles = tabs.map(tab => tab.title);
       this.store.dispatch(tabviewActions.changeAllowedNewTabs({
         allowedNewTabs: allDropDowns.filter(tab => !tabTitles.includes(tab))
       }));
       this.ngTabPanels = tabs;
-      this.convertBtnViewable = this.ngTabPanels[this.ngActiveIndex]?.title === 'DiceCode';
+      this.convertBtnViewable = this.ngTabPanels[this.ngActiveIndex]?.title === TabTitles.DICE_CODE;
       // this.cd.detectChanges();
     });
 
@@ -51,7 +55,7 @@ export class TabviewComponent implements AfterViewInit {
       // console.log('activeIndex is set', index);
       this.ngActiveIndex = index;
       this.preActiveIndex = index;
-      this.convertBtnViewable = this.ngTabPanels[this.ngActiveIndex]?.title === 'DiceCode';
+      this.convertBtnViewable = this.ngTabPanels[this.ngActiveIndex]?.title === TabTitles.DICE_CODE;
       // this.cd.detectChanges();
     });
   }

@@ -49,7 +49,7 @@
 
       <p-progressBar *ngIf="isLoading" mode="indeterminate" [style]="{ height: '6px' }" />
 
-      <div class="bttn-padding" *ngIf="selectedTab?.title !== 'GUI'">
+      <div class="bttn-padding" *ngIf="selectedTab?.title !== TabTitles.GUI">
         <p-button 
           pButton 
           pRipple 
@@ -60,7 +60,7 @@
       </div>
 
       <ng-container *ngFor="let tab of allTabs; let i = index">
-        <div class="code-output" [ngClass]="{'myhidediv': selectedTabIndex !== i}"  *ngIf="ngContentsOutput.get(tab.title) && ['DiceCode', 'Python'].includes(tab.title)">
+        <div class="code-output" [ngClass]="{'myhidediv': selectedTabIndex !== i}"  *ngIf="ngContentsOutput.get(tab.title) && TabsWithOutput.includes(tab.title)">
           <textarea
             #autoResizeTextarea
             pInputTextarea
@@ -70,8 +70,8 @@
           ></textarea>
         </div>
         <!-- GUI -->
-        <div *ngIf="tab.title === 'GUI' && i === selectedTabIndex">
-          <app-gui-output [inputXML]="ngContentsInput.get('GUI') ?? ''"></app-gui-output>
+        <div *ngIf="tab.title === TabTitles.GUI && i === selectedTabIndex">
+          <app-gui-output [inputXML]="ngContentsInput.get(TabTitles.GUI) ?? ''"></app-gui-output>
         </div>
       </ng-container>
 
