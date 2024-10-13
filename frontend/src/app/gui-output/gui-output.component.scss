@@ -6,13 +6,15 @@
   // height: 30px;
   // margin-top: -100px;  // bad, will move parent and siblings as well
   position:relative;
-  top: -100px;
+  // top: -100px;  // no longer needed after hiding calculate button
 }
 
 .gui-grandparent {
   display: flex;
   flex-direction: row;
   justify-content: center;
+  padding-top: 20px;
+  padding-bottom: 100px;
 }
 
 .gui-parent {

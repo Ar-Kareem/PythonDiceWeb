@@ -1,41 +1,43 @@
-<div *ngIf="inputGUI" class="main">
-@switch (inputGUI.type) {
-  @case (TYPES.Box) {
-    <div class="box" [ngClass]="{'row': inputGUI.direction === 'row', 'column': inputGUI.direction !== 'row'}">
-      <ng-container *ngFor="let child of inputGUI.children">
-        <app-gui-comp [inputGUI]="child" class="child-recursion" />
+<div *ngIf="_inputGUI" class="main">
+@switch (_inputGUI.type) {
+    @case (TYPES.Box) {
+    <div class="box" [ngClass]="{'row': _inputGUI.direction === 'row', 'column': _inputGUI.direction !== 'row'}">
+      <ng-container *ngFor="let child of _inputGUI.children; trackBy: ALWAYTRUE">
+        <app-gui-comp [inputGUI]="child" class="child-recursion" [displayOnly]="displayOnly" />
       </ng-container>
     </div>
   }
   @case (TYPES.Checkbox) {
     <div>
       <p-checkbox 
-        [(ngModel)]="inputGUI.defaultVal" 
-        label="{{ inputGUI.label }}"
+        label="{{ _inputGUI.label }}"
+        [ngModel]="varValue"
+        (ngModelChange)="onVarValueChange($event)"
+        inputId="{{ _inputGUI.varname }}"
         binary="true"
-        inputId="{{ inputGUI.varname }}"
       ></p-checkbox>
     </div>
   }
   @case (TYPES.Input) {
-    <label>{{ inputGUI.label }}</label>
-    <p-inputNumber 
-      [(ngModel)]="inputGUI.defaultVal"
-    ></p-inputNumber>
+    <label>{{ _inputGUI.label }}</label>
+    <p-inputNumber
+      [ngModel]="varValue"
+      (ngModelChange)="onVarValueChange($event)"
+      ></p-inputNumber>
   }
   @case (TYPES.Output) {
-    <label>{{ inputGUI.label }}</label>
+    <label>{{ _inputGUI.label }}</label>
     <p-inputNumber 
-      [ngModel]="'None'"
       [disabled]="true"
     ></p-inputNumber>
   }
   @case (TYPES.Radio) {
-    <label>{{ inputGUI.label }}</label>
-    <div *ngFor="let option of inputGUI.options">
+    <label>{{ _inputGUI.label }}</label>
+    <div *ngFor="let option of _inputGUI.options">
       <p-radioButton 
-        name="{{ inputGUI.varname }}"
-        [(ngModel)]="inputGUI.defaultVal" 
+        [ngModel]="varValue"
+        (ngModelChange)="onVarValueChange($event)"
+        name="{{ _inputGUI.varname }}"
         [value]="option.value" 
         inputId="{{ option.value }}"
       ></p-radioButton>
@@ -44,19 +46,19 @@
   }
   @case (TYPES.Dropdown) {
     <div>
-      <label>{{ inputGUI.label }}</label>
+      <label>{{ _inputGUI.label }}</label>
       <p-dropdown 
-        [options]="inputGUI.options" 
-        [(ngModel)]="inputGUI.defaultVal"
+        [ngModel]="varValue"
+        (ngModelChange)="onVarValueChange($event)"
+        [options]="_inputGUI.options" 
         optionLabel="label" 
         optionValue="value"
       ></p-dropdown>
     </div>
   }
-
   @default {
     <div>
-      <p>Unsupported GUI type: {{ inputGUI }}</p>
+      <p>Unsupported GUI type: {{ _inputGUI }}</p>
     </div>
   }
 }

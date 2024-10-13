@@ -147,7 +147,7 @@ function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
 }
 function assertName(node: XmlElement, ...names: string[]) {
   if (!names.includes(node.name)) {
-    throw new INTERNAL_ParseError(`<${node.name}> invalid. Must be ${names.join(', ')}`, node);
+    throw new INTERNAL_ParseError(`<${node.name}> invalid. Must be <${names.join(', ')}>`, node);
   }
 }
 function getAttribute(node: XmlElement, attribute: string): string {
