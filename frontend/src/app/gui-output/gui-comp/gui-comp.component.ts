@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-gui-comp',
@@ -6,5 +6,7 @@ import { Component } from '@angular/core';
   styleUrl: './gui-comp.component.scss'
 })
 export class GuiCompComponent {
+
+  @Input() inputXML: Node | null = null;
 
 }

@@ -1,31 +1,23 @@
 declare global {
-  class XmlDocument {
-    constructor(xml: string);
-    children: XmlElement[];
-    childNamed(name: string): XmlElement | null;
-    childWithAttribute(name: string, value: string): XmlElement | null;
-    descendantsWithPath(path: string): XmlElement[];
-    toString(): string;
-  }
-
   class XmlElement {
     name: string;
+    type: 'element';
+
+    column: number;
+    line: number;
+    startTagPosition: number;
+
     attr: { [key: string]: string };
-    children: XmlElement[];
-    valueWithPath(path: string): string;
-    toString(): string;
+    children: (XmlElement|XmlTextNode)[];
+  }
+
+  class XmlDocument extends XmlElement {
+    constructor(xml: string);
   }
 
   class XmlTextNode {
     text: string;
-  }
-
-  class XmlCDataNode {
-    cdata: string;
-  }
-
-  class XmlCommentNode {
-    comment: string;
+    type: 'text';
   }
 
   const xmldoc: {
