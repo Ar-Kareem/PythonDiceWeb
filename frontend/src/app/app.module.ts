@@ -16,6 +16,9 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { DropdownModule } from 'primeng/dropdown';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { CheckboxModule } from 'primeng/checkbox';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { RadioButtonModule } from 'primeng/radiobutton';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -55,6 +58,9 @@ import { HerosEffects } from './heroes/heros.effects';
     ToastModule,
     DropdownModule,
     OverlayPanelModule,
+    CheckboxModule,
+    InputNumberModule,
+    RadioButtonModule,
     EffectsModule.forRoot([
       HerosEffects
     ]),

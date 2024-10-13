@@ -1,1 +1,71 @@
-<p>gui-comp works!</p>
+<div *ngIf="inputGUI" style="display: flex; flex-direction: inherit; gap: 10px">
+@switch (inputGUI.type) {
+  @case ('Box') {
+    <div [ngStyle]="{ 
+      'display': 'flex', 
+      'flex-direction': inputGUI.direction === 'row' ? 'row' : 'column', 
+      'gap': '10px'}"
+      >
+      <ng-container *ngFor="let child of inputGUI.children">
+        <app-gui-comp [inputGUI]="child" style="flex-direction: inherit;" />
+      </ng-container>
+    </div>
+  }
+  @case ('Checkbox') {
+    <div>
+      <p-checkbox 
+        [(ngModel)]="inputGUI.defaultVal" 
+        label="{{ inputGUI.label }}"
+        binary="true"
+        inputId="{{ inputGUI.varname }}"
+      ></p-checkbox>
+    </div>
+  }
+  @case ('Input') {
+    <div>
+      <p-inputNumber 
+        [(ngModel)]="inputGUI.defaultVal"
+        inputId="{{ inputGUI.label }}"
+      ></p-inputNumber>
+    </div>
+  }
+  @case ('Output') {
+    <div>
+      <p-inputNumber 
+        [ngModel]="'None'"
+        inputId="{{ inputGUI.label }}"
+        [disabled]="true"
+      ></p-inputNumber>
+    </div>
+  }
+  @case ('Radio') {
+    <label>{{ inputGUI.label }}</label>
+    <div *ngFor="let option of inputGUI.options">
+      <p-radioButton 
+        name="{{ inputGUI.varname }}"
+        [(ngModel)]="inputGUI.defaultVal" 
+        [value]="option.value" 
+        inputId="{{ option.value }}"
+      ></p-radioButton>
+      <label for="{{ option.value }}">{{ option.label }}</label>
+    </div>
+  }
+  @case ('Dropdown') {
+    <div>
+      <label>{{ inputGUI.label }}</label>
+      <p-dropdown 
+        [options]="inputGUI.options" 
+        [(ngModel)]="inputGUI.defaultVal"
+        optionLabel="label" 
+        optionValue="value">
+      </p-dropdown>
+    </div>
+  }
+
+  @default {
+    <div>
+      <p>Unsupported GUI type: {{ inputGUI }}</p>
+    </div>
+  }
+}
+</div>

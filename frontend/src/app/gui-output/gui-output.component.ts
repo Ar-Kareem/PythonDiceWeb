@@ -1,7 +1,8 @@
 import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { OverlayPanel } from 'primeng/overlaypanel';
-import { debounceTime, distinctUntilChanged, filter, ReplaySubject, Subject } from 'rxjs';
-import { GUIElementRenderer, ParseError } from './GUIModels';
+import { debounceTime, distinctUntilChanged, filter, ReplaySubject } from 'rxjs';
+
+import { xmldocToGUIElement, ParseError, GUIElement } from './GUIModels';
 
 @Component({
   selector: 'app-gui-output',
@@ -16,7 +17,7 @@ export class GuiOutputComponent implements AfterViewInit {
   @ViewChild('overlayTarget') overlayTarget: ElementRef | undefined;
   @ViewChild('op') errorOverlayPanel: OverlayPanel | undefined;
 
-  compiledXML: Node | null = null;
+  compiledGUI: GUIElement | null = null;
   parseError: string | null | undefined;
 
   constructor() {
@@ -45,7 +46,7 @@ export class GuiOutputComponent implements AfterViewInit {
       this.errorOverlayPanel!.show(new MouseEvent('click'), this.overlayTarget!.nativeElement);
     } else {
       try {
-        const GUIElement = new GUIElementRenderer(rootxml).render();
+        this.compiledGUI = xmldocToGUIElement(rootxml);
         this.errorOverlayPanel!.hide();  // everything is fine, hide the error overlay
       } catch (error) {
         if (error instanceof ParseError) {

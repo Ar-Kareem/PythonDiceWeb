@@ -1,44 +1,43 @@
 
 interface BaseElement {
-  type: string;
-  label: string;
-  varname: string;
+  readonly label: string;
+  readonly varname: string;
 }
 
-class BoxElement {
-  type = 'Box';
-  constructor(public direction: 'row' | 'column', public children: GUIElement[]) {}
+export class BoxElement {
+  readonly type = 'Box';
+  constructor(readonly direction: 'row' | 'column', readonly children: GUIElement[]) {}
 }
 
 class CheckboxElement implements BaseElement {
-  type = 'Checkbox';
-  constructor(public label: string, public varname: string, public defaultVal: boolean) {}
+  readonly type = 'Checkbox';
+  constructor(readonly label: string, readonly varname: string, readonly defaultVal: boolean) {}
 }
 
 class InputElement implements BaseElement {
-  type = 'Input';
-  constructor(public label: string, public varname: string, public defaultVal: number) {}
+  readonly type = 'Input';
+  constructor(readonly label: string, readonly varname: string, readonly defaultVal: number) {}
 }
 
 class OutputElement implements BaseElement {
-  type = 'Output';
-  constructor(public label: string, public varname: string) {}
+  readonly type = 'Output';
+  constructor(readonly label: string, readonly varname: string) {}
 }
 
 class RadioElement implements BaseElement {
-  type = 'Radio';
-  constructor(public label: string, public varname: string, public defaultVal: string, public options: RadioOption[]) {}
+  readonly type = 'Radio';
+  constructor(readonly label: string, readonly varname: string, readonly defaultVal: string, readonly options: RadioOption[]) {}
 }
 class RadioOption {
-  constructor(public label: string, public value: string) {}
+  constructor(readonly label: string, readonly value: string) {}
 }
 
 class DropdownElement implements BaseElement {
-  type = 'Dropdown';
-  constructor(public label: string, public varname: string, public defaultVal: string, public options: DropdownOption[]) {}
+  readonly type = 'Dropdown';
+  constructor(readonly label: string, readonly varname: string, readonly defaultVal: string, readonly options: DropdownOption[]) {}
 }
 class DropdownOption {
-  constructor(public label: string, public value: string) {}
+  constructor(readonly label: string, readonly value: string) {}
 }
 
 
@@ -57,43 +56,37 @@ class INTERNAL_ParseError extends Error  {
   }
 }
 
-export class GUIElementRenderer {
-  xmlDoc: XmlElement;
-  constructor(private rootxml: string) {
-    this.xmlDoc = new xmldoc.XmlDocument(rootxml);
+export function xmldocToGUIElement(rootxml: string): GUIElement {
+  const xmlDoc = new xmldoc.XmlDocument(rootxml);
+  try {
+    return xmldocToGUIElement_helper(xmlDoc);
   }
-  render(): GUIElement {
-    try{
-      return xmldocToGUIElement(this.xmlDoc);
+  catch (error) {
+    if (error instanceof INTERNAL_ParseError) {
+      console.log('ParseError:');
+      console.log(error.node);
+      console.log(error.message);
+      const problemLineNo = error.node.line;
+      // to calc column need startTagPosition (count from begining of rootxml)
+      const lenIgnore = rootxml.split('\n').slice(0, problemLineNo).join('\n').length;
+      const problemCol = error.node.startTagPosition - lenIgnore;
+      const problemLine = rootxml.split('\n')[problemLineNo].substring(0, problemCol+20);
+      error.message = `GUI Rendering Error:\n${error.message}\nLine ${problemLineNo+1}, Column ${problemCol+1}\n${problemLine}\n${'-'.repeat(problemCol)}^`;
+      throw new ParseError(error.message, error.node, problemLineNo);
     }
-    catch (error) {
-      if (error instanceof INTERNAL_ParseError) {
-        console.log('ParseError:');
-        console.log(error.node);
-        console.log(error.message);
-        const problemLineNo = error.node.line;
-        // need to startTagPosition (count from begining of rootxml) to get the correct column
-        const startTagPosition = error.node.startTagPosition;
-        const lenIgnore = this.rootxml.split('\n').slice(0, problemLineNo).join('\n').length;
-        const problemCol = startTagPosition - lenIgnore;
-        const problemLine = this.rootxml.split('\n')[problemLineNo].substring(0, problemCol+20);
-        error.message = `GUI Rendering Error:\n${error.message}\nLine ${problemLineNo+1}, Column ${problemCol+1}\n${problemLine}\n${'-'.repeat(problemCol)}^`;
-        throw new ParseError(error.message, error.node, problemLineNo);
-      }
-      throw error;
-    }
+    throw error;
   }
 }
 
 
-function xmldocToGUIElement(node: XmlElement): GUIElement{
+function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
   switch (node.name.toLowerCase()) {
     case 'box': {
       const direction = getAttribute(node, 'direction') || 'row';
       assertAttrValues(node, 'direction', direction, ['row', 'column']);
       const children: GUIElement[] = Array.from(node.children)
         .filter(child => child.type === 'element')
-        .map(child => xmldocToGUIElement(child));
+        .map(child => xmldocToGUIElement_helper(child));
       return new BoxElement(direction as ('row' | 'column'), children);
     }
     case 'checkbox': {

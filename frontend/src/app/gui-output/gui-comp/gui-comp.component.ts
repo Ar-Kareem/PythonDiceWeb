@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { AfterViewInit, Component, Input } from '@angular/core';
+import { BoxElement, GUIElement, } from '../GUIModels';
 
 @Component({
   selector: 'app-gui-comp',
@@ -7,6 +8,6 @@ import { Component, Input } from '@angular/core';
 })
 export class GuiCompComponent {
 
-  @Input() inputXML: Node | null = null;
+  @Input() inputGUI: GUIElement | null = null;
 
 }
