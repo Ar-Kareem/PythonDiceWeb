@@ -1,12 +1,22 @@
 .main {
-  padding-left: 10px;
-
 }
 
 .error-div {
-  width: 20px;
-  height: 30px;
+  // width: 20px;
+  // height: 30px;
   // margin-top: -100px;  // bad, will move parent and siblings as well
   position:relative;
   top: -100px;
+}
+
+.gui-grandparent {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.gui-parent {
+  width: fit-content;
+  border: 3px solid var(--highlight-bg);
+  padding: 15px;
 }

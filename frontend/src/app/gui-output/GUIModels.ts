@@ -1,4 +1,4 @@
-export enum ElemTypes {
+enum ElemTypes {
   Box = 'Box',
   Checkbox = 'Checkbox',
   Input = 'Input',
@@ -10,7 +10,7 @@ interface BaseElement {
   readonly label: string;
   readonly varname: string;
 }
-export class BoxElement {
+class BoxElement {
   readonly type = ElemTypes.Box;
   constructor(readonly direction: 'row' | 'column', readonly children: GUIElement[]) {}
 }
@@ -47,10 +47,7 @@ class DropdownOption {
 }
 
 
-export type GUIElement = BoxElement | CheckboxElement | InputElement | OutputElement | RadioElement | DropdownElement;
-
-
-export class ParseError extends Error  {
+class ParseError extends Error  {
   constructor(message: string, public node: XmlElement, public lineNo: number) {
     super(message);
   }
@@ -62,7 +59,7 @@ class INTERNAL_ParseError extends Error  {
   }
 }
 
-export function xmldocToGUIElement(rootxml: string): GUIElement {
+function xmldocToGUIElement(rootxml: string): GUIElement {
   const xmlDoc = new xmldoc.XmlDocument(rootxml);
   try {
     return xmldocToGUIElement_helper(xmlDoc);
@@ -169,3 +166,6 @@ function assertAttrValuesFn(node: XmlElement, attribute: string, value: string, 
     throw new INTERNAL_ParseError(`Invalid value of '${attribute}' in <${node.name}>.`, node);
   }
 }
+
+export type GUIElement = BoxElement | CheckboxElement | InputElement | OutputElement | RadioElement | DropdownElement;
+export { xmldocToGUIElement, ElemTypes, ParseError };

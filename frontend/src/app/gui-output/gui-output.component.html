@@ -7,8 +7,10 @@
   </p-overlayPanel>
 </div>
 
-<div>
-  <app-gui-comp [inputGUI]="compiledGUI"></app-gui-comp>
+<div class="gui-grandparent">
+  <div class="gui-parent">
+    <app-gui-comp [inputGUI]="compiledGUI"></app-gui-comp>
+  </div>
 </div>
 
 </div>

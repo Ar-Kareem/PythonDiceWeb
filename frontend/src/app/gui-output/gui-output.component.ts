@@ -37,8 +37,7 @@ export class GuiOutputComponent implements AfterViewInit {
   private compileXML(rootxml: string): void {
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(rootxml, 'application/xml');
-    const xmlNativeParseError = xmlDoc.querySelector("parsererror")?.textContent
-    this.parseError = xmlNativeParseError
+    this.parseError = xmlDoc.querySelector("parsererror")?.textContent
     if (!!this.parseError) {
       const lines = this.parseError.split('\n').filter((line, i) => i != 1);  // remove the second line with URL
       lines[1] = lines[1].replace('\:', ':\n');  // split the line with colon

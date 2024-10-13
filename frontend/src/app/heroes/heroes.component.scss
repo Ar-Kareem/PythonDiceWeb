@@ -1,6 +1,7 @@
-.wrapper {  // contains sidebar and main-content
+.main {  // contains sidebar and main-content
   min-height: 100vh;
   background-color: var(--surface-ground);
+  padding-left: 8px;
 }
 
 .main-content {  // contains button, shifted-div, and inpout-content
@@ -22,7 +23,6 @@ p-sidebar.left-panel {
 
 .margin-right-bttn {
   padding-top: 8px;
-  padding-left: 8px;
   &.hidden-bttn {
     display: none;
   }
@@ -38,7 +38,7 @@ p-sidebar.left-panel {
 
 .code-input {
   width: 100%;
-  padding-left: 10px;
+  padding-left: 2px;
   // padding-top: 10px;
   // background-color: var(--surface-ground);
   textarea {
@@ -53,7 +53,6 @@ p-sidebar.left-panel {
 }
 
 .bttn-padding {
-  padding-left: 8px;
   padding-top: 10px;
   padding-bottom: 10px;
   .calculate-bttn {
