@@ -85,7 +85,7 @@ function xmldocToGUIElement(rootxml: string): GUIElement {
 function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
   switch (node.name.toLowerCase()) {
     case ElemTypes.Box.toLowerCase(): {
-      const direction = getAttribute(node, 'direction') || 'row';
+      const direction = getAttribute(node, 'direction', 'column');
       assertAttrValues(node, 'direction', direction, ['row', 'column']);
       const children: GUIElement[] = Array.from(node.children)
         .filter(child => child.type === 'element')
@@ -95,7 +95,7 @@ function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
     case ElemTypes.Checkbox.toLowerCase(): {
       const label = getAttribute(node, 'label');
       const varname = getAttribute(node, 'var');
-      const valStr = getAttribute(node, 'default') || 'false';
+      const valStr = getAttribute(node, 'default', 'false');
       assertAttrValues(node, 'default', valStr, ['true', 'false', '1', '0', 'on', 'off']);
       const defaultVal = (valStr === 'true') || (valStr === '1') || (valStr === 'on');
       return new CheckboxElement(label, varname, defaultVal);
@@ -103,7 +103,7 @@ function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
     case ElemTypes.Input.toLowerCase(): {
       const label = getAttribute(node, 'label');
       const varname = getAttribute(node, 'var');
-      const valStr = getAttribute(node, 'default') || '0';
+      const valStr = getAttribute(node, 'default', '0');
       assertAttrValuesFn(node, 'default', valStr, value => !isNaN(Number(value)));
       const defaultVal = Number(valStr);
       return new InputElement(label, varname, defaultVal);
@@ -122,7 +122,11 @@ function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
           assertName(option, 'option');
           return new DropdownOption(getAttribute(option, 'label'), getAttribute(option, 'value'));
       });
-      const defaultVal = getAttribute(node, 'default');
+      // assert that options > 0
+      if (options.length === 0) {
+        throw new INTERNAL_ParseError(`<Radio> must have at least 1 <option>`, node);
+      }
+      const defaultVal = getAttribute(node, 'default', options[0].value);
       // assert that default value is one of the options
       assertAttrValues(node, 'default', defaultVal, options.map(option => option.value));
       return new RadioElement(label, varname, defaultVal, options);
@@ -136,7 +140,11 @@ function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
           assertName(option, 'option');
           return new DropdownOption(getAttribute(option, 'label'), getAttribute(option, 'value'));
       });
-      const defaultVal = getAttribute(node, 'default');
+      // assert that options > 0
+      if (options.length === 0) {
+        throw new INTERNAL_ParseError(`<Dropdown> must have at least 1 <option>`, node);
+      }
+      const defaultVal = getAttribute(node, 'default', options[0].value);
       // assert that default value is one of the options
       assertAttrValues(node, 'default', defaultVal, options.map(option => option.value));
       return new DropdownElement(label, varname, defaultVal, options);
@@ -150,8 +158,11 @@ function assertName(node: XmlElement, ...names: string[]) {
     throw new INTERNAL_ParseError(`<${node.name}> invalid. Must be <${names.join(', ')}>`, node);
   }
 }
-function getAttribute(node: XmlElement, attribute: string): string {
+function getAttribute(node: XmlElement, attribute: string, defaultVal?: string): string {
   if (node.attr[attribute] === undefined) {
+    if (defaultVal !== undefined) {
+      return defaultVal;
+    }
     throw new INTERNAL_ParseError(`<${node.name}> missing ${attribute}.`, node);
   }
   return node.attr[attribute];
