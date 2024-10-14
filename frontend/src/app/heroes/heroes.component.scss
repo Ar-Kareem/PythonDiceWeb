@@ -2,12 +2,14 @@
   min-height: 100vh;
   background-color: var(--surface-ground);
   padding-left: 8px;
+  box-sizing:border-box;
 }
 
 .main-content {  // contains button, shifted-div, and inpout-content
-    width: 100vw;
+    width: calc(100vw - 8px);  // 100% - padding-left
     display: flex;
     flex-direction: row;
+    box-sizing:border-box;
 }
 
 p-sidebar.left-panel {
@@ -62,9 +64,14 @@ p-sidebar.left-panel {
 
 .myhidediv{
   // display: none;  // display none makes ctrl-z not work
+  // overflow: hidden;  // makes ctrl-z not work
   // workaround to hide div without breaking ctrl-z
-  visibility: collapse;
   height: 0;
+  visibility: collapse;
+  // i think below fixes black bar on bottom of page on mobile
+  position: relative;
+  top: -1000px;
+  left: -1000px;
 }
 
 .code-output {
