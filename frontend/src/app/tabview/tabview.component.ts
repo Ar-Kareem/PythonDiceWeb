@@ -8,8 +8,10 @@ import { ITab, tabviewActions, tabviewSelectors } from './tabview.reducer';
 export enum TabTitles {
   DICE_CODE = 'DiceCode',
   PYTHON = 'Python',
-  GUI = 'GUI',
+  GUI = 'GUI Editor',
+  GUISHOW = 'GUI Output',
 }
+const AllDropDowns = [TabTitles.DICE_CODE, TabTitles.PYTHON, TabTitles.GUI];
 
 @Component({
   selector: 'app-tabview',
@@ -41,10 +43,9 @@ export class TabviewComponent implements AfterViewInit {
     });
 
     this.store.select(tabviewSelectors.selectOpenTabs).subscribe((tabs) => {
-      const allDropDowns = Object.values(TabTitles);
-      const tabTitles = tabs.map(tab => tab.title);
+      const curTabTitles = tabs.map(tab => tab.title);
       this.store.dispatch(tabviewActions.changeAllowedNewTabs({
-        allowedNewTabs: allDropDowns.filter(tab => !tabTitles.includes(tab))
+        allowedNewTabs: AllDropDowns.filter(tab => !curTabTitles.includes(tab))
       }));
       this.ngTabPanels = tabs;
       this.convertBtnViewable = this.ngTabPanels[this.ngActiveIndex]?.title === TabTitles.DICE_CODE;
@@ -84,9 +85,10 @@ export class TabviewComponent implements AfterViewInit {
   }
 
   onDropdownChange(event: DropdownChangeEvent) {
-    let selected = event.value;
+    const selected: string = event.value;
     if (selected) {
-      this.store.dispatch(tabviewActions.changeOpenTabs({openTabs: [...this.ngTabPanels, {title: selected}], newIndex: this.ngTabPanels.length}));
+      const newTabs = [...this.ngTabPanels, {title: selected}];
+      this.store.dispatch(tabviewActions.changeOpenTabs({openTabs: newTabs, newIndex: this.ngTabPanels.length}));
     }
     this.cd.detectChanges();  // otherwise this.ngDropdownModel is not set to undefined and the option is still highlighted
     this.ngDropdownModel = undefined;  // reset dropdown

@@ -16,6 +16,7 @@ import { TabTitles } from '../tabview/tabview.component';
 })
 export class HeroesComponent implements AfterViewInit, OnDestroy {
   private readonly LOADING = 'Loading...';
+  readonly TabsWithInput: string[] = [TabTitles.DICE_CODE, TabTitles.PYTHON, TabTitles.GUI];
   readonly TabsWithOutput: string[] = [TabTitles.DICE_CODE, TabTitles.PYTHON];
   readonly TabTitles = TabTitles;
 
@@ -130,7 +131,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       this.ngContentsInput.set(TabTitles.DICE_CODE, `\noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`);
       loaded.push(TabTitles.DICE_CODE);
     }
-    if (loaded.length > 0) {
+    if (loaded.length > 0 && typeof localStorage !== 'undefined') {
       let selectedTabIndex = parseInt(localStorage.getItem('selectedTabIndex') || '0');
       selectedTabIndex = Math.min(selectedTabIndex, loaded.length - 1);
       this.store.dispatch(tabviewActions.changeOpenTabs({
@@ -209,7 +210,6 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   }
 
   autoOutputHeight() {
-    console.log('autoOutputHeight');
     if (!this.textarea) {
       return;
     }

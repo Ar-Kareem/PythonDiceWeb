@@ -1,6 +1,7 @@
 import { createReducer, on } from '@ngrx/store';
 import { createActionGroup, props, emptyProps } from '@ngrx/store';
 import { createFeature } from '@ngrx/store';
+import { TabTitles } from './tabview.component';
 
 // STATE
 export interface ITab {
@@ -44,6 +45,11 @@ export const feature = createFeature({
       return { ...state, allowedNewTabs: allowedNewTabs };
     }),
     on(tabviewActions.changeOpenTabs, (state, { openTabs, newIndex }) => {
+      // if GUI editor open then Show GUI output tab
+      const curTabTitles = openTabs.map(tab => tab.title);
+      if (curTabTitles.includes(TabTitles.GUI) && !curTabTitles.includes(TabTitles.GUISHOW)) {
+        openTabs = [...openTabs, {title: TabTitles.GUISHOW}];
+      }
       if (newIndex !== undefined) {
         return { ...state, openTabs: openTabs, activeIndex: newIndex, selectedTab: openTabs[newIndex] };
       }

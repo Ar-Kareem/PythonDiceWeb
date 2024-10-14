@@ -31,7 +31,7 @@
       <app-tabview />
 
       <div *ngFor="let tab of allTabs; let i = index">
-        <div class="code-input" [ngClass]="{'myhidediv': selectedTabIndex !== i}">
+        <div class="code-input" [ngClass]="{'myhidediv': selectedTabIndex !== i}" *ngIf="TabsWithInput.includes(tab.title)">
           <textarea
             rows="20"
             pInputTextarea 
