@@ -43,26 +43,18 @@ def ParseService(to_parse):
     return res
 
 
-def ParseExecService(to_parse):
-    s = time.time()
+def ParseExecService(to_parse) -> models.ParseExecModel:
     res = ParseService(to_parse)
-    python_str = res.parsed_python
-    if python_str is None:
+    if res.parsed_python is None:
         return res
-    exec_res = exec_with_timeout(f, args=(python_str, {}), timeout=5)
-    if exec_res is None:
-        res.is_timeout = True
-        logger.debug('Timeout')
-        return res
-    for (args, kwargs) in exec_res:
-        res.data.append(randvar.output(*args, **kwargs, print_=False, blocks_width=100))
-    res.resp_time = time.time() - s
+    res = ExecPythonService(res.parsed_python, res)
+    assert isinstance(res, models.ParseExecModel), 'Should never error'
     return res
 
 
-def ExecPythonService(python_str):
+def ExecPythonService(python_str: str|None, obj: models.ParseExecModel|None = None):
     s = time.time()
-    res = models.ExecPythonModel()
+    res = models.ExecPythonModel() if (obj is None) else obj
     if python_str is None or python_str.strip() == '':
         res.is_empty = True
         logger.debug('Empty string')

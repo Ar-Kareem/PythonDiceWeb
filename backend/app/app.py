@@ -61,6 +61,9 @@ def ParseExecController():
         raise InvalidAPIUsage("RESOLVER", status_code=400, payload=model.error_payload)
     if model.is_timeout:
         raise InvalidAPIUsage("TIMEOUT", status_code=400)
+    if model.is_error:
+        raise InvalidAPIUsage("PYTHONERROR", status_code=400, payload=model.error_payload)
+    logger.info('Success')
     return {
         'result': '\n'.join(model.data),
         'parsed': model.parsed_python,

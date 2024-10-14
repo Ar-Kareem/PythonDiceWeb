@@ -178,7 +178,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
         lineno = lineno.split(':')[0].substring(2);
         return `Error: Illegal variable name in ${lineno}, variables cannot start with an "_".`;
       } else {
-        return 'Error in Python:\n' + payload.message;
+        return `Runtime Error:\n${payload.message}`;
       }
     } else {
       return `Unexpected Error: ${response}`;

@@ -15,19 +15,6 @@ class InvalidAPIUsage(Exception):
             'payload': self.payload,
         }
 
-class ParseExecModel:
-    def __init__(self):
-        self.is_empty = False
-        self.is_lex_illegal = False
-        self.is_yacc_illegal = False
-        self.is_resolver_illegal = False
-        self.is_timeout = False
-        self.error_payload: dict|None = None
-        
-        self.parsed_python: str|None = None
-        self.data = []
-        self.resp_time: float|None = None
-
 class ExecPythonModel:
     def __init__(self):
         self.is_empty = False
@@ -37,3 +24,12 @@ class ExecPythonModel:
         
         self.data = []
         self.resp_time: float|None = None
+
+class ParseExecModel(ExecPythonModel):
+    def __init__(self):
+        super().__init__()
+        self.is_lex_illegal = False
+        self.is_yacc_illegal = False
+        self.is_resolver_illegal = False
+        self.parsed_python: str|None = None
+
