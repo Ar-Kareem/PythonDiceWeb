@@ -76,7 +76,7 @@
           ></textarea>
         </div>
         <!-- GUI -->
-        <div *ngIf="tab.title === TabTitles.GUI && i === selectedTabIndex">
+        <div [ngClass]="{'myhidediv': selectedTabIndex !== i}" *ngIf="tab.title === TabTitles.GUI">
           <app-gui-output [inputXML]="ngContentsInput.get(TabTitles.GUI) ?? ''"></app-gui-output>
         </div>
       </ng-container>
