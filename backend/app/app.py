@@ -13,10 +13,25 @@ import services
 
 
 def setup_logging():
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    Path("./logs").mkdir(parents=True, exist_ok=True)
+    debug_handler = logging.FileHandler("./logs/debug.log")
+    error_handler = logging.FileHandler("./logs/error.log")
+    stream_handler = logging.StreamHandler()
+    debug_handler.setLevel(logging.DEBUG)
+    error_handler.setLevel(logging.ERROR)
+    stream_handler.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    debug_handler.setFormatter(formatter)
+    error_handler.setFormatter(formatter)
+    stream_handler.setFormatter(formatter)
+
+    logger = logging.getLogger()
+    logger.addHandler(debug_handler)
+    logger.addHandler(error_handler)
+    logger.addHandler(stream_handler)
+    logger.setLevel(logging.DEBUG)
+
 
 
 setup_logging()
@@ -45,7 +60,7 @@ def invalid_api_usage(e):
 
 @app.route('/')
 def hello_world():
-    return 'Hello, World!'
+    return 'Youkoso!'
 
 
 
