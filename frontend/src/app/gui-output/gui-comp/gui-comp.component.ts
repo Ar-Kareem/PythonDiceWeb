@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input } from '@angular/core';
 import { ElemTypes, GUIElement } from '../GUIModels';
 import { Store } from '@ngrx/store';
 import { herosSelectors, SidebarActions } from '../../heroes/heros.reducer';
@@ -10,9 +10,9 @@ import { filter, Subject, takeUntil } from 'rxjs';
   styleUrl: './gui-comp.component.scss'
 })
 export class GuiCompComponent implements AfterViewInit {
-  
+
   public readonly TYPES = ElemTypes
-  
+
   @Input() displayOnly: boolean = true;
   _inputGUI: GUIElement | null = null;
   @Input()
@@ -78,6 +78,6 @@ export class GuiCompComponent implements AfterViewInit {
   private hasDefaultVal(object: any): object is { defaultVal: string }  {
     return 'defaultVal' in object;
   }
-  
+
 
 }

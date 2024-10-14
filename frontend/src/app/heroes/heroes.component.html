@@ -54,7 +54,7 @@
       <p-progressBar *ngIf="isLoading" mode="indeterminate" [style]="{ height: '6px' }" />
 
       <!-- BUTTON CALCULATE -->
-      <div class="bttn-padding" *ngIf="selectedTab?.title !== TabTitles.GUI">
+      <div *ngIf="selectedTab?.title !== TabTitles.GUI" [ngClass]="{'bttn-padding': true, 'center-btn': selectedTab?.title === TabTitles.GUISHOW}">
         <p-button 
           pButton 
           pRipple 
@@ -77,7 +77,7 @@
         </div>
         <!-- GUI -->
         <div [ngClass]="{'myhidediv': selectedTabIndex !== i}" *ngIf="tab.title === TabTitles.GUI">
-          <app-gui-output [inputXML]="ngContentsInput.get(TabTitles.GUI) ?? ''"></app-gui-output>
+          <app-gui-output [inputXML]="ngContentsInput.get(TabTitles.GUI) || ''" />
         </div>
       </ng-container>
 
