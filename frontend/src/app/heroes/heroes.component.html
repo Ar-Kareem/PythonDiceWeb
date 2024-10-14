@@ -28,8 +28,10 @@
 
     <div class="inpout-content">
 
+      <!-- toolbar -->
       <app-tabview />
 
+      <!-- INPUTS -->
       <div *ngFor="let tab of allTabs; let i = index">
         <div class="code-input" [ngClass]="{'myhidediv': selectedTabIndex !== i}" *ngIf="TabsWithInput.includes(tab.title)">
           <textarea
@@ -45,10 +47,13 @@
             (keydown.control.tab)="onInputKeyPress($event, 'shift-enter')"
           ></textarea>
         </div>
+        <!-- GUI SHOW INPUT -->
+        <app-gui-prod *ngIf="tab.title === TabTitles.GUISHOW && tab.title === selectedTab?.title" />
       </div>
 
       <p-progressBar *ngIf="isLoading" mode="indeterminate" [style]="{ height: '6px' }" />
 
+      <!-- BUTTON CALCULATE -->
       <div class="bttn-padding" *ngIf="selectedTab?.title !== TabTitles.GUI">
         <p-button 
           pButton 
@@ -59,6 +64,7 @@
         />
       </div>
 
+      <!-- OUTPUTS -->
       <ng-container *ngFor="let tab of allTabs; let i = index">
         <div class="code-output" [ngClass]="{'myhidediv': selectedTabIndex !== i}"  *ngIf="ngContentsOutput.get(tab.title) && TabsWithOutput.includes(tab.title)">
           <textarea

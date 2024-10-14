@@ -33,6 +33,7 @@ import { herosFeatureKey, herosReducer } from './heroes/heros.reducer';
 import { toastFeatureKey, toastReducer } from './toast/toast.reducer';
 import { tabviewFeatureKey, tabviewReducer } from './tabview/tabview.reducer';
 import { HerosEffects } from './heroes/heros.effects';
+import { GuiProdComponent } from './gui-output/gui-prod/gui-prod.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import { HerosEffects } from './heroes/heros.effects';
     TabviewComponent,
     GuiOutputComponent,
     GuiCompComponent,
+    GuiProdComponent,
   ],
   imports: [
     BrowserModule,

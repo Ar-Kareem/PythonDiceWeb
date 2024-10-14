@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { ElemTypes, GUIElement } from '../GUIModels';
 import { Store } from '@ngrx/store';
 import { herosSelectors, SidebarActions } from '../../heroes/heros.reducer';
@@ -9,7 +9,7 @@ import { filter, Subject, takeUntil } from 'rxjs';
   templateUrl: './gui-comp.component.html',
   styleUrl: './gui-comp.component.scss'
 })
-export class GuiCompComponent implements OnInit {
+export class GuiCompComponent implements AfterViewInit {
   
   public readonly TYPES = ElemTypes
   
@@ -23,7 +23,7 @@ export class GuiCompComponent implements OnInit {
       this.subscribeToStoreVarName(inpGUI.varname);
     }
     if (!!inpGUI && this.hasDefaultVal(inpGUI) && inpGUI.defaultVal !== this.origDefaultVal) {  // if default value has changed
-      console.log('INPUT CHANGE', this.varName, 'default set to', inpGUI.defaultVal);
+      // console.log('INPUT CHANGE', this.varName, 'default set to', inpGUI.defaultVal);
       this.varValue = inpGUI.defaultVal;
       this.origDefaultVal = inpGUI.defaultVal;
     }
@@ -35,9 +35,8 @@ export class GuiCompComponent implements OnInit {
 
   constructor (private store: Store, private cd: ChangeDetectorRef) {}
 
-  ngOnInit() {
-    // console.log('GUIComp init');
-    
+  ngAfterViewInit() {
+    console.log('GUI COMP INIT', this._inputGUI === null, this.displayOnly);
   }
 
   private ngDestroyed$ = new Subject();
@@ -49,7 +48,7 @@ export class GuiCompComponent implements OnInit {
       takeUntil(this.ngDestroyed$),
       filter((value) => value !== undefined)
     ).subscribe((value) => {
-      console.log('STORE CHANGE', 'subscribed to', varname, 'got', value);
+      // console.log('STORE CHANGE', 'subscribed to', varname, 'got', value);
       this.varValue = value;
       this.cd.detectChanges();
     });
@@ -57,7 +56,7 @@ export class GuiCompComponent implements OnInit {
 
   onVarValueChange(event: any) {
     this.varValue = event;
-    console.log('GUI CHANGE', this.displayOnly?'dryrun':'prod', this.varName, 'set to', this.varValue);
+    // console.log('GUI CHANGE', this.displayOnly?'dryrun':'prod', this.varName, 'set to', this.varValue);
     if (!this.varName) {
       console.log('ERROR: varName not set');
       return;

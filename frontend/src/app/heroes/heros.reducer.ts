@@ -1,6 +1,7 @@
 import { createReducer, createSelector, on } from '@ngrx/store';
 import { createActionGroup, props, emptyProps } from '@ngrx/store';
 import { createFeature } from '@ngrx/store';
+import { GUIElement } from '../gui-output/GUIModels';
 
 
 
@@ -31,6 +32,7 @@ export const CodeApiActions = createActionGroup({
     'Exec python code Failure': props<{ error: any }>(),
     'Translate dice code Request': props<{ code: string }>(),
     'Translate dice code Respone': props<TranslateResp>(),
+    'Set GUI Tree': props<{ element: GUIElement }>(),
   },
 });
 
@@ -41,6 +43,7 @@ interface State {
   diceExecFailure: any,
   servTranslateRes: TranslateResp | null, 
   GUIVariables: { [varname: string]: any },
+  GUITree: GUIElement | null,
 };
 const initialState: State = {
   sidebarVisible: false,
@@ -48,6 +51,7 @@ const initialState: State = {
   diceExecFailure: null,
   servTranslateRes: null,
   GUIVariables: {},
+  GUITree: null,
 };
 
 export const feature = createFeature({
@@ -72,9 +76,11 @@ export const feature = createFeature({
     on(SidebarActions.gUIVariableChange, (state, { varname, value }) => {
       return { ...state, GUIVariables: { ...state.GUIVariables, [varname]: value } };
     }),
+    on(CodeApiActions.setGUITree, (state, { element }) => {
+      return { ...state, GUITree: element };
+    }),
   ),
   extraSelectors: (G) => ({
-    // selector with props
     selectSingleGUIVariable: (varname: string) => createSelector(G.selectGUIVariables, (GUIVariables) => {
       return GUIVariables[varname];
     }),
@@ -92,4 +98,5 @@ export const herosSelectors = {
   selectDiceExecFailure: feature.selectDiceExecFailure,
   selectServTranslateRes: feature.selectServTranslateRes,
   selectSingleGUIVariable: feature.selectSingleGUIVariable,
+  selectGUITree: feature.selectGUITree,
 };

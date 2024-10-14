@@ -3,9 +3,11 @@
   width: 98%;
   height: fit-content;
   padding-left: 10px;
-  display: flex;
-  flex-flow: row nowrap;
-  // justify-content: space-between;
+  @media (min-width: 768px) {  // <tablet
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+  }
 }
 
 .tabview-custom {

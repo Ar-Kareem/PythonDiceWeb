@@ -5,6 +5,7 @@
   (onClose)="requestTabClose($event.index)"
   [controlClose]="true"
   (activeIndexChange)="activeIndexChange($event)"
+  [scrollable]="true"
   >
   <p-tabPanel 
     *ngFor="let tab of ngTabPanels; index as i" 
