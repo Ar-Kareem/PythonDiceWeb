@@ -112,7 +112,9 @@ function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
   switch (node.name.toLowerCase()) {
     case 'root':  // root same as box
     case ElemTypes.Box.toLowerCase(): {
-      const direction = getAttribute(node, 'direction', 'column');
+      let direction = getAttribute(node, 'direction', 'column');
+      if (direction === 'col' || direction === 'c') direction = 'column';
+      if (direction === 'r') direction = 'row';
       assertAttrValues(node, 'direction', direction, ['row', 'column']);
       const children: GUIElement[] = Array.from(node.children)
         .filter(child => child.type === 'element')

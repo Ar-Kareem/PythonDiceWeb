@@ -8,15 +8,13 @@
     </div>
   }
   @case (TYPES.Checkbox) {
-    <div>
-      <p-checkbox 
-        label="{{ _inputGUI.label }}"
-        [ngModel]="varValue"
-        (ngModelChange)="onVarValueChange($event)"
-        inputId="{{ _inputGUI.varname }}"
-        binary="true"
-      ></p-checkbox>
-    </div>
+    <p-checkbox 
+      label="{{ _inputGUI.label }}"
+      [ngModel]="varValue"
+      (ngModelChange)="onVarValueChange($event)"
+      inputId="{{ _inputGUI.varname }}"
+      binary="true"
+    ></p-checkbox>
   }
   @case (TYPES.Input) {
     <label>{{ _inputGUI.label }}</label>
@@ -45,16 +43,14 @@
     </div>
   }
   @case (TYPES.Dropdown) {
-    <div>
-      <label>{{ _inputGUI.label }}</label>
-      <p-dropdown 
-        [ngModel]="varValue"
-        (ngModelChange)="onVarValueChange($event)"
-        [options]="_inputGUI.options" 
-        optionLabel="label" 
-        optionValue="value"
-      ></p-dropdown>
-    </div>
+    <label>{{ _inputGUI.label }}</label>
+    <p-dropdown 
+      [ngModel]="varValue"
+      (ngModelChange)="onVarValueChange($event)"
+      [options]="_inputGUI.options" 
+      optionLabel="label" 
+      optionValue="value"
+    ></p-dropdown>
   }
   @default {
     <div>
