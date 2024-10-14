@@ -3,7 +3,7 @@
     @case (TYPES.Box) {
     <div class="box" [ngClass]="{'row': _inputGUI.direction === 'row', 'column': _inputGUI.direction !== 'row'}">
       <ng-container *ngFor="let child of _inputGUI.children; trackBy: ALWAYTRUE">
-        <app-gui-comp [inputGUI]="child" class="child-recursion" [displayOnly]="displayOnly" />
+        <app-gui-comp [inputGUI]="child" class="child-recursion" />
       </ng-container>
     </div>
   }

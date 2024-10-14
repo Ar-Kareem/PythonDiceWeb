@@ -13,19 +13,17 @@ export class GuiCompComponent implements AfterViewInit {
 
   public readonly TYPES = ElemTypes
 
-  @Input() displayOnly: boolean = true;
   _inputGUI: GUIElement | null = null;
   @Input()
   set inputGUI(inpGUI: GUIElement | null) {
     this._inputGUI = inpGUI;
+    if (!!inpGUI && this.hasDefaultVal(inpGUI) && inpGUI.defaultVal !== this.origDefaultVal) {  // if default value has changed
+      // console.log('INPUT CHANGE', this.varName, 'default set to', inpGUI.defaultVal);
+      this.origDefaultVal = inpGUI.defaultVal;
+    }
     if (!!inpGUI && this.hasName(inpGUI) && inpGUI.varname !== this.varName) {  // if varname has changed
       this.varName = inpGUI.varname;
       this.subscribeToStoreVarName(inpGUI.varname);
-    }
-    if (!!inpGUI && this.hasDefaultVal(inpGUI) && inpGUI.defaultVal !== this.origDefaultVal) {  // if default value has changed
-      // console.log('INPUT CHANGE', this.varName, 'default set to', inpGUI.defaultVal);
-      this.varValue = inpGUI.defaultVal;
-      this.origDefaultVal = inpGUI.defaultVal;
     }
   }
 
@@ -36,7 +34,7 @@ export class GuiCompComponent implements AfterViewInit {
   constructor (private store: Store, private cd: ChangeDetectorRef) {}
 
   ngAfterViewInit() {
-    console.log('GUI COMP INIT', this._inputGUI === null, this.displayOnly);
+    console.log('GUI COMP INIT', this._inputGUI === null);
   }
 
   private ngDestroyed$ = new Subject();
@@ -46,24 +44,25 @@ export class GuiCompComponent implements AfterViewInit {
     this.store.select(herosSelectors.selectSingleGUIVariable(varname))
     .pipe(
       takeUntil(this.ngDestroyed$),
-      filter((value) => value !== undefined)
     ).subscribe((value) => {
       // console.log('STORE CHANGE', 'subscribed to', varname, 'got', value);
-      this.varValue = value;
+      if (value === null || value === undefined) {
+        this.store.dispatch(SidebarActions.gUIVariableChange({ varname: this.varName!, value: this.origDefaultVal }));
+      } else {
+        this.varValue = value;
+        console.log('value', this.varName, 'set to', this.varValue);
+      }
       this.cd.detectChanges();
     });
   }
 
   onVarValueChange(event: any) {
     this.varValue = event;
-    // console.log('GUI CHANGE', this.displayOnly?'dryrun':'prod', this.varName, 'set to', this.varValue);
     if (!this.varName) {
       console.log('ERROR: varName not set');
       return;
     }
-    if (!this.displayOnly) {
       this.store.dispatch(SidebarActions.gUIVariableChange({ varname: this.varName, value: this.varValue }));
-    }
   }
 
 

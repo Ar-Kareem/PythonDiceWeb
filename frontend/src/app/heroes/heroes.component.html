@@ -48,7 +48,9 @@
           ></textarea>
         </div>
         <!-- GUI SHOW INPUT -->
-        <app-gui-prod *ngIf="tab.title === TabTitles.GUISHOW && tab.title === selectedTab?.title" />
+        <div [ngClass]="{'myhidediv': selectedTabIndex !== i}" *ngIf="tab.title === TabTitles.GUISHOW">
+          <app-gui-prod />
+        </div>
       </div>
 
       <p-progressBar *ngIf="isLoading" mode="indeterminate" [style]="{ height: '6px' }" />

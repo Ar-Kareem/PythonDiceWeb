@@ -59,6 +59,32 @@ class INTERNAL_ParseError extends Error  {
   }
 }
 
+
+function getVarNames(params: GUIElement) {
+  const varNames = new Set<string>();
+  getVarNames_helper(params, varNames);
+  return varNames;
+}
+function getVarNames_helper(params: GUIElement, varNames: Set<string>) {
+  switch (params.type) {
+    case ElemTypes.Box:
+      params.children.forEach(child => getVarNames_helper(child, varNames));
+      break;
+    case ElemTypes.Checkbox:
+    case ElemTypes.Input:
+    case ElemTypes.Radio:
+    case ElemTypes.Dropdown:
+      varNames.add(params.varname);
+      break;
+    case ElemTypes.Output:
+      break;
+    default:
+      console.error(`Unknown type: ${params}`);
+      break;
+  }
+}
+
+
 function xmldocToGUIElement(rootxml: string): GUIElement {
   const xmlDoc = new xmldoc.XmlDocument(rootxml);
   try {
@@ -179,4 +205,4 @@ function assertAttrValuesFn(node: XmlElement, attribute: string, value: string, 
 }
 
 export type GUIElement = BoxElement | CheckboxElement | InputElement | OutputElement | RadioElement | DropdownElement;
-export { xmldocToGUIElement, ElemTypes, ParseError };
+export { xmldocToGUIElement, ElemTypes, ParseError, getVarNames };

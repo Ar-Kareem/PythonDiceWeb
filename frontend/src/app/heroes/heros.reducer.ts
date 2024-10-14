@@ -1,7 +1,7 @@
 import { createReducer, createSelector, on } from '@ngrx/store';
 import { createActionGroup, props, emptyProps } from '@ngrx/store';
 import { createFeature } from '@ngrx/store';
-import { GUIElement } from '../gui-output/GUIModels';
+import { getVarNames, GUIElement } from '../gui-output/GUIModels';
 
 
 
@@ -18,6 +18,7 @@ export const SidebarActions = createActionGroup({
     'Toggle Sidebar': emptyProps(),
     'Set Sidebar': props<{ newState: boolean }>(),
     'GUI Variable Change': props<{ varname: string, value: any }>(),
+    'Set GUI Tree': props<{ element: GUIElement }>(),
   },
 });
 
@@ -32,7 +33,6 @@ export const CodeApiActions = createActionGroup({
     'Exec python code Failure': props<{ error: any }>(),
     'Translate dice code Request': props<{ code: string }>(),
     'Translate dice code Respone': props<TranslateResp>(),
-    'Set GUI Tree': props<{ element: GUIElement }>(),
   },
 });
 
@@ -76,8 +76,14 @@ export const feature = createFeature({
     on(SidebarActions.gUIVariableChange, (state, { varname, value }) => {
       return { ...state, GUIVariables: { ...state.GUIVariables, [varname]: value } };
     }),
-    on(CodeApiActions.setGUITree, (state, { element }) => {
-      return { ...state, GUITree: element };
+    on(SidebarActions.setGUITree, (state, { element }) => {
+      const newGUIVariables: any = {};
+      getVarNames(element).forEach(varname => {
+        if (state.GUIVariables[varname] !== undefined) {
+          newGUIVariables[varname] = state.GUIVariables[varname];
+        }
+      });
+      return { ...state, GUITree: element, GUIVariables: newGUIVariables };
     }),
   ),
   extraSelectors: (G) => ({
@@ -97,6 +103,7 @@ export const herosSelectors = {
   selectDiceExecResult: feature.selectDiceExecResult,
   selectDiceExecFailure: feature.selectDiceExecFailure,
   selectServTranslateRes: feature.selectServTranslateRes,
+  selectGUIVariables: feature.selectGUIVariables,
   selectSingleGUIVariable: feature.selectSingleGUIVariable,
   selectGUITree: feature.selectGUITree,
 };

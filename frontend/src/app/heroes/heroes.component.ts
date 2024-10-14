@@ -17,7 +17,7 @@ import { TabTitles } from '../tabview/tabview.component';
 export class HeroesComponent implements AfterViewInit, OnDestroy {
   private readonly LOADING = 'Loading...';
   readonly TabsWithInput: string[] = [TabTitles.DICE_CODE, TabTitles.PYTHON, TabTitles.GUI];
-  readonly TabsWithOutput: string[] = [TabTitles.DICE_CODE, TabTitles.PYTHON];
+  readonly TabsWithOutput: string[] = [TabTitles.DICE_CODE, TabTitles.PYTHON, TabTitles.GUISHOW];
   readonly TabTitles = TabTitles;
 
   @ViewChild('autoResizeTextarea') textarea: ElementRef<HTMLTextAreaElement> | undefined;
@@ -27,9 +27,11 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   ngContentsOutput = new Map<string, string>();
 
   isLoading = false;
-  selectedTabIndex: number|undefined;
-  allTabs: ITab[] = [];
-  selectedTab: ITab|null = null;
+
+  allTabs: ITab[] = [];  // from store
+  selectedTabIndex: number|undefined;  // from store
+  selectedTab: ITab|null = null;  // from store
+  gUIVariables: { [varname: string]: any } | null = null;  // from store
 
   sidebarVisible$: Observable<boolean> = this.store.select(herosSelectors.selectSidebarVisible);
   private destroyed$ = new Subject<boolean>();
@@ -104,6 +106,10 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
         this.store.dispatch(ToastActions.errorNotification({ title: 'Error in translation', message: data.response.result }));
       }
     });
+
+    this.store.select(herosSelectors.selectGUIVariables).pipe(
+      filter(data => !!data)
+    ).subscribe((data) => this.gUIVariables = data);
 
     this.inputSubject.pipe(
       throttleTime(3000, undefined, { leading: true, trailing: true }) // Save to localstorage once every 3 seconds
@@ -237,6 +243,28 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     const title = this.selectedTab?.title;
     if (!title) {
       this.store.dispatch(ToastActions.errorNotification({ title: 'No tab selected', message: '' }));
+      return;
+    }
+    if (title === TabTitles.GUISHOW) {
+      let toExec = this.ngContentsInput.get(TabTitles.DICE_CODE);
+      if (!toExec || toExec.trim() === '') {
+        this.store.dispatch(ToastActions.warningNotification({ title: 'No code to execute', message: '' }));
+        return;
+      }
+      for (let varname in this.gUIVariables) {
+        const value = parseInt(this.gUIVariables[varname])
+        // replace "VARNAME: ..." to "VARNAME: VALUE"
+        const regexp = new RegExp(`(^|\\s|{)${varname}:[^\\n]*`);
+        const count = (toExec.match(regexp) || []).length;
+        if (count === 0) {
+          this.store.dispatch(ToastActions.warningNotification({ title: 'Variable not found', message: varname }));
+          continue;
+        }
+        toExec = toExec.replace(regexp, `$1${varname}: ${value}`);
+      }
+      this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: toExec }));
+      this.isLoading = true;
+      this.setResponse(this.LOADING);
       return;
     }
     const toExec = this.ngContentsInput.get(title);

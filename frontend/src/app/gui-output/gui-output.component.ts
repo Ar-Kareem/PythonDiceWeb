@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import { OverlayPanel } from 'primeng/overlaypanel';
 
 import { xmldocToGUIElement, ParseError, GUIElement } from './GUIModels';
-import { CodeApiActions } from '../heroes/heros.reducer';
+import { SidebarActions } from '../heroes/heros.reducer';
 
 @Component({
   selector: 'app-gui-output',
@@ -50,7 +50,7 @@ export class GuiOutputComponent implements AfterViewInit {
     } else {
       try {
         this.compiledGUI = xmldocToGUIElement(rootxml);
-        this.store.dispatch(CodeApiActions.setGUITree({ element: this.compiledGUI }));
+        this.store.dispatch(SidebarActions.setGUITree({ element: this.compiledGUI }));
         this.errorOverlayPanel!.hide();  // everything is fine, hide the error overlay
       } catch (error) {
         if (error instanceof ParseError) {
