@@ -60,31 +60,14 @@ def ExecPythonService(python_str: str|None, obj: models.ParseExecModel|None = No
         logger.debug('Empty string')
         return res
     try:
-        exec_res = exec_with_timeout(f, args=(python_str, {}), timeout=5)
+        exec_res = parse_and_exec.safe_exec(python_str, global_vars={})
     except (SyntaxError, NameError, ValueError, ImportError) as e:
         res.is_error = True
         res.error_payload = {'message': str(e)}
         logger.debug('Exec error: ' + str(e))
-        return res
-    if exec_res is None:
-        res.is_timeout = True
-        logger.debug('Timeout')
         return res
     for (args, kwargs) in exec_res:
         res.data.append(randvar.output(*args, **kwargs, print_=False, blocks_width=100))
     res.resp_time = time.time() - s
     return res
 
-def f(python_str, global_vars):
-    return parse_and_exec.safe_exec(python_str, global_vars=global_vars)
-
-def exec_with_timeout(f, args, timeout):
-    pool = Pool(processes=1)
-    result = pool.apply_async(f, args)
-    try:
-        r = result.get(timeout=timeout)
-        pool.terminate()
-        return r
-    except TimeoutError:
-        pool.terminate()
-        return None

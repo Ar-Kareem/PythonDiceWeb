@@ -53,25 +53,39 @@ export class HerosEffects {
 
 
 // SERVICE
+function myStreamHandler(source: Observable<string>) {
+  return source.pipe(
+    map((response: string) => JSON.parse(response.trim())),
+    map((response: any) => {
+      if (!!response.is_error) {
+        throw response;
+      }
+      return response;
+    })
+  );
+}
 
 @Injectable({ providedIn: 'root' })
 export class HerosService {
   constructor(private http: HttpClient) {}
 
   postCode(code: string): Observable<any> {
-    return this.http.post('/api/ParseExec', { code }).pipe(
+    return this.http.post('/api/ParseExec', { code }, {responseType: 'text', }).pipe(
+      myStreamHandler,
       map((response: any) => response),
     );
   }
 
   postPythonCode(code: string): Observable<any> {
-    return this.http.post('/api/ExecPython', { code }).pipe(
+    return this.http.post('/api/ExecPython', { code }, {responseType: 'text', }).pipe(
+      myStreamHandler,
       map((response: any) => response),
     );
   }
 
   postTranslateCode(code: string): Observable<any> {
-    return this.http.post('/api/Translate', { code }).pipe(
+    return this.http.post('/api/Translate', { code }, {responseType: 'text', }).pipe(
+      myStreamHandler,
       map((response: any) => response),
     );
   }

@@ -1,6 +1,9 @@
 import logging
+from multiprocessing import Pool
+import time
+from pathlib import Path
 
-from flask import Flask
+from flask import Flask, stream_with_context
 from flask import jsonify, request, json
 from werkzeug.exceptions import HTTPException
 
@@ -50,6 +53,8 @@ def hello_world():
 def ParseExecController():
     data = request.get_json()
     code = data['code']
+    return generic_stream_generator(_ParseExecController, args=(code,))
+def _ParseExecController(code):
     model = services.ParseExecService(code)
     if model.is_empty:
         raise InvalidAPIUsage("EMPTY", status_code=400)
@@ -59,11 +64,8 @@ def ParseExecController():
         raise InvalidAPIUsage("YACC", status_code=400, payload=model.error_payload)
     if model.is_resolver_illegal:
         raise InvalidAPIUsage("RESOLVER", status_code=400, payload=model.error_payload)
-    if model.is_timeout:
-        raise InvalidAPIUsage("TIMEOUT", status_code=400)
     if model.is_error:
         raise InvalidAPIUsage("PYTHONERROR", status_code=400, payload=model.error_payload)
-    logger.info('Success')
     return {
         'result': '\n'.join(model.data),
         'parsed': model.parsed_python,
@@ -75,11 +77,11 @@ def ParseExecController():
 def ExecPythonController():
     data = request.get_json()
     code = data['code']
+    return generic_stream_generator(_ExecPythonController, args=(code,))
+def _ExecPythonController(code):
     model = services.ExecPythonService(code)
     if model.is_empty:
         raise InvalidAPIUsage("EMPTY", status_code=400)
-    if model.is_timeout:
-        raise InvalidAPIUsage("TIMEOUT", status_code=400)
     if model.is_error:
         raise InvalidAPIUsage("PYTHONERROR", status_code=400, payload=model.error_payload)
     return {
@@ -92,6 +94,8 @@ def ExecPythonController():
 def TranslateController():
     data = request.get_json()
     code = data['code']
+    return generic_stream_generator(_TranslateController, args=(code,))
+def _TranslateController(code):
     model = services.ParseService(code)
     if model.is_empty:
         raise InvalidAPIUsage("EMPTY", status_code=400)
@@ -104,3 +108,40 @@ def TranslateController():
     return {
         'result': model.parsed_python,
     }
+
+
+
+def generic_stream_generator(fn, timeout: int = 5, args=None, kwargs=None):
+    return stream_with_context(generic_generator(fn, timeout, args, kwargs))
+
+def generic_generator(fn, timeout: int = 5, args=None, kwargs=None):
+    YIELD_INTERVAL = 0.05
+    YIELD_COUNT = int(timeout / YIELD_INTERVAL)
+    if args is None:
+        args = ()
+    if kwargs is None:
+        kwargs = {}
+    cur_yield = 0
+    pool = Pool(processes=1)
+    try:
+        result = pool.apply_async(fn, args=args, kwds=kwargs)
+        while True:
+            if cur_yield >= YIELD_COUNT:  # timeout
+                raise InvalidAPIUsage('TIMEOUT', status_code=400)
+            if not result.ready():  # not ready, make sure connection is alive
+                yield ' '
+                cur_yield += 1
+            else:
+                yield json.dumps(result.get(timeout=timeout))
+                return
+            time.sleep(0.05)
+    except GeneratorExit:
+        logger.debug('GeneratorExit Raised, user closed connection')
+    except InvalidAPIUsage as e:
+        logger.info('got InvalidAPIUsage: ' + str(e))
+        yield json.dumps(e.to_dict())
+    except Exception as e:
+        logger.error('Unexpected internal error: ' + str(e))
+        yield json.dumps(InvalidAPIUsage('Internal Error', status_code=500).to_dict())
+    finally:
+        pool.terminate()

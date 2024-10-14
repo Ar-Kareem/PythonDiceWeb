@@ -146,8 +146,8 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   getServerErrorMsg(response: any, inp_code: string) {
     console.log('Error:', response);
     console.log('Input code:', inp_code);
-    let code = response.error.message;
-    let payload = response.error.payload;
+    let code = response.message;
+    let payload = response.payload;
     if (code === 'EMPTY') {
       return '';
     } else if (code === 'LEX') {
