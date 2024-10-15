@@ -1,7 +1,7 @@
 import { createReducer, createSelector, on } from '@ngrx/store';
 import { createActionGroup, props, emptyProps } from '@ngrx/store';
 import { createFeature } from '@ngrx/store';
-import { getVarNamesAndDefaults, GUIElement } from '../gui-output/GUIModels';
+import { getVarNamesAndDefaults, GUIElement } from '../../models/GUIModels';
 
 
 

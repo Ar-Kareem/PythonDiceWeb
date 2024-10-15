@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, Input } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 
-import { ElemTypes, GUIElement } from '../GUIModels';
+import { ElemTypes, GUIElement } from '../../../models/GUIModels';
 import { herosSelectors, SidebarActions } from '../../heroes/heros.reducer';
 
 @Component({
