@@ -22,9 +22,9 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
 
   @ViewChild('autoResizeTextarea') textarea: ElementRef<HTMLTextAreaElement> | undefined;
 
-  private inputSubject = new Subject<{title: string, content: string}>();
-  ngContentsInput = new Map<string, string>();
-  ngContentsOutput = new Map<string, string>();
+  private inputSubject = new Subject<{title: string, content: string}>();  // for saving to localstorage
+  ngContentsInput = new Map<string, string>();  // for input textareas
+  ngContentsOutput = new Map<string, string>();  // for output textareas
 
   isLoading = false;
 
@@ -72,8 +72,8 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     ).subscribe((data) => {
       this.isLoading = false;
       this.setResponse(data.result);
-      console.log('Python code:\n', data.parsed);
-      console.log('Python time:\n', data.time.toFixed(2));
+      // console.log('Python code:\n', data.parsed);
+      console.log('Exec time:\n', data.time.toFixed(2));
     });
 
     this.store.select(herosSelectors.selectDiceExecFailure).pipe(
@@ -239,6 +239,38 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     this.autoOutputHeight();
   }
 
+  private onGUIExec() {
+    let toExec = this.ngContentsInput.get(TabTitles.DICE_CODE);
+    if (!toExec || toExec.trim() === '') {
+      this.store.dispatch(ToastActions.warningNotification({ title: 'No code to execute', message: '' }));
+      return;
+    }
+    // console.log('to exec before replace', toExec);
+    // console.log('GUIVariables:', this.gUIVariables);
+    let cancelExec = false;
+    for (let varname in this.gUIVariables) {
+      const value = parseInt(this.gUIVariables[varname])
+      // replace "VARNAME: ..." to "VARNAME: VALUE"
+      const regexp = new RegExp(`(^|\\s|{)${varname}:[^\\n]*`, 'g');
+      const count = (toExec.match(regexp) || []).length;
+      if (count === 0) {
+        this.store.dispatch(ToastActions.warningNotification({ title: `Variable '${varname}' not found`, message: '' }));
+        cancelExec = true;
+        continue;
+      } else if (count > 1) {
+        this.store.dispatch(ToastActions.warningNotification({ title: `Multiple '${varname}'`, message: `Found ${count} counts` }));
+        cancelExec = true;
+      }
+      toExec = toExec.replace(regexp, `$1${varname}: ${value}`);
+    }
+    if (cancelExec) {
+      return;
+    }
+    this.isLoading = true;
+    this.setResponse(this.LOADING);
+    this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: toExec }));
+  }
+
   onButtonClick() {
     const title = this.selectedTab?.title;
     if (!title) {
@@ -246,26 +278,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       return;
     }
     if (title === TabTitles.GUISHOW) {
-      let toExec = this.ngContentsInput.get(TabTitles.DICE_CODE);
-      if (!toExec || toExec.trim() === '') {
-        this.store.dispatch(ToastActions.warningNotification({ title: 'No code to execute', message: '' }));
-        return;
-      }
-      // console.log('GUIVariables:', this.gUIVariables);
-      for (let varname in this.gUIVariables) {
-        const value = parseInt(this.gUIVariables[varname])
-        // replace "VARNAME: ..." to "VARNAME: VALUE"
-        const regexp = new RegExp(`(^|\\s|{)${varname}:[^\\n]*`);
-        const count = (toExec.match(regexp) || []).length;
-        if (count === 0) {
-          this.store.dispatch(ToastActions.warningNotification({ title: 'Variable not found', message: varname }));
-          continue;
-        }
-        toExec = toExec.replace(regexp, `$1${varname}: ${value}`);
-      }
-      this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: toExec }));
-      this.isLoading = true;
-      this.setResponse(this.LOADING);
+      this.onGUIExec();
       return;
     }
     const toExec = this.ngContentsInput.get(title);
@@ -274,13 +287,13 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       return;
     }
     if (title === TabTitles.DICE_CODE) {
+      this.isLoading = true;
+      this.setResponse(this.LOADING);
       this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: toExec }));
-      this.isLoading = true;
-      this.setResponse(this.LOADING);
     } else if (title === TabTitles.PYTHON) {
-      this.store.dispatch(CodeApiActions.execPythonCodeRequest({ code: toExec }));
       this.isLoading = true;
       this.setResponse(this.LOADING);
+      this.store.dispatch(CodeApiActions.execPythonCodeRequest({ code: toExec }));
     } else {
       this.store.dispatch(ToastActions.errorNotification({ title: 'Cant execute for this tab', message: '' }));
     }

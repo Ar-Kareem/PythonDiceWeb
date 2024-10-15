@@ -59,7 +59,6 @@ export class GuiCompComponent {
       return;
     }
     // console.log('GUI; dispatching', this.varName, this.varValue, '->', event);
-    // this.varValue = event;
     if (!this.varName) {
       console.log('ERROR: varName not set');
       return;

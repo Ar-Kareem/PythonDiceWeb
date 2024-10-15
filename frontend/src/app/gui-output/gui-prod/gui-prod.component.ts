@@ -1,7 +1,6 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
 
-import { GUIElement } from '../GUIModels';
 import { herosSelectors } from '../../heroes/heros.reducer';
 
 @Component({
@@ -9,17 +8,10 @@ import { herosSelectors } from '../../heroes/heros.reducer';
   templateUrl: './gui-prod.component.html',
   styleUrl: './gui-prod.component.scss'
 })
-export class GuiProdComponent implements AfterViewInit {
+export class GuiProdComponent {
 
-  compiledGUI: GUIElement | null = null;
+  compiledGUI = this.store.select(herosSelectors.selectGUITree);
 
   constructor(private store: Store) {}
-
-  ngAfterViewInit() {
-    this.store.select(herosSelectors.selectGUITree).subscribe((state) => {
-      // console.log('GUI PROD INIT', state);
-      this.compiledGUI = state;
-    });
-  }
 
 }
