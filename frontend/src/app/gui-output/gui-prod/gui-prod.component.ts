@@ -17,7 +17,7 @@ export class GuiProdComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.store.select(herosSelectors.selectGUITree).subscribe((state) => {
-      console.log('GUI PROD INIT', state);
+      // console.log('GUI PROD INIT', state);
       this.compiledGUI = state;
     });
   }

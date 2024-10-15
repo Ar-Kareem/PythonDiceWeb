@@ -60,21 +60,21 @@ class INTERNAL_ParseError extends Error  {
 }
 
 
-function getVarNames(params: GUIElement) {
-  const varNames = new Set<string>();
-  getVarNames_helper(params, varNames);
-  return varNames;
+function getVarNamesAndDefaults(params: GUIElement) {
+  const varNamesAndDefaults = new Map<string, any>();
+  getVarNames_helper(params, varNamesAndDefaults);
+  return varNamesAndDefaults;
 }
-function getVarNames_helper(params: GUIElement, varNames: Set<string>) {
+function getVarNames_helper(params: GUIElement, varNamesAndDefaults: Map<string, any>) {
   switch (params.type) {
     case ElemTypes.Box:
-      params.children.forEach(child => getVarNames_helper(child, varNames));
+      params.children.forEach(child => getVarNames_helper(child, varNamesAndDefaults));
       break;
     case ElemTypes.Checkbox:
     case ElemTypes.Input:
     case ElemTypes.Radio:
     case ElemTypes.Dropdown:
-      varNames.add(params.varname);
+      varNamesAndDefaults.set(params.varname, params.defaultVal);
       break;
     case ElemTypes.Output:
       break;
@@ -207,4 +207,4 @@ function assertAttrValuesFn(node: XmlElement, attribute: string, value: string, 
 }
 
 export type GUIElement = BoxElement | CheckboxElement | InputElement | OutputElement | RadioElement | DropdownElement;
-export { xmldocToGUIElement, ElemTypes, ParseError, getVarNames };
+export { xmldocToGUIElement, ElemTypes, ParseError, getVarNamesAndDefaults };

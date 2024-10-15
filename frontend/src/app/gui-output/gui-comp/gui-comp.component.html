@@ -10,7 +10,7 @@
   @case (TYPES.Checkbox) {
     <p-checkbox 
       label="{{ _inputGUI.label }}"
-      [ngModel]="varValue"
+      [ngModel]="ngVarValue"
       (ngModelChange)="onVarValueChange($event)"
       inputId="{{ _inputGUI.varname }}"
       binary="true"
@@ -19,7 +19,7 @@
   @case (TYPES.Input) {
     <label>{{ _inputGUI.label }}</label>
     <p-inputNumber
-      [ngModel]="varValue"
+      [ngModel]="ngVarValue"
       (ngModelChange)="onVarValueChange($event)"
       ></p-inputNumber>
   }
@@ -33,7 +33,7 @@
     <label>{{ _inputGUI.label }}</label>
     <div *ngFor="let option of _inputGUI.options">
       <p-radioButton 
-        [ngModel]="varValue"
+        [ngModel]="ngVarValue"
         (ngModelChange)="onVarValueChange($event)"
         name="{{ _inputGUI.varname }}"
         [value]="option.value" 
@@ -45,7 +45,7 @@
   @case (TYPES.Dropdown) {
     <label>{{ _inputGUI.label }}</label>
     <p-dropdown 
-      [ngModel]="varValue"
+      [ngModel]="ngVarValue"
       (ngModelChange)="onVarValueChange($event)"
       [options]="_inputGUI.options" 
       optionLabel="label" 

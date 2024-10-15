@@ -1,7 +1,7 @@
 import { createReducer, createSelector, on } from '@ngrx/store';
 import { createActionGroup, props, emptyProps } from '@ngrx/store';
 import { createFeature } from '@ngrx/store';
-import { getVarNames, GUIElement } from '../gui-output/GUIModels';
+import { getVarNamesAndDefaults, GUIElement } from '../gui-output/GUIModels';
 
 
 
@@ -74,23 +74,23 @@ export const feature = createFeature({
       return { ...state, servTranslateRes: response};
     }),
     on(SidebarActions.gUIVariableChange, (state, { varname, value }) => {
+      // console.log('STORE CHANGE', varname, ':', state.GUIVariables[varname], '->', value);
       return { ...state, GUIVariables: { ...state.GUIVariables, [varname]: value } };
     }),
     on(SidebarActions.setGUITree, (state, { element }) => {
       const newGUIVariables: any = {};
-      getVarNames(element).forEach(varname => {
-        if (state.GUIVariables[varname] !== undefined) {
-          newGUIVariables[varname] = state.GUIVariables[varname];
-        }
+      getVarNamesAndDefaults(element).forEach((defaultVal, varname) => {
+        newGUIVariables[varname] = state.GUIVariables[varname] !== undefined ? state.GUIVariables[varname] : defaultVal;
       });
+      // console.log('STORE RESET TREE. only keeping vars:', getVarNamesAndDefaults(element), newGUIVariables);
       return { ...state, GUITree: element, GUIVariables: newGUIVariables };
     }),
   ),
-  extraSelectors: (G) => ({
-    selectSingleGUIVariable: (varname: string) => createSelector(G.selectGUIVariables, (GUIVariables) => {
-      return GUIVariables[varname];
-    }),
-  }),
+});
+
+export const factorySelectSingleGUIVariable = (varname: string) => createSelector(feature.selectGUIVariables, (GUIVariables) => {
+  // console.log('SELECTOR CHECK?', varname, GUIVariables[varname]);
+  return GUIVariables[varname];
 });
 
 export const {
@@ -104,6 +104,6 @@ export const herosSelectors = {
   selectDiceExecFailure: feature.selectDiceExecFailure,
   selectServTranslateRes: feature.selectServTranslateRes,
   selectGUIVariables: feature.selectGUIVariables,
-  selectSingleGUIVariable: feature.selectSingleGUIVariable,
+  factorySelectSingleGUIVariable: factorySelectSingleGUIVariable,
   selectGUITree: feature.selectGUITree,
 };

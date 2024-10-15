@@ -251,6 +251,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
         this.store.dispatch(ToastActions.warningNotification({ title: 'No code to execute', message: '' }));
         return;
       }
+      // console.log('GUIVariables:', this.gUIVariables);
       for (let varname in this.gUIVariables) {
         const value = parseInt(this.gUIVariables[varname])
         // replace "VARNAME: ..." to "VARNAME: VALUE"

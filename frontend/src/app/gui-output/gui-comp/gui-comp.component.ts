@@ -1,15 +1,16 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input } from '@angular/core';
-import { ElemTypes, GUIElement } from '../GUIModels';
+import { ChangeDetectorRef, Component, Input } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
+
+import { ElemTypes, GUIElement } from '../GUIModels';
 import { herosSelectors, SidebarActions } from '../../heroes/heros.reducer';
-import { filter, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-gui-comp',
   templateUrl: './gui-comp.component.html',
   styleUrl: './gui-comp.component.scss'
 })
-export class GuiCompComponent implements AfterViewInit {
+export class GuiCompComponent {
 
   public readonly TYPES = ElemTypes
 
@@ -27,44 +28,44 @@ export class GuiCompComponent implements AfterViewInit {
     }
   }
 
-  varName: string | null = null;
-  origDefaultVal: string | number | boolean | null = null;
-  varValue: string | number | boolean | null = 0;
+  varName: string | null = null;  // from @Input inputGUI
+  origDefaultVal: string | number | boolean | null = null;  // from @Input inputGUI
+  varValue: string | number | boolean | null = null;  // from store
 
+  ngVarValue: string | number | boolean | null = null;  // for ngModel
+
+  private prev: Subscription | undefined;  // for unsubscribing when varName changes
   constructor (private store: Store, private cd: ChangeDetectorRef) {}
 
-  ngAfterViewInit() {
-    console.log('GUI COMP INIT', this._inputGUI === null);
-  }
 
-  private ngDestroyed$ = new Subject();
   subscribeToStoreVarName(varname: string) {
-    // new subscription, unsubscribe from previous
-    this.ngDestroyed$.next(0);
-    this.store.select(herosSelectors.selectSingleGUIVariable(varname))
-    .pipe(
-      takeUntil(this.ngDestroyed$),
-    ).subscribe((value) => {
-      // console.log('STORE CHANGE', 'subscribed to', varname, 'got', value);
-      if (value === null || value === undefined) {
-        this.store.dispatch(SidebarActions.gUIVariableChange({ varname: this.varName!, value: this.origDefaultVal }));
-      } else {
+    // console.log('GUI; SUBSCRIBING!!! to', varname, 'prev sub:', this.prev);
+    if (!!this.prev) {
+      this.prev.unsubscribe();
+    }
+    this.prev = this.store.select(herosSelectors.factorySelectSingleGUIVariable(varname))
+    .subscribe((value) => {
+      if (value !== null && value !== undefined) {
         this.varValue = value;
-        console.log('value', this.varName, 'set to', this.varValue);
+        this.ngVarValue = value;
+        // console.log('GUI; from store got', this.varName, '=', this.varValue);
       }
       this.cd.detectChanges();
     });
   }
 
   onVarValueChange(event: any) {
-    this.varValue = event;
+    if (this.varValue === event) {
+      return;
+    }
+    // console.log('GUI; dispatching', this.varName, this.varValue, '->', event);
+    // this.varValue = event;
     if (!this.varName) {
       console.log('ERROR: varName not set');
       return;
     }
-      this.store.dispatch(SidebarActions.gUIVariableChange({ varname: this.varName, value: this.varValue }));
+    this.store.dispatch(SidebarActions.gUIVariableChange({ varname: this.varName, value: this.varValue }));
   }
-
 
   ALWAYTRUE(index: number, item: any): any {
     return true;
