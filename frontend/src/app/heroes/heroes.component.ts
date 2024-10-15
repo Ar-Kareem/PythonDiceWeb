@@ -249,7 +249,18 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     // console.log('GUIVariables:', this.gUIVariables);
     let cancelExec = false;
     for (let varname in this.gUIVariables) {
-      const value = parseInt(this.gUIVariables[varname])
+      const valueStr = this.gUIVariables[varname];
+      let value;
+      if (valueStr === true || valueStr === false) {
+        value = 1 * valueStr;
+      } else {
+        value = parseInt(valueStr);
+      }
+      if (isNaN(value)) {
+        this.store.dispatch(ToastActions.warningNotification({ title: `Invalid value for '${varname}'`, message: '' }));
+        cancelExec = true;
+        continue;
+      }
       // replace "VARNAME: ..." to "VARNAME: VALUE"
       const regexp = new RegExp(`(^|\\s|{)${varname}:[^\\n]*`, 'g');
       const count = (toExec.match(regexp) || []).length;
