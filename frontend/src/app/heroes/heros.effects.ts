@@ -72,14 +72,28 @@ export class HerosService {
   postCode(code: string): Observable<any> {
     return this.http.post('/api/ParseExec', { code }, {responseType: 'text', }).pipe(
       myStreamHandler,
-      map((response: any) => response),
+      map((response: any) => {
+        if (!response || !response.result || response.result.trim() == '') {
+          response.payload = 'No output found. Did you forget to call "output"?';
+          response.message = 'CUSTOM';
+          throw response
+        }
+        return response
+      }),
     );
   }
 
   postPythonCode(code: string): Observable<any> {
     return this.http.post('/api/ExecPython', { code }, {responseType: 'text', }).pipe(
       myStreamHandler,
-      map((response: any) => response),
+      map((response: any) => {
+        if (!response || !response.result || response.result.trim() == '') {
+          response.payload = 'No output found. Did you forget to call "output"?';
+          response.message = 'CUSTOM';
+          throw response
+        }
+        return response
+      }),
     );
   }
 

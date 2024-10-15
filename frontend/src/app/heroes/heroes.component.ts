@@ -157,6 +157,8 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     let payload = response.payload;
     if (code === 'EMPTY') {
       return '';
+    } else if (code === 'CUSTOM') {
+      return payload;
     } else if (code === 'LEX') {
       let char = payload[0][0];
       let linepos = payload[0][2];
