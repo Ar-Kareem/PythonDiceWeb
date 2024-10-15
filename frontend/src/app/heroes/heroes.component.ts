@@ -4,9 +4,9 @@ import { Actions, ofType } from '@ngrx/effects';
 import { filter, Observable, Subject, takeUntil, throttleTime } from 'rxjs';
 
 import { CodeApiActions, herosSelectors, SidebarActions } from './heros.reducer';
-import { ITab, tabviewActions, tabviewSelectors } from '../tabview/tabview.reducer';
-import { ToastActions } from '../toast/toast.reducer';
-import { TabTitles } from '../tabview/tabview.component';
+import { ITab, tabviewActions, tabviewSelectors } from '@app/tabview/tabview.reducer';
+import { ToastActions } from '@app/toast/toast.reducer';
+import { TabTitles } from '@app/tabview/tabview.component';
 
 
 @Component({

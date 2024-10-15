@@ -2,8 +2,8 @@ import { ChangeDetectorRef, Component, Input } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 
-import { ElemTypes, GUIElement } from '../../../models/GUIModels';
-import { herosSelectors, SidebarActions } from '../../heroes/heros.reducer';
+import { ElemTypes, GUIElement } from '@models/GUIModels';
+import { herosSelectors, SidebarActions } from '@app/heroes/heros.reducer';
 
 @Component({
   selector: 'app-gui-comp',

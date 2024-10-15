@@ -28,6 +28,11 @@
       "node_modules/@types",
       "src/typings"
     ],
+    "baseUrl": "src",
+    "paths": {
+      "@models/*": ["models/*"],
+      "@app/*": ["app/*"],
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

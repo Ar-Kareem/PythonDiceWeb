@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
 
-import { herosSelectors } from '../../heroes/heros.reducer';
+import { herosSelectors } from '@app/heroes/heros.reducer';
 
 @Component({
   selector: 'app-gui-prod',

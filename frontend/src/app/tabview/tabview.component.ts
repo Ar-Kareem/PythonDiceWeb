@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild } fr
 import { Store } from '@ngrx/store';
 import { Dropdown, DropdownChangeEvent } from 'primeng/dropdown';
 
-import { ToastActions } from '../toast/toast.reducer';
+import { ToastActions } from '@app/toast/toast.reducer';
 import { ITab, tabviewActions, tabviewSelectors } from './tabview.reducer';
 
 export enum TabTitles {
