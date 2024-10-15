@@ -64,7 +64,7 @@ export class GuiCompComponent {
       console.log('ERROR: varName not set');
       return;
     }
-    this.store.dispatch(SidebarActions.gUIVariableChange({ varname: this.varName, value: this.varValue }));
+    this.store.dispatch(SidebarActions.gUIVariableChange({ varname: this.varName, value: event }));
   }
 
   ALWAYTRUE(index: number, item: any): any {
