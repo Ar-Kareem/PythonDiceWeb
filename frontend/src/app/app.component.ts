@@ -3,7 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 
 import { Store } from '@ngrx/store';
 
-import { PyodideService } from './heroes/local.service';
+import { PyodideService } from './localbackend/local.service';
 
 
 @Component({
