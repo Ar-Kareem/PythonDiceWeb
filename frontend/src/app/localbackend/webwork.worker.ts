@@ -38,65 +38,101 @@ async function loadPyodideAndPackages() {
 }
 
 onmessage = async ({ data }) => {
-  if (data === 'init') {
-    await loadPyodideAndPackages();
-    return;
-  }
-  await isLoading;  // wait until loading is done
-  console.log('ready to execute code!!!');
-
-  const { code } = data;
-
   try {
-    const globals = pyodide.toPy({ code });
-    try {
-      const pyResult = pyodide.runPython(PYTHON_CODE_REPO.EXEC_DICE_CODE, { globals });
-      const result = pyResult.toJs();
-      const rvs: [RV, string | undefined][] = result.get('rvs');
-      rvs.forEach((rv_output, i) => {
-        const rv: RV = (rv_output[0] as any).get_vals_probs().toJs();
-        const named = rv_output.length > 1 ? rv_output[1] : undefined;
-        rvs[i] = [rv, named];
-      });
-  
-      postMessage({
-        rvs,
-        parsed: result.get('parsed'),
-        time: 1.1234,
-        result: result.get('output'),
-      });
-      console.log('Worker done');
-    } catch (error) {
-      console.error('Error in running python code', error);
-      postMessage({ error });
+    if (data === 'init') {
+      await loadPyodideAndPackages();
       return;
     }
+    await isLoading;  // wait until loading is done
+    console.log('ready to execute code!!!');
+
+    let result: any;
+    const start_time = performance.now();
+    const { code, api } = data;
+    switch (api) {
+      case 'EXEC_DICE_CODE':
+        result = exec_dice_code(code);
+        break;
+      case 'EXEC_PYTHON_CODE':
+        result = exec_python_code(code);
+        break;
+      case 'TRANSLATE_DICE_CODE':
+        result = translate(code);
+        break;
+      default:
+        throw new Error('Invalid API');
+    }
+    result.time = performance.now() - start_time;
+    postMessage(result);
   } catch (error) {
+    console.error('Error in web worker', error);
     postMessage({ error });
   }
 };
 
+function translate(code:string, flags=true) {
+  const globals = pyodide.toPy({ code });
+  const PYCODE = flags ? PYTHON_CODE_REPO.TRANSLATE_NO_FLAGS : PYTHON_CODE_REPO.TRANSLATE_NO_FLAGS
+  const pyResult = pyodide.runPython(PYCODE, { globals });
+  if (pyResult.get('error')) {
+    return { error: pyResult.get('error') }
+  }
+  const result = pyResult.toJs().get('result');
+  return {
+    result: result,
+  }
+}
+
+function exec_python_code(code:string) {
+  const globals = pyodide.toPy({ code });
+  const pyResult = pyodide.runPython(PYTHON_CODE_REPO.EXEC_PYTHON_CODE, { globals });
+  if (pyResult.get('error')) {
+    return { error: pyResult.get('error') }
+  }
+  const result = pyResult.toJs();
+  const rvs: [RV, string | undefined][] = result.get('rvs');
+  rvs.forEach((rv_output, i) => {
+    const rv: RV = (rv_output[0] as any).get_vals_probs().toJs();
+    const named = rv_output.length > 1 ? rv_output[1] : undefined;
+    rvs[i] = [rv, named];
+  });
+  return {
+    rvs,
+    result: result.get('output'),
+  }
+}
+
+function exec_dice_code(code:string) {
+  const parsed = translate(code).result;
+  return {...exec_python_code(parsed), parsed}
+}
+
 abstract class PYTHON_CODE_REPO {
-  static readonly EXEC_DICE_CODE = `
-def main():
-  from dice_calc import output
+  static readonly SHARED_CODE = `
+def compile(code, flags):
   from dice_calc.parser import compile_anydice
+  compiler_flags = {'COMPILER_FLAG_NON_LOCAL_SCOPE': True, 'COMPILER_FLAG_OPERATOR_ON_INT': True} if flags else {}
+  return {'result': compile_anydice(code, compiler_flags)}
+def run_python(parsed):
+  from dice_calc import output
   from dice_calc.parser.parse_and_exec import unsafe_exec
-  def compile(code):
-    compiler_flags = {'COMPILER_FLAG_NON_LOCAL_SCOPE': True, 'COMPILER_FLAG_OPERATOR_ON_INT': True}
-    return compile_anydice(code, compiler_flags)
-  def pipeline(code):
-    outputs = []
-    parsed = compile(code)
-    print('inside unsafe exec')
-    unsafe_exec(parsed, global_vars={'output': lambda x, named=None: outputs.append((x, named))})
-    out_str = ''.join([output(r, named=n, print_=False, blocks_width=100) for r, n in outputs])
-    print('done unsafe exec')
-    return {'rvs': outputs, 'parsed': code, 'output': out_str}
+  outputs = []
+  print('inside unsafe exec')
+  unsafe_exec(parsed, global_vars={'output': lambda x, named=None: outputs.append((x, named))})
+  out_str = ''.join([output(r, named=n, print_=False, blocks_width=100) for r, n in outputs])
+  print('done unsafe exec')
+  return {'rvs': outputs, 'parsed': parsed, 'output': out_str}
+
+def main(f):
   try:
-    return pipeline(code)
+    return f()
   except Exception as e:
-    print(e)
-main()
+    return {'error': str(e)}
+# executable here
+
 `
+  static readonly EXEC_PYTHON_CODE = PYTHON_CODE_REPO.SHARED_CODE + `main(lambda: run_python(code))`
+  static readonly TRANSLATE_YES_FLAGS = PYTHON_CODE_REPO.SHARED_CODE + `main(lambda: compile(code, flags=True))`
+  static readonly TRANSLATE_NO_FLAGS = PYTHON_CODE_REPO.SHARED_CODE + `main(lambda: compile(code, flags=False))`
+
 }
