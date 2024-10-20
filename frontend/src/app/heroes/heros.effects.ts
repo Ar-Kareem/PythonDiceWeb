@@ -28,7 +28,9 @@ export class HerosEffects {
   execPythonCode$ = createEffect(() => 
     this.actions$.pipe(
     ofType(CodeApiActions.execPythonCodeRequest),
-    switchMap(action => this.herosService.postPythonCode(action.code)
+    switchMap(action => 
+      // this.herosService.postPythonCode(action.code)
+      this.pyodideService.exec_python_code(action.code)
       .pipe(
         map(response => CodeApiActions.execPythonCodeSuccess({ response })),
         catchError((response) => of(CodeApiActions.execPythonCodeFailure({ error: {response: response, inp_code: action.code} })))
@@ -39,7 +41,9 @@ export class HerosEffects {
   translateDiceCode$ = createEffect(() => 
     this.actions$.pipe(
     ofType(CodeApiActions.translateDiceCodeRequest),
-    switchMap(action => this.herosService.postTranslateCode(action.code)
+    switchMap(action => 
+      // this.herosService.postTranslateCode(action.code)
+      this.pyodideService.translate_dice_code(action.code)
       .pipe(
         map(response => CodeApiActions.translateDiceCodeRespone({ response, inp_code: action.code, err: false })),
         catchError((response) => of(CodeApiActions.translateDiceCodeRespone({ response, inp_code: action.code, err: true })))
