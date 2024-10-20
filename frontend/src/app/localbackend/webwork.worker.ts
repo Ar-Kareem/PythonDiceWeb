@@ -2,7 +2,7 @@
 importScripts('https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js');
 
 const BASE_PYODIDE_URL = 'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/';
-const BASE_CALC_DICE_URL = 'https://files.pythonhosted.org/packages/76/7d/10720c87f834c6c8e4eec7bd4590b8de6da24678e140553e9733c6db5860/dice_calc-0.2.12-py3-none-any.whl';
+const BASE_CALC_DICE_URL = 'https://files.pythonhosted.org/packages/b2/76/62b455504dacf48146450d62324c5354d482cb7930bcd34c0d727877287f/dice_calc-0.3.0-py3-none-any.whl';
 
 type RV = [val: number, prob: number][]
 
