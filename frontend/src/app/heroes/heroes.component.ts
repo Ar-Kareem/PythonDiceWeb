@@ -285,6 +285,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   }
 
   onButtonClick() {
+    console.log('onButtonClick done on master 1');
     const title = this.selectedTab?.title;
     if (!title) {
       this.store.dispatch(ToastActions.errorNotification({ title: 'No tab selected', message: '' }));
