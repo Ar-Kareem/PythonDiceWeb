@@ -5,7 +5,7 @@ import { map, catchError, switchMap } from 'rxjs/operators';
 
 import { CodeApiActions } from './heros.reducer';
 import { HerosService } from './code.service';
-
+import { PyodideService } from '../localbackend/local.service';
 
 // EFFECTS
 
@@ -15,8 +15,10 @@ export class HerosEffects {
   execDiceCode$ = createEffect(() => 
     this.actions$.pipe(
     ofType(CodeApiActions.execDiceCodeRequest),
-    switchMap(action => this.herosService.postCode(action.code)
-      .pipe(
+        switchMap(action =>
+          // this.herosService.postCode(action.code)
+          this.pyodideService.exec_dice_code(action.code)
+        .pipe(
         map(response => CodeApiActions.execDiceCodeSuccess({ response })),
         catchError((response) => of(CodeApiActions.execDiceCodeFailure({ error: {response: response, inp_code: action.code} })))
       ))
@@ -47,6 +49,7 @@ export class HerosEffects {
   constructor(
     private actions$: Actions,
     private herosService: HerosService,
+    private pyodideService: PyodideService
   ) {}
 }
 
