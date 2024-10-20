@@ -7,7 +7,7 @@ const BASE_CALC_DICE_URL = 'https://files.pythonhosted.org/packages/76/7d/10720c
 type RV = [val: number, prob: number][]
 
 
-let loadPyodide: any;
+declare let loadPyodide: any;
 let pyodide: any = null;
 
 let isLoadingResolve: (() => void) | null = null;
