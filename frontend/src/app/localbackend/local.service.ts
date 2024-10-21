@@ -25,22 +25,26 @@ export class PyodideService {
   private postMsgCounter = 0;
   private postMsg$ = new ReplaySubject<any>(1);  // contains last message from worker
 
-  setWorkerStatus(status: WorkerStatus) {
-    this.store.dispatch(CodeApiActions.setWorkerStatus({ status }));
-    this.currentWorkerStatus = status;
-  }
-
   initLoadPyodide() {
     this.recreateWorker();
   }
 
-  recreateWorker() {
+  private setWorkerStatus(status: WorkerStatus) {
+    this.store.dispatch(CodeApiActions.setWorkerStatus({ status }));
+    this.currentWorkerStatus = status;
+  }
+
+  private recreateWorker(setBusy = false) {
     if (!!this.worker) {
       if (this.currentWorkerStatus === WorkerStatus.IDLE) {
-        console.log('worker already idle');
+        // console.log('worker already idle');
+        if (setBusy) {
+          this.setWorkerStatus(WorkerStatus.BUSY);
+        }
         return;
       } else if (this.currentWorkerStatus === WorkerStatus.INIT_NO_REQUEST) {
-        console.log('worker is being created, request will be sent after init');
+        // console.log('worker is being created, request will be sent after init');
+        // ignore setBusy flag, INIT_WITH_REQUEST implies BUSY
         this.setWorkerStatus(WorkerStatus.INIT_WITH_REQUEST);
         return;
       } else {
@@ -55,6 +59,16 @@ export class PyodideService {
         console.error('Invalid data from worker', data);
         return;
       }
+      if ( data.result === 'init_done' ) {
+        if (this.currentWorkerStatus === WorkerStatus.INIT_WITH_REQUEST) {
+          // console.log('worker init done, sending request');
+          this.setWorkerStatus(WorkerStatus.BUSY);
+        } else {
+          // console.log('worker init done, no request pending');
+          this.setWorkerStatus(WorkerStatus.IDLE);
+        }
+        return;
+      }
       console.log('got key', data.key);
       this.postMsg$.next(data);
       this.setWorkerStatus(WorkerStatus.IDLE);
@@ -63,6 +77,9 @@ export class PyodideService {
     this.setWorkerStatus(WorkerStatus.INIT_NO_REQUEST);  // worker is being created, worker will respond when init is done which will set to IDLE
     newWorker.postMessage({ key: this.postMsgCounter++, api: 'INIT' });
     this.worker = newWorker;
+    if (setBusy) {
+      this.setWorkerStatus(WorkerStatus.INIT_WITH_REQUEST);
+    }
   }
 
   exec_dice_code(code: string) {
@@ -77,15 +94,14 @@ export class PyodideService {
     return this.worker_post_msg('TRANSLATE_DICE_CODE', code);
   }
 
-  worker_post_msg(api: string, api_data?: any) {
-    this.recreateWorker();  // recreate worker if it is busy
-    this.setWorkerStatus(WorkerStatus.BUSY);
+  private worker_post_msg(api: string, api_data?: any) {
+    this.recreateWorker(true);  // recreate worker if it is not ready to accept new request
     this.postMsgCounter++;  // unique key for this message
     this.worker!.postMessage({ key: this.postMsgCounter, api_data, api });
     return this.worker_res_as_observable(this.postMsgCounter);
   }
 
-  worker_res_as_observable(key: number) {
+  private worker_res_as_observable(key: number) {
     // below return an observable that emits the first message with the key and then completes
     return new Observable((subscriber) => {
       this.postMsg$.pipe(

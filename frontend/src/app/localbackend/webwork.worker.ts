@@ -30,7 +30,6 @@ async function loadPyodideAndPackages() {
   await pyodide.loadPackage("micropip");
   const micropip = pyodide.pyimport("micropip");
   await micropip.install(BASE_CALC_DICE_URL);
-  isLoadingResolve!(); // Resolves the isLoading promise
 }
 
 onmessage = async ({ data }) => {
@@ -41,6 +40,7 @@ onmessage = async ({ data }) => {
     if (api === 'INIT') {
       await loadPyodideAndPackages();
       postMessage({ key: key, result: 'init_done' });
+      isLoadingResolve!(); // Resolves the isLoading promise
       return;
     }
     await isLoading;  // wait until loading is done
