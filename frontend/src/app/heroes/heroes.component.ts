@@ -24,7 +24,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     {
       label: 'Home',
       icon: 'pi pi-home',
-      routerLink: ['/home']
+      command: () => this.store.dispatch(SidebarActions.setSidebar({ newState: false }))
     },
     {
       label: 'Github',
@@ -78,7 +78,12 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   ) { }
 
   ngAfterViewInit() {
-    if (typeof window !== 'undefined') {(window as any).heros = this}
+    if (typeof window !== 'undefined') {
+      (window as any).heros = this
+      // mobile: hide sidebar by default
+      const sideBarInitStatus = window.innerWidth > 800;
+      this.store.dispatch(SidebarActions.setSidebar({ newState: sideBarInitStatus }));
+    }
 
     this.initFromLocalStorage();
 
