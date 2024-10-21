@@ -68,10 +68,11 @@
 
       <!-- BUTTON CALCULATE -->
       <div *ngIf="selectedTab?.title !== TabTitles.GUI" [ngClass]="{'bttn-padding': true, 'center-btn': selectedTab?.title === TabTitles.GUISHOW}">
+        @let status = (workerStatus$ | async);
         <p-button 
-          pButton 
           pRipple 
-          label="Calculate"
+          [severity]="status !== 'IDLE' ? 'warning' : 'primary'"
+          [label]="status === 'IDLE' ? 'Calculate' : (status === 'BUSY' ? 'Busy' : 'Initializing...')"
           [ngClass]="{'calculate-bttn': true}"
           (click)="onButtonClick()" 
         />
