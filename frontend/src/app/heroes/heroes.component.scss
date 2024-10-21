@@ -17,6 +17,15 @@ p-sidebar.left-panel {
   //   color: #ffffff;
   //   background-color: var(--surface-ground);
   // }
+  .sidebar-title {
+    text-align: center;
+    margin-bottom: 1rem;
+    h2 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+  }
   .sidebar-description {
     font-size: 16px;
     line-height: 1.6;
