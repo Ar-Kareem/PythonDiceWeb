@@ -7,10 +7,16 @@
     <ng-template pTemplate="closeicon">
       <i class="pi pi-arrow-left"></i> 
     </ng-template>
-    <h3>Sidebar</h3>
-    <p>
-        Lorem ipsum dolor sit amet...
-    </p>
+    <p-panel header="About">
+        <p class="sidebar-description">
+            An implementation of our 
+            <a href="https://github.com/Ar-Kareem/PythonDice/" target="_blank" rel="noopener noreferrer" class="p-button p-button-sm font-bold h-1rem" style="text-decoration: none; padding: 3px 2px; vertical-align: middle;">
+              PythonDice
+            </a>
+            project on the browser.
+        </p>
+    </p-panel>
+    <p-panelMenu [model]="SIDEBAR_ITEMS" />
   </p-sidebar>
 
 
@@ -27,7 +33,7 @@
       <div [ngClass]="{'margin-right-bttn': true, 'hidden-bttn': false}">
         <p-button (onClick)="toggleSidebar()" rounded="true" icon="pi pi-bars" styleclass="w-2rem h-2rem p-0" label=""></p-button>
       </div>
-
+      
       <!-- toolbar -->
       <app-tabview />
 

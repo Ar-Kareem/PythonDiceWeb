@@ -20,6 +20,42 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   readonly TabsWithOutput: string[] = [TabTitles.DICE_CODE, TabTitles.PYTHON, TabTitles.GUISHOW];
   readonly TabTitles = TabTitles;
 
+  readonly SIDEBAR_ITEMS: any[] = [
+    {
+      label: 'Home',
+      icon: 'pi pi-home',
+      routerLink: ['/home']
+    },
+    {
+      label: 'Github',
+      icon: 'pi pi-github',
+      url: 'https://github.com/Ar-Kareem/PythonDice'
+    },
+    {
+      label: 'Support',
+      icon: 'pi pi-question-circle',
+      items: [
+        {
+          label: 'Bugs / Questions',
+          icon: 'pi pi-question',
+          url: 'https://github.com/Ar-Kareem/PythonDice/issues'
+        },
+        {
+          label: 'Contact',
+          icon: 'pi pi-envelope',
+          url: 'mailto:arkareem2@gmail.com'
+        },
+        {
+          label: 'Support Us',
+          icon: 'pi pi-fw pi-heart',
+          command: () => this.onDonateClick()
+        },
+      ]
+    }
+
+];
+
+
   @ViewChild('autoResizeTextarea') textarea: ElementRef<HTMLTextAreaElement> | undefined;
 
   private inputSubject = new Subject<{title: string, content: string}>();  // for saving to localstorage
@@ -35,7 +71,11 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
 
   sidebarVisible$: Observable<boolean> = this.store.select(herosSelectors.selectSidebarVisible);
   private destroyed$ = new Subject<boolean>();
-  constructor(private cd: ChangeDetectorRef, private store: Store, private actions$: Actions) { }
+  constructor(
+    private cd: ChangeDetectorRef, 
+    private store: Store, 
+    private actions$: Actions,
+  ) { }
 
   ngAfterViewInit() {
     if (typeof window !== 'undefined') {(window as any).heros = this}
@@ -326,6 +366,13 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       return;
     }
     this.store.dispatch(CodeApiActions.translateDiceCodeRequest({ code: toTranslate }));
+  }
+
+  onDonateClick() {
+    this.store.dispatch(ToastActions.dialogOnlyDismissNotification({ message: 'We are currently not taking donations.\n\n Giving us star on github is free and we greatly appreciate it.\n\n Showing us support incentivises us to improve the site.', title: 'Thank you!', callback: {
+      onConfirm: () => {console.log('Donated!');},
+      onReject: () => {}
+    }}));
   }
 
   ngOnDestroy() {
