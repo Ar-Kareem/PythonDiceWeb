@@ -73,7 +73,7 @@ function translate(code:string, flags=true) {
   const globals = pyodide.toPy({ code });
   const PYCODE = flags ? PYTHON_CODE_REPO.TRANSLATE_NO_FLAGS : PYTHON_CODE_REPO.TRANSLATE_NO_FLAGS
   const pyResult = pyodide.runPython(PYCODE, { globals });
-  if (pyResult.get('error')) throw new Error(pyResult.get('error'))
+  if ( typeof pyResult.get('error') !== 'undefined') throw new Error(pyResult.get('error'))
   const result = pyResult.toJs().get('result');
   return {
     result: result,
@@ -83,7 +83,7 @@ function translate(code:string, flags=true) {
 function exec_python_code(code:string) {
   const globals = pyodide.toPy({ code });
   const pyResult = pyodide.runPython(PYTHON_CODE_REPO.EXEC_PYTHON_CODE, { globals });
-  if (pyResult.get('error')) throw new Error(pyResult.get('error'))
+  if ( typeof pyResult.get('error') !== 'undefined') throw new Error(pyResult.get('error'))
   const result = pyResult.toJs();
   const rvs: [RV, string | undefined][] = result.get('rvs');
   rvs.forEach((rv_output, i) => {
@@ -120,7 +120,7 @@ def main(f):
   try:
     return f()
   except Exception as e:
-    return {'error': str(e)}
+    return {'error': repr(e)}
 # executable here
 
 `
