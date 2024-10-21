@@ -38,6 +38,7 @@
             rows="20"
             pInputTextarea 
             autofocus 
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
             [ngModel]="ngContentsInput.get(tab.title)"
             (ngModelChange)="onInputChange($event, tab.title)"
             (keydown.tab)="onInputKeyPress($event, 'tab')"
