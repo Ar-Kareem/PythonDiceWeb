@@ -63,6 +63,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   ngContentsOutput = new Map<string, string>();  // for output textareas
 
   isLoading = false;
+  loadExecTime: number|undefined;
 
   allTabs: ITab[] = [];  // from store
   selectedTabIndex: number|undefined;  // from store
@@ -117,15 +118,15 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       filter(data => !!data)  // filter out null values
     ).subscribe((data) => {
       this.isLoading = false;
+      this.loadExecTime = data.time/1000;
       this.setResponse(data.result);
-      // console.log('Python code:\n', data.parsed);
-      console.log('Exec time:\n', data.time.toFixed(2));
     });
 
     this.store.select(herosSelectors.selectDiceExecFailure).pipe(
       filter(error => !!error)  // filter out null values
     ).subscribe(({response, inp_code}) => {
       this.isLoading = false;
+      this.loadExecTime = undefined;
       this.setResponse(this.getServerErrorMsg(response, inp_code));
     });
 
@@ -135,6 +136,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       if (!data.err) {  // translation successful
         this.onInputChange(data.response.result, TabTitles.PYTHON);
         this.isLoading = false;
+        this.loadExecTime = undefined;
         this.setResponse('', TabTitles.PYTHON);
         const pythonActiveIndex = this.allTabs.findIndex(tab => tab.title === TabTitles.PYTHON);
         if (pythonActiveIndex !== -1) {  // change existing tab
@@ -327,6 +329,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       return;
     }
     this.isLoading = true;
+    this.loadExecTime = undefined;
     this.setResponse(this.LOADING);
     this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: toExec }));
   }
@@ -348,10 +351,12 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     }
     if (title === TabTitles.DICE_CODE) {
       this.isLoading = true;
+      this.loadExecTime = undefined;
       this.setResponse(this.LOADING);
       this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: toExec }));
     } else if (title === TabTitles.PYTHON) {
       this.isLoading = true;
+      this.loadExecTime = undefined;
       this.setResponse(this.LOADING);
       this.store.dispatch(CodeApiActions.execPythonCodeRequest({ code: toExec }));
     } else {
