@@ -148,7 +148,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
         }
         this.store.dispatch(ToastActions.successNotification({ title: 'Translation successful', message: '' }));
       } else {  // error in translation
-        this.store.dispatch(ToastActions.errorNotification({ title: 'Error in translation', message: data.response.result }));
+        this.store.dispatch(ToastActions.errorNotification({ title: 'Error in translation', message: data.response.message }));
       }
     });
 
@@ -331,7 +331,6 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   }
 
   onButtonClick() {
-    console.log('onButtonClick done on master 1');
     const title = this.selectedTab?.title;
     if (!title) {
       this.store.dispatch(ToastActions.errorNotification({ title: 'No tab selected', message: '' }));
@@ -375,7 +374,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
 
   onDonateClick() {
     this.store.dispatch(ToastActions.dialogOnlyDismissNotification({ message: 'We are currently not taking donations.\n\n Giving us star on github is free and we greatly appreciate it.\n\n Showing us support incentivises us to improve the site.', title: 'Thank you!', callback: {
-      onConfirm: () => {console.log('Donated!');},
+      onConfirm: () => {},
       onReject: () => {}
     }}));
   }
