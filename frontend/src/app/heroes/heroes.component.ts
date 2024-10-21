@@ -237,7 +237,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
         return `Runtime Error:\n${payload.message}`;
       }
     } else {
-      return `Unexpected Error: ${response}`;
+      return `${response}`;
     }
   }
 
@@ -374,7 +374,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   }
 
   onDonateClick() {
-    this.store.dispatch(ToastActions.dialogOnlyDismissNotification({ message: 'We are currently not taking donations.\n\n Giving us star on github is free and we greatly appreciate it.\n\n Showing us support incentivises us to improve the site.', title: 'Thank you!', callback: {
+    this.store.dispatch(ToastActions.dialogOnlyDismissNotification({ message: 'We are currently not taking donations.\n\n Giving us a star on github is free and we greatly appreciate it.\n\n Showing us support incentivises us to improve the site.', title: 'Thank you!', callback: {
       onConfirm: () => {},
       onReject: () => {}
     }}));
