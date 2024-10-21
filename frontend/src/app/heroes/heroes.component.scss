@@ -13,9 +13,23 @@
 }
 
 p-sidebar.left-panel {
-  ::ng-deep * {
-    color: #ffffff;
-    background-color: var(--indigo-900);
+  // ::ng-deep * {
+  //   color: #ffffff;
+  //   background-color: var(--surface-ground);
+  // }
+  .sidebar-title {
+    text-align: center;
+    margin-bottom: 1rem;
+    h2 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+  }
+  .sidebar-description {
+    font-size: 16px;
+    line-height: 1.6;
+    // color: #555;
   }
 }
 
@@ -24,7 +38,7 @@ p-sidebar.left-panel {
 }
 
 .margin-right-bttn {
-  padding-top: 8px;
+  padding: 8px;
   &.hidden-bttn {
     display: none;
   }

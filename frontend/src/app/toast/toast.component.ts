@@ -13,7 +13,18 @@ import { selectToastState } from './toast.reducer';
 })
 export class ToastComponent implements AfterViewInit {
 
-  constructor(private store: Store, private confirmationService: ConfirmationService, private messageService: MessageService) { }
+  constructor(
+    private store: Store, 
+    private confirmationService: ConfirmationService, 
+    private messageService: MessageService,
+  ) { }
+
+  dialogSettings = {
+    visible: false,
+    title: '',
+    message: '',
+    callback: () => {},
+  }
 
   ngAfterViewInit(): void {
     this.store.select(selectToastState).subscribe((state) => {
@@ -24,6 +35,11 @@ export class ToastComponent implements AfterViewInit {
           accept: () => state.callback?.onConfirm(),
           reject: () => state.callback?.onReject()
         });
+      } else if (state.visible && state.type === 'dialog-dismiss') {
+        this.dialogSettings.visible = true;
+        this.dialogSettings.callback = !!state.callback ? state.callback.onConfirm : () => {};
+        this.dialogSettings.title = state.message?.title || '';
+        this.dialogSettings.message = state.message?.message || '';
       } else if (state.visible) {
         this.messageService.add({ severity: state.type, summary: state.message?.title, detail: state.message?.message });
       }

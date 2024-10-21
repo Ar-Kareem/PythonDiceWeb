@@ -20,6 +20,42 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   readonly TabsWithOutput: string[] = [TabTitles.DICE_CODE, TabTitles.PYTHON, TabTitles.GUISHOW];
   readonly TabTitles = TabTitles;
 
+  readonly SIDEBAR_ITEMS: any[] = [
+    {
+      label: 'Home',
+      icon: 'pi pi-home',
+      command: () => this.store.dispatch(SidebarActions.setSidebar({ newState: false }))
+    },
+    {
+      label: 'Github',
+      icon: 'pi pi-github',
+      url: 'https://github.com/Ar-Kareem/PythonDice'
+    },
+    {
+      label: 'Support',
+      icon: 'pi pi-question-circle',
+      items: [
+        {
+          label: 'Bugs / Questions',
+          icon: 'pi pi-question',
+          url: 'https://github.com/Ar-Kareem/PythonDice/issues'
+        },
+        {
+          label: 'Contact',
+          icon: 'pi pi-envelope',
+          url: 'mailto:arkareem2@gmail.com'
+        },
+        {
+          label: 'Support Us',
+          icon: 'pi pi-fw pi-heart',
+          command: () => this.onDonateClick()
+        },
+      ]
+    }
+
+];
+
+
   @ViewChild('autoResizeTextarea') textarea: ElementRef<HTMLTextAreaElement> | undefined;
 
   private inputSubject = new Subject<{title: string, content: string}>();  // for saving to localstorage
@@ -34,11 +70,21 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   gUIVariables: { [varname: string]: any } | null = null;  // from store
 
   sidebarVisible$: Observable<boolean> = this.store.select(herosSelectors.selectSidebarVisible);
+  workerStatus$: Observable<string> = this.store.select(herosSelectors.selectWorkerStatus).pipe(filter(status => typeof status === 'string'));
   private destroyed$ = new Subject<boolean>();
-  constructor(private cd: ChangeDetectorRef, private store: Store, private actions$: Actions) { }
+  constructor(
+    private cd: ChangeDetectorRef, 
+    private store: Store, 
+    private actions$: Actions,
+  ) { }
 
   ngAfterViewInit() {
-    if (typeof window !== 'undefined') {(window as any).heros = this}
+    if (typeof window !== 'undefined') {
+      (window as any).heros = this
+      // mobile: hide sidebar by default
+      const sideBarInitStatus = window.innerWidth > 800;
+      this.store.dispatch(SidebarActions.setSidebar({ newState: sideBarInitStatus }));
+    }
 
     this.initFromLocalStorage();
 
@@ -103,7 +149,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
         }
         this.store.dispatch(ToastActions.successNotification({ title: 'Translation successful', message: '' }));
       } else {  // error in translation
-        this.store.dispatch(ToastActions.errorNotification({ title: 'Error in translation', message: data.response.result }));
+        this.store.dispatch(ToastActions.errorNotification({ title: 'Error in translation', message: data.response.message }));
       }
     });
 
@@ -134,9 +180,10 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     });
     // if no code, set default code
     if (!this.ngContentsInput.has(TabTitles.DICE_CODE)) {
-      this.ngContentsInput.set(TabTitles.DICE_CODE, `\noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`);
-      loaded.push(TabTitles.DICE_CODE);
+      this.ngContentsInput.set(TabTitles.DICE_CODE, `\\ example code \\ \noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`);
+      loaded.unshift(TabTitles.DICE_CODE);  // add to front
     }
+    // update tabs
     if (loaded.length > 0 && typeof localStorage !== 'undefined') {
       let selectedTabIndex = parseInt(localStorage.getItem('selectedTabIndex') || '0');
       selectedTabIndex = Math.min(selectedTabIndex, loaded.length - 1);
@@ -190,7 +237,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
         return `Runtime Error:\n${payload.message}`;
       }
     } else {
-      return `Unexpected Error: ${response}`;
+      return `${response}`;
     }
   }
 
@@ -285,7 +332,6 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   }
 
   onButtonClick() {
-    console.log('onButtonClick done on master 1');
     const title = this.selectedTab?.title;
     if (!title) {
       this.store.dispatch(ToastActions.errorNotification({ title: 'No tab selected', message: '' }));
@@ -325,6 +371,13 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       return;
     }
     this.store.dispatch(CodeApiActions.translateDiceCodeRequest({ code: toTranslate }));
+  }
+
+  onDonateClick() {
+    this.store.dispatch(ToastActions.dialogOnlyDismissNotification({ message: 'We are currently not taking donations.\n\n Giving us a star on github is free and we greatly appreciate it.\n\n Showing us support incentivises us to improve the site.', title: 'Thank you!', callback: {
+      onConfirm: () => {},
+      onReject: () => {}
+    }}));
   }
 
   ngOnDestroy() {

@@ -1,10 +1,5 @@
 <div class="main">
 
-  <!-- TOGGLE SIDEBAR BUTTON -->
-  <div [ngClass]="{'margin-right-bttn': true, 'hidden-bttn': (sidebarVisible$ | async)}">
-    <p-button (onClick)="toggleSidebar()" rounded="true" icon="pi pi-bars" styleclass="w-2rem h-2rem p-0" label=""></p-button>
-  </div>
-
   <!-- SIDEBAR -->
   <p-sidebar [visible]="(sidebarVisible$ | async)!" [modal]="false" class="left-panel" [showCloseIcon]="true"
     (onHide)="toggleSidebar()"
@@ -12,10 +7,20 @@
     <ng-template pTemplate="closeicon">
       <i class="pi pi-arrow-left"></i> 
     </ng-template>
-    <h3>Sidebar</h3>
-    <p>
-        Lorem ipsum dolor sit amet...
-    </p>
+    <div class="sidebar-title">
+      <h2>PyDice</h2>
+    </div>
+    <p-panel header="About">
+        <p class="sidebar-description">
+            Welcome to PyDice!
+            <br />An implementation of our 
+            <a href="https://github.com/Ar-Kareem/PythonDice/" target="_blank" rel="noopener noreferrer" class="p-button p-button-sm font-bold h-1rem" style="text-decoration: none; padding: 3px 2px; vertical-align: middle;">
+              PythonDice
+            </a>
+            project on the browser.
+        </p>
+    </p-panel>
+    <p-panelMenu [model]="SIDEBAR_ITEMS" />
   </p-sidebar>
 
 
@@ -28,6 +33,11 @@
 
     <div class="inpout-content">
 
+      <!-- TOGGLE SIDEBAR BUTTON -->
+      <div [ngClass]="{'margin-right-bttn': true, 'hidden-bttn': false}">
+        <p-button (onClick)="toggleSidebar()" rounded="true" icon="pi pi-bars" styleclass="w-2rem h-2rem p-0" label=""></p-button>
+      </div>
+      
       <!-- toolbar -->
       <app-tabview />
 
@@ -38,6 +48,7 @@
             rows="20"
             pInputTextarea 
             autofocus 
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
             [ngModel]="ngContentsInput.get(tab.title)"
             (ngModelChange)="onInputChange($event, tab.title)"
             (keydown.tab)="onInputKeyPress($event, 'tab')"
@@ -57,10 +68,11 @@
 
       <!-- BUTTON CALCULATE -->
       <div *ngIf="selectedTab?.title !== TabTitles.GUI" [ngClass]="{'bttn-padding': true, 'center-btn': selectedTab?.title === TabTitles.GUISHOW}">
+        @let status = (workerStatus$ | async);
         <p-button 
-          pButton 
           pRipple 
-          label="Calculate"
+          [severity]="status !== 'IDLE' ? 'warning' : 'primary'"
+          [label]="status === 'IDLE' ? 'Calculate' : (status === 'BUSY' ? 'Calculating...' : 'Initializing...')"
           [ngClass]="{'calculate-bttn': true}"
           (click)="onButtonClick()" 
         />

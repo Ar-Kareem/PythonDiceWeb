@@ -12,6 +12,7 @@ import { PanelModule } from 'primeng/panel';
 import { SidebarModule } from 'primeng/sidebar';
 import { TabViewModule } from 'primeng/tabview';
 import { MessagesModule } from 'primeng/messages';
+import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { DropdownModule } from 'primeng/dropdown';
@@ -20,6 +21,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { ProgressBarModule } from 'primeng/progressbar';
+import { PanelMenuModule } from 'primeng/panelmenu';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -58,6 +60,7 @@ import { PyodideService } from './localbackend/local.service';
     SidebarModule,
     TabViewModule,
     MessagesModule,
+    DialogModule,
     ConfirmDialogModule,
     ToastModule,
     DropdownModule,
@@ -66,6 +69,7 @@ import { PyodideService } from './localbackend/local.service';
     InputNumberModule,
     RadioButtonModule,
     ProgressBarModule,
+    PanelMenuModule,
     EffectsModule.forRoot([
       HerosEffects
     ]),

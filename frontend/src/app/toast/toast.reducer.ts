@@ -21,6 +21,7 @@ export const ToastActions = createActionGroup({
     'Warning Notification': props<IMessage>(),
     'Success Notification': props<IMessage>(),
     'Dialog Notification': props<IMessage & { callback: ICallback }>(),
+    'Dialog Only Dismiss Notification': props<IMessage & { callback: ICallback }>(),
   },
 });
 
@@ -53,6 +54,9 @@ const feature = createFeature({
     }),
     on(ToastActions.dialogNotification, (state, message) => {
       return { ...state, message: message, type: 'dialog', visible: true, callback: message.callback };
+    }),
+    on(ToastActions.dialogOnlyDismissNotification, (state, message) => {
+      return { ...state, message: message, type: 'dialog-dismiss', visible: true, callback: message.callback };
     }),
   ),
 });

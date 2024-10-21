@@ -10,7 +10,7 @@ type RV = [val: number, prob: number][]
 declare let loadPyodide: any;
 let pyodide: any = null;
 
-let isLoadingResolve: (() => void) | null = null;
+let isLoadingResolve: (() => void) | undefined;
 const isLoading = new Promise<void>((resolve) => {
   isLoadingResolve = resolve;
 });
@@ -30,43 +30,42 @@ async function loadPyodideAndPackages() {
   await pyodide.loadPackage("micropip");
   const micropip = pyodide.pyimport("micropip");
   await micropip.install(BASE_CALC_DICE_URL);
-  console.log('Pyodide loaded');
-  if (!isLoadingResolve) {
-    throw new Error('Should not happen');
-  } 
-  isLoadingResolve(); // Resolves the isLoading promise
 }
 
 onmessage = async ({ data }) => {
+  const key = data.key;
+  const api = data.api;
+  const api_data = data.api_data;
   try {
-    if (data === 'init') {
+    if (api === 'INIT') {
       await loadPyodideAndPackages();
+      postMessage({ key: key, result: 'init_done' });
+      isLoadingResolve!(); // Resolves the isLoading promise
       return;
     }
     await isLoading;  // wait until loading is done
-    console.log('ready to execute code!!!');
 
     let result: any;
     const start_time = performance.now();
-    const { code, api } = data;
     switch (api) {
       case 'EXEC_DICE_CODE':
-        result = exec_dice_code(code);
+        result = exec_dice_code(api_data);
         break;
       case 'EXEC_PYTHON_CODE':
-        result = exec_python_code(code);
+        result = exec_python_code(api_data);
         break;
       case 'TRANSLATE_DICE_CODE':
-        result = translate(code);
+        result = translate(api_data);
         break;
       default:
         throw new Error('Invalid API');
     }
     result.time = performance.now() - start_time;
+    result.key = key;
     postMessage(result);
   } catch (error) {
     console.error('Error in web worker', error);
-    postMessage({ error });
+    postMessage({ key: key, error });
   }
 };
 
@@ -74,9 +73,7 @@ function translate(code:string, flags=true) {
   const globals = pyodide.toPy({ code });
   const PYCODE = flags ? PYTHON_CODE_REPO.TRANSLATE_NO_FLAGS : PYTHON_CODE_REPO.TRANSLATE_NO_FLAGS
   const pyResult = pyodide.runPython(PYCODE, { globals });
-  if (pyResult.get('error')) {
-    return { error: pyResult.get('error') }
-  }
+  if ( typeof pyResult.get('error') !== 'undefined') throw new Error(pyResult.get('error'))
   const result = pyResult.toJs().get('result');
   return {
     result: result,
@@ -86,9 +83,7 @@ function translate(code:string, flags=true) {
 function exec_python_code(code:string) {
   const globals = pyodide.toPy({ code });
   const pyResult = pyodide.runPython(PYTHON_CODE_REPO.EXEC_PYTHON_CODE, { globals });
-  if (pyResult.get('error')) {
-    return { error: pyResult.get('error') }
-  }
+  if ( typeof pyResult.get('error') !== 'undefined') throw new Error(pyResult.get('error'))
   const result = pyResult.toJs();
   const rvs: [RV, string | undefined][] = result.get('rvs');
   rvs.forEach((rv_output, i) => {
@@ -117,17 +112,15 @@ def run_python(parsed):
   from dice_calc import output
   from dice_calc.parser.parse_and_exec import unsafe_exec
   outputs = []
-  print('inside unsafe exec')
   unsafe_exec(parsed, global_vars={'output': lambda x, named=None: outputs.append((x, named))})
-  out_str = ''.join([output(r, named=n, print_=False, blocks_width=100) for r, n in outputs])
-  print('done unsafe exec')
+  out_str = '\\n'.join([output(r, named=n, print_=False, blocks_width=80) for r, n in outputs])
   return {'rvs': outputs, 'parsed': parsed, 'output': out_str}
 
 def main(f):
   try:
     return f()
   except Exception as e:
-    return {'error': str(e)}
+    return {'error': repr(e)}
 # executable here
 
 `
