@@ -134,9 +134,10 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     });
     // if no code, set default code
     if (!this.ngContentsInput.has(TabTitles.DICE_CODE)) {
-      this.ngContentsInput.set(TabTitles.DICE_CODE, `\noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`);
-      loaded.push(TabTitles.DICE_CODE);
+      this.ngContentsInput.set(TabTitles.DICE_CODE, `\\ example code \\ \noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`);
+      loaded.unshift(TabTitles.DICE_CODE);  // add to front
     }
+    // update tabs
     if (loaded.length > 0 && typeof localStorage !== 'undefined') {
       let selectedTabIndex = parseInt(localStorage.getItem('selectedTabIndex') || '0');
       selectedTabIndex = Math.min(selectedTabIndex, loaded.length - 1);
