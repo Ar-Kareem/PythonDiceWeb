@@ -74,9 +74,7 @@ function translate(code:string, flags=true) {
   const globals = pyodide.toPy({ code });
   const PYCODE = flags ? PYTHON_CODE_REPO.TRANSLATE_NO_FLAGS : PYTHON_CODE_REPO.TRANSLATE_NO_FLAGS
   const pyResult = pyodide.runPython(PYCODE, { globals });
-  if (pyResult.get('error')) {
-    return { error: pyResult.get('error') }
-  }
+  if (pyResult.get('error')) throw new Error(pyResult.get('error'))
   const result = pyResult.toJs().get('result');
   return {
     result: result,
@@ -86,9 +84,7 @@ function translate(code:string, flags=true) {
 function exec_python_code(code:string) {
   const globals = pyodide.toPy({ code });
   const pyResult = pyodide.runPython(PYTHON_CODE_REPO.EXEC_PYTHON_CODE, { globals });
-  if (pyResult.get('error')) {
-    return { error: pyResult.get('error') }
-  }
+  if (pyResult.get('error')) throw new Error(pyResult.get('error'))
   const result = pyResult.toJs();
   const rvs: [RV, string | undefined][] = result.get('rvs');
   rvs.forEach((rv_output, i) => {
@@ -119,7 +115,7 @@ def run_python(parsed):
   outputs = []
   print('inside unsafe exec')
   unsafe_exec(parsed, global_vars={'output': lambda x, named=None: outputs.append((x, named))})
-  out_str = ''.join([output(r, named=n, print_=False, blocks_width=100) for r, n in outputs])
+  out_str = '\\n'.join([output(r, named=n, print_=False, blocks_width=80) for r, n in outputs])
   print('done unsafe exec')
   return {'rvs': outputs, 'parsed': parsed, 'output': out_str}
 
