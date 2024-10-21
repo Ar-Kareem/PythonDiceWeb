@@ -33,6 +33,7 @@ export const CodeApiActions = createActionGroup({
     'Exec python code Failure': props<{ error: any }>(),
     'Translate dice code Request': props<{ code: string }>(),
     'Translate dice code Respone': props<TranslateResp>(),
+    'Set Worker Status': props<{ status: string }>(),
   },
 });
 
@@ -44,6 +45,7 @@ interface State {
   servTranslateRes: TranslateResp | null, 
   GUIVariables: { [varname: string]: any },
   GUITree: GUIElement | null,
+  WorkerStatus: string|null,
 };
 const initialState: State = {
   sidebarVisible: false,
@@ -52,6 +54,7 @@ const initialState: State = {
   servTranslateRes: null,
   GUIVariables: {},
   GUITree: null,
+  WorkerStatus: null,
 };
 
 export const feature = createFeature({
@@ -85,6 +88,9 @@ export const feature = createFeature({
       // console.log('STORE RESET TREE. only keeping vars:', getVarNamesAndDefaults(element), newGUIVariables);
       return { ...state, GUITree: element, GUIVariables: newGUIVariables };
     }),
+    on(CodeApiActions.setWorkerStatus, (state, { status }) => {
+      return { ...state, WorkerStatus: status };
+    }),
   ),
 });
 
@@ -104,6 +110,7 @@ export const herosSelectors = {
   selectDiceExecFailure: feature.selectDiceExecFailure,
   selectServTranslateRes: feature.selectServTranslateRes,
   selectGUIVariables: feature.selectGUIVariables,
-  factorySelectSingleGUIVariable: factorySelectSingleGUIVariable,
   selectGUITree: feature.selectGUITree,
+  selectWorkerStatus: feature.selectWorkerStatus,
+  factorySelectSingleGUIVariable: factorySelectSingleGUIVariable,
 };
