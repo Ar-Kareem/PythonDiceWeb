@@ -1,11 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HeroesComponent } from './heroes/heroes.component';
+import { TabviewComponent } from './tabview/tabview.component';
 
 const routes: Routes = [
-  { path: 'home', component: HeroesComponent },
-  { path: '', redirectTo: '/home', pathMatch: 'full' },
-  { path: '**', redirectTo: '/home' }
+  { path: 'emptyTabExample', component: TabviewComponent },
+  { path: '', component: HeroesComponent },
+  { path: '**', redirectTo: '/' }
 ];
 
 @NgModule({
