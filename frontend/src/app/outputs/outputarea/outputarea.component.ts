@@ -8,7 +8,7 @@ import { TabTitles } from '@app/tabview/tabview.component';
 import { ITab, tabviewSelectors } from '@app/tabview/tabview.reducer';
 
 type RV = [val: number, prob: number][]
-type RVDATA = {
+type SINGLE_RV_DATA = {
   named?: string,
   pdf: RV,
   atleast: RV,
@@ -21,7 +21,12 @@ type RVDATA = {
   min_y: number,
   max_y: number,
 }
-type RVS = {[id: string]: RVDATA}
+type MULTI_RV_DATA = {[id: string]: SINGLE_RV_DATA}
+type TAB_DATA = {
+  text_response: string,
+  multi_rv_data: MULTI_RV_DATA,
+  chart: Chart|undefined,
+}
 
 @Component({
   selector: 'app-outputarea',
@@ -34,13 +39,12 @@ export class OutputareaComponent implements AfterViewInit {
 
   @Input() guiXML: string = '';
 
-  ngContentsOutput: {[key: string]: string} = {};  // form store
-  rvs: {[key: string]: RVS} = {};  // from store
   allTabs: ITab[] = [];  // from store
-  selectedTabIndex: number|undefined;  // from store
   selectedTab: ITab|null = null;  // from store
 
-  DEMOCHART: any = [];
+  allResults: {[tabTitle: string]: TAB_DATA} = {};
+
+  private rv_uuid = 0;
 
   constructor(
     private cd: ChangeDetectorRef, 
@@ -52,36 +56,55 @@ export class OutputareaComponent implements AfterViewInit {
       this.allTabs = tabs;
       this.cd.detectChanges();
     });
-
-    this.store.select(tabviewSelectors.selectActiveIndex).subscribe(index => {
-      this.selectedTabIndex = index;
-      this.cd.detectChanges();
-    });
     this.store.select(tabviewSelectors.selectSelectedTab).subscribe((tab) => {
       this.selectedTab = tab
       this.cd.detectChanges();
     });
-    this.store.select(herosSelectors.selectOutputResponse).pipe(
-      filter(response => !!response)
-    ).subscribe((response) => {
-      this.setResponse(response.text, response.rvs, response.title);
+    this.store.select(herosSelectors.selectOutputResponse).subscribe((response) => {
+      const obj = response || {};
+      const title: string|undefined = obj.title || this.selectedTab?.title;
+      if (!title) {  // no tab selected
+        console.error('Response with no tab selected!');
+        return;
+      }
+      this.allResults[title] = this.getRespObj(title, obj.text, obj.rvs);
       this.cd.detectChanges();
     });
+  }
 
 
-    this.DEMOCHART = new Chart('canvas', {
+  private getRespObj(title: string, response?: string, rvs?: any) {
+    const result = {
+      text_response: response || '',
+      multi_rv_data: {},
+      chart: undefined,
+    } as TAB_DATA;
+    if (!!rvs) {
+      rvs?.forEach(([rv, name]: ([RV, string])) => {
+        const uuid = `uuid_${++this.rv_uuid}`;
+        result.multi_rv_data![uuid] = this.getCalcedRV(rv, true);
+        result.multi_rv_data![uuid].named = name;
+      });
+      result.chart = this.getMeanChart('chart' + title, result.multi_rv_data!);
+    }
+    return result;
+  }
+
+  private getMeanChart(canvasTitle: string, rvs: MULTI_RV_DATA) {
+    const chart = new Chart(canvasTitle, {
       type: 'bar',
       data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        labels: Object.entries(rvs).map(([id, {named}]) => named || id),
         datasets: [
           {
-            label: '# of Votes',
-            data: [12, 19, 3, 5, 2, 3],
+            label: 'mean',
+            data: Object.values(rvs).map(({mean}) => mean),
             borderWidth: 1,
           },
         ],
       },
       options: {
+        indexAxis: 'y',
         scales: {
           y: {
             beginAtZero: true,
@@ -89,32 +112,13 @@ export class OutputareaComponent implements AfterViewInit {
         },
       },
     });
-
+    return chart;
   }
 
-
-  setResponse(response: string, rvs: any, title?: string) {
-    title = title || this.selectedTab?.title;
-    if (!title) {  // no tab selected
-      console.error('No tab selected!!!');
-      return;
+  private getCalcedRV(pdf: RV, prob_is_100: boolean = true): SINGLE_RV_DATA {
+    if (prob_is_100) {
+      pdf = pdf.map(([val, prob]) => [val, prob * 100] as [number, number]);
     }
-    this.ngContentsOutput[title] = response;
-    this.rvs[title] = {};
-    if (!!rvs) {
-      rvs?.forEach(([rv, name]: ([RV, string])) => {
-        console.log('setting up rv', name, title);
-        
-        this.setupRV(title, rv, name);
-      });
-    }
-    console.log('rvs', this.rvs);
-  }
-
-  private rv_id = 0;
-  setupRV(tabTitle: string, rv: RV, named?: string) {
-    const id = `id_${this.rv_id++}`;
-    const pdf = rv
     const atleast = pdf.map(([val, prob]) => [val, 0] as [number, number]);
     const atmost = pdf.map(([val, prob]) => [val, 0] as [number, number]);
     let sum = 0;
@@ -134,7 +138,7 @@ export class OutputareaComponent implements AfterViewInit {
     const max_x = pdf[pdf.length-1][0];
     const min_y = Math.min(...pdf.map(([_, prob]) => prob));
     const max_y = Math.max(...pdf.map(([_, prob]) => prob));
-    this.rvs[tabTitle][id] = { named, pdf, atleast, atmost, mean, variance, std_dev, min_x, max_x, min_y, max_y };
+    return { pdf, atleast, atmost, mean, variance, std_dev, min_x, max_x, min_y, max_y };
   }
 
 }
