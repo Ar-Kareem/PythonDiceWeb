@@ -136,7 +136,7 @@ export class OutputareaComponent implements AfterViewInit {
         const uuid = `uuid_${++this.rv_uuid}`;
         result.multi_rv_data!.id_order.push(uuid);
         result.multi_rv_data!.rvs[uuid] = this.getCalcedRV(rv, true);
-        result.multi_rv_data!.rvs[uuid].named = !!name ? name : `output ${i+1}`;
+        result.multi_rv_data!.rvs[uuid].named = !!name ? name : `Output ${i+1}`;
       });
     }
     return result;

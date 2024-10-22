@@ -79,7 +79,7 @@ export class OutputchartComponent {
     const rvs = multiRvData.rvs;
     const labels = Object.entries(rvs).map(([id, {named}]) => named || id)
     const data = Object.values(rvs).map(({mean}) => mean)
-    const meanChartData = this.getHorizBarChart(labels, data, 'mean');
+    const meanChartData = this.getHorizBarChart(labels, data, 'means');
     this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, meanChartData)
     const h = 128 + 18 * labels.length;
     this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
@@ -93,7 +93,7 @@ export class OutputchartComponent {
       const rv = multiRvData.rvs[multiRvData.id_order[i]];
       const labels = rv.pdf.map(([val, _]) => val.toString());
       const data = rv.pdf.map(([_, prob]) => prob);
-      const title = (rv.named || 'output') + `  (${rv.mean.toFixed(2)} ± ${rv.std_dev.toFixed(2)})`;
+      const title = rv.named + ` (${rv.mean.toFixed(2)} ± ${rv.std_dev.toFixed(2)})`;
       const pdfChart = this.getHorizBarChart(labels, data, title);
       this.chartsData[i] = new Chart(chart.nativeElement, pdfChart);
       const h = 128 + 18 * labels.length;
@@ -115,10 +115,31 @@ export class OutputchartComponent {
         ],
       },
       options: {
+        plugins: {
+          legend: {
+              labels: {
+                  // This more specific font property overrides the global property
+                  color: '#ddd',
+                  font: {
+                      size: 16,
+                      weight: 'bolder',
+                      family: 'monospace',
+                  }
+              }
+          }
+      },
         maintainAspectRatio: false,
         indexAxis: 'y',
         scales: {
+          y: {
+            ticks: {
+              color: '#fff',
+            },
+          },
           x: {
+            ticks: {
+              color: '#fff',
+            },
             min: 0,
             max: 100,
           },
