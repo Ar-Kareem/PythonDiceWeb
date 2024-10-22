@@ -93,7 +93,8 @@ export class OutputchartComponent {
       const rv = multiRvData.rvs[multiRvData.id_order[i]];
       const labels = rv.pdf.map(([val, _]) => val.toString());
       const data = rv.pdf.map(([_, prob]) => prob);
-      const pdfChart = this.getHorizBarChart(labels, data, rv.named || 'output');
+      const title = (rv.named || 'output') + `  (${rv.mean.toFixed(2)} ± ${rv.std_dev.toFixed(2)})`;
+      const pdfChart = this.getHorizBarChart(labels, data, title);
       this.chartsData[i] = new Chart(chart.nativeElement, pdfChart);
       const h = 128 + 18 * labels.length;
       chart.nativeElement.parentNode.style.height = `${h}px`;

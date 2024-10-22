@@ -132,17 +132,21 @@ export class OutputareaComponent implements AfterViewInit {
     } as TAB_DATA;
     if (!!response_rvs) {
       result.multi_rv_data = {id_order: [], rvs: {}};
-      response_rvs?.forEach(([rv, name]: ([RV, string])) => {
+      response_rvs?.forEach(([rv, name]: ([RV, string]), i: number) => {
         const uuid = `uuid_${++this.rv_uuid}`;
         result.multi_rv_data!.id_order.push(uuid);
         result.multi_rv_data!.rvs[uuid] = this.getCalcedRV(rv, true);
-        result.multi_rv_data!.rvs[uuid].named = name;
+        result.multi_rv_data!.rvs[uuid].named = !!name ? name : `output ${i+1}`;
       });
     }
     return result;
   }
 
   private getCalcedRV(pdf: RV, prob_is_100: boolean = true): SINGLE_RV_DATA {
+    // calculate (mean, variance, std_dev) before normalizing
+    const mean = pdf.reduce((acc, [val, prob]) => acc + val * prob, 0);
+    const variance = pdf.reduce((acc, [val, prob]) => acc + (val - mean) ** 2 * prob, 0);
+    const std_dev = Math.sqrt(variance);
     if (prob_is_100) {
       pdf = pdf.map(([val, prob]) => [val, prob * 100] as [number, number]);
     }
@@ -158,9 +162,6 @@ export class OutputareaComponent implements AfterViewInit {
       sum += pdf[i][1];
       atmost[i][1] = sum;
     }
-    const mean = pdf.reduce((acc, [val, prob]) => acc + val * prob, 0);
-    const variance = pdf.reduce((acc, [val, prob]) => acc + (val - mean) ** 2 * prob, 0);
-    const std_dev = Math.sqrt(variance);
     const min_x = pdf[0][0];
     const max_x = pdf[pdf.length-1][0];
     const min_y = Math.min(...pdf.map(([_, prob]) => prob));
