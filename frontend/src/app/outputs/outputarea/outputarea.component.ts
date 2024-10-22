@@ -1,14 +1,13 @@
 import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 import { filter, Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
-import Chart from 'chart.js/auto';
 
 import { herosSelectors } from '@app/heroes/heros.reducer';
 import { TabTitles } from '@app/tabview/tabview.component';
 import { ITab, tabviewSelectors } from '@app/tabview/tabview.reducer';
 
 type RV = [val: number, prob: number][]
-type SINGLE_RV_DATA = {
+export type SINGLE_RV_DATA = {
   named?: string,
   pdf: RV,
   atleast: RV,
@@ -21,21 +20,23 @@ type SINGLE_RV_DATA = {
   min_y: number,
   max_y: number,
 }
-export type MULTI_RV_DATA = {[id: string]: SINGLE_RV_DATA}
+export type MULTI_RV_DATA = {
+  id_order: string[],
+  rvs: {[id: string]: SINGLE_RV_DATA},
+}
 export enum DISPLAY_TYPE {
-  TEXT = "TEXT",
-  MEANS = "MEANS",
-  PDF = "PDF",
-  CDF = "CDF",
-  ATLEAST = "ATLEAST",
-  ATMOST = "ATMOST",
+  PDF = "normal",
+  MEANS = "means",
+  // CDF = "CDF",
+  // ATLEAST = "ATLEAST",
+  // ATMOST = "ATMOST",
+  TEXT = "text",
 }
 
 type TAB_DATA = {
   display_type?: DISPLAY_TYPE,
   multi_rv_data?: MULTI_RV_DATA,
   text_response?: string,
-  chart?: Chart,
 }
 
 @Component({
@@ -127,16 +128,15 @@ export class OutputareaComponent implements AfterViewInit {
     const result = {
       text_response: response_text,
       multi_rv_data: undefined,
-      chart: undefined,
     } as TAB_DATA;
     if (!!response_rvs) {
-      result.multi_rv_data = {};
+      result.multi_rv_data = {id_order: [], rvs: {}};
       response_rvs?.forEach(([rv, name]: ([RV, string])) => {
         const uuid = `uuid_${++this.rv_uuid}`;
-        result.multi_rv_data![uuid] = this.getCalcedRV(rv, true);
-        result.multi_rv_data![uuid].named = name;
+        result.multi_rv_data!.id_order.push(uuid);
+        result.multi_rv_data!.rvs[uuid] = this.getCalcedRV(rv, true);
+        result.multi_rv_data!.rvs[uuid].named = name;
       });
-      // result.chart = this.getMeanChart('chart' + title, result.multi_rv_data!);
     }
     return result;
   }

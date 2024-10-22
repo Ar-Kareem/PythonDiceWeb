@@ -1,6 +1,6 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Input, QueryList, ViewChildren } from '@angular/core';
 import { Chart } from 'chart.js/auto';
-import { DISPLAY_TYPE, MULTI_RV_DATA } from '../outputarea.component';
+import { DISPLAY_TYPE, MULTI_RV_DATA, SINGLE_RV_DATA } from '../outputarea.component';
 
 @Component({
   selector: 'app-outputchart',
@@ -9,10 +9,8 @@ import { DISPLAY_TYPE, MULTI_RV_DATA } from '../outputarea.component';
 })
 export class OutputchartComponent {
 
-  @ViewChild('chart', {static: false}) chart: any;
-  chartData: Chart|undefined;
-
-  showCanvas = false;
+  @ViewChildren('chart') chartsRef: QueryList<ElementRef> = new QueryList();
+  chartsData: (Chart|null)[] = [];
 
   _multiRvData: MULTI_RV_DATA|undefined;  // INPUT
   _displayType: string|undefined;  // INPUT
@@ -34,51 +32,88 @@ export class OutputchartComponent {
     this.initGraph(this._multiRvData, type);
   }
 
-
   constructor(
     private cd: ChangeDetectorRef
   ) { }
 
-  private setCanvasVisibility(visible: boolean) {
-    console.log('setting canvas visibility', visible);
-    this.showCanvas = visible;
-    this.cd.detectChanges();
+
+  alwaysTrue() {
+    return true;
+  }
+
+  private setCanvasCount(count: number) {
+    this.chartsData = Array(count).fill(null);  // fill with null to create canvar refs
+    if (this.chartsData.length > 0) {
+      this.cd.detectChanges();  // to make refs available
+    }
   }
 
   private initGraph(multiRvData?: MULTI_RV_DATA, displayType?: string) {
-    if (this.chartData) {
-      this.chartData.destroy();
-      this.chartData = undefined;
+    if (this.chartsData.length > 0) {  // destroy old charts
+      this.chartsData.forEach(chart => !!chart && chart.destroy());
+      this.chartsData = [];
     }
     if (!multiRvData || !displayType) {
-      this.setCanvasVisibility(false);
       return
     }
-    this.setCanvasVisibility(true);
+    try {
+      (window as any).outputchart = this;
+    } catch (error) {
+      
+    }
+
     console.log('creating chart for', multiRvData, displayType);
     switch (displayType) {
       case DISPLAY_TYPE.TEXT:
-        this.setCanvasVisibility(false);
         break;
       case DISPLAY_TYPE.MEANS:
-        this.chartData = this.getMeanChart(multiRvData);
+        this.setCanvasCount(1);
+        if (this.chartsRef.length !== 1) throw new Error('Expected exactly one chart canvas');
+        this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, this.getMeanChart(multiRvData))
+        break;
+      case DISPLAY_TYPE.PDF:
+        const N = multiRvData.id_order.length;
+        this.setCanvasCount(N);
+        if (this.chartsRef.length !== N) throw new Error('Expected exactly one chart canvas per RV');
+        this.chartsRef.forEach((chart, i) => {
+          const rv = multiRvData.rvs[multiRvData.id_order[i]];
+          this.chartsData[i] = new Chart(chart.nativeElement, this.getPdfChart(rv));
+        });
         break;
       default:
         console.error('Unknown display type', displayType);
         break;
     }
+    this.cd.detectChanges();  // to update chart data
+    console.log('chartsData', this.chartsData);
+    console.log('chartsRef', this.chartsRef);
   }
 
 
-  private getMeanChart(rvs: MULTI_RV_DATA) {
-    return new Chart(this.chart.nativeElement, {
+  private getMeanChart(multi_rv: MULTI_RV_DATA) {
+    const rvs = multi_rv.rvs;
+    const labels = Object.entries(rvs).map(([id, {named}]) => named || id)
+    const data = Object.values(rvs).map(({mean}) => mean)
+    console.log('mean chart data', labels, data);
+    
+    return this.getHorizBarChart(labels, data);
+  }
+
+  private getPdfChart(rv: SINGLE_RV_DATA) {
+    const labels = rv.pdf.map(([val, _]) => val.toString());
+    const data = rv.pdf.map(([_, prob]) => prob);
+    return this.getHorizBarChart(labels, data);
+  }
+
+  private getHorizBarChart(labels: string[], data: number[]): any {
+    return {
       type: 'bar',
       data: {
-        labels: Object.entries(rvs).map(([id, {named}]) => named || id),
+        labels: labels,
         datasets: [
           {
             label: 'mean',
-            data: Object.values(rvs).map(({mean}) => mean),
+            data: data,
             borderWidth: 1,
           },
         ],
@@ -91,7 +126,7 @@ export class OutputchartComponent {
           },
         },
       },
-    });
+    };
   }
 
 }

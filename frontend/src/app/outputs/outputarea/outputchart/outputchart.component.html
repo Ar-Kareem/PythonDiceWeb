@@ -1,6 +1,8 @@
-<!-- CHART -->
-<div *ngIf="showCanvas"> 
-  <canvas #chart>
-    {{chartData}}
-  </canvas>
+
+<div>
+  <div *ngFor="let chartData of chartsData ; trackBy: alwaysTrue">
+    <canvas #chart>
+      {{!!chartData ? chartData : ''}}
+    </canvas>
+  </div>
 </div>
