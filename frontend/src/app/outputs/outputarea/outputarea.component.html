@@ -1,40 +1,52 @@
 
-<!-- BUTTON CALCULATE -->
-<div *ngIf="selectedTab?.title !== TabTitles.GUI" [ngClass]="{'bttn-padding': true, 'center-btn': selectedTab?.title === TabTitles.GUISHOW}">
-  @let status = (workerStatus$ | async);
-  <p-button 
-    pRipple 
-    [severity]="status !== 'IDLE' ? 'warning' : 'primary'"
-    [label]="status === 'IDLE' ? 'Calculate' : (status === 'BUSY' ? 'Calculating...' : 'Initializing...')"
-    [ngClass]="{'calculate-bttn': true}"
-    (onClick)="onCalculate.emit()"
-  />
+<div class="calc-div">
+  <!-- BUTTON CALCULATE -->
+  <div *ngIf="selectedTab?.title !== TabTitles.GUI" [ngClass]="{'bttn-padding': true, 'center-btn': selectedTab?.title === TabTitles.GUISHOW}">
+    @let status = (workerStatus$ | async);
+    <p-button 
+      pRipple 
+      [severity]="status !== 'IDLE' ? 'warning' : 'primary'"
+      [label]="status === 'IDLE' ? 'Calculate' : (status === 'BUSY' ? 'Calculating...' : 'Initializing...')"
+      [ngClass]="{'calculate-bttn': true}"
+      (onClick)="onCalculate.emit()"
+    />
+  </div>
+
+  <!-- DROPDOWN -->
+  <div *ngIf="currentDropdownItems.length > 0">
+    <p-dropdown
+      [options]="currentDropdownItems"
+      (onChange)="dropdownChange($event)"
+    />
+  </div>
 </div>
+
+
 
 <!-- OUTPUTS FOR EACH TAB -->
 <ng-container *ngFor="let tab of allTabs">
 
-<!-- TEXT OUTPUT -->
-<div class="code-output" [ngClass]="{'myhidediv': tab.title !== selectedTab?.title}"  *ngIf="!!allResults[tab.title]?.text_response && TabsWithOutput.includes(tab.title)">
-  <textarea
-  pInputTextarea
-  [readOnly]="true"
-  [autoResize]="true"
-  [ngModel]="allResults[tab.title]?.text_response"
-  ></textarea>
-</div>
+  <!-- TEXT OUTPUT -->
+  <div class="code-output" [ngClass]="{'myhidediv': tab.title !== selectedTab?.title}"  *ngIf="!!allResults[tab.title]?.text_response && TabsWithOutput.includes(tab.title)">
+    <textarea
+    pInputTextarea
+    [readOnly]="true"
+    [autoResize]="true"
+    [ngModel]="allResults[tab.title]?.text_response"
+    ></textarea>
+  </div>
 
-<!-- GUI -->
-<div [ngClass]="{'myhidediv': tab.title !== selectedTab?.title}" *ngIf="tab.title === TabTitles.GUI">
-  <app-gui-output [inputXML]="guiXML" />
-</div>
+  <!-- GUI -->
+  <div [ngClass]="{'myhidediv': tab.title !== selectedTab?.title}" *ngIf="tab.title === TabTitles.GUI">
+    <app-gui-output [inputXML]="guiXML" />
+  </div>
 
-<!-- CHART -->
-<div [ngClass]="{'myhidediv': tab.title !== selectedTab?.title}">
-  <canvas id="chart{{tab.title}}">
-    {{allResults[tab.title]?.chart}}
-  </canvas>
-</div>
+  <!-- CHART -->
+  <div [ngClass]="{'myhidediv': tab.title !== selectedTab?.title}">
+    <canvas id="chart{{tab.title}}">
+      {{allResults[tab.title]?.chart}}
+    </canvas>
+  </div>
 
 </ng-container>
 

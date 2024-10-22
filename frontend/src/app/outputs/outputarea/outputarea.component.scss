@@ -1,7 +1,16 @@
 
+.calc-div {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 10px;
+  align-items: center;
+
+  margin-top: 3px;
+  margin-left: 3px;
+  margin-bottom: 10px;
+}
+
 .bttn-padding {
-  padding-top: 10px;
-  padding-bottom: 10px;
   &.center-btn {
     display: flex;
     justify-content: center;

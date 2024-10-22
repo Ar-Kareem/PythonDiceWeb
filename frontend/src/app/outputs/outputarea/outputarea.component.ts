@@ -22,10 +22,13 @@ type SINGLE_RV_DATA = {
   max_y: number,
 }
 type MULTI_RV_DATA = {[id: string]: SINGLE_RV_DATA}
+enum DISPLAY_TYPE { TEXT, MEANS, PDF, CDF, ATLEAST, ATMOST }
+
 type TAB_DATA = {
-  text_response: string,
+  display_type?: DISPLAY_TYPE,
   multi_rv_data: MULTI_RV_DATA,
-  chart: Chart|undefined,
+  text_response?: string,
+  chart?: Chart,
 }
 
 @Component({
@@ -42,9 +45,10 @@ export class OutputareaComponent implements AfterViewInit {
 
   allTabs: ITab[] = [];  // from store
   selectedTab: ITab|null = null;  // from store
-  workerStatus$: Observable<string> = this.store.select(herosSelectors.selectWorkerStatus).pipe(filter(status => typeof status === 'string'));
+  workerStatus$: Observable<string> = this.store.select(herosSelectors.selectWorkerStatus).pipe(filter(status => typeof status === 'string'));  // from store
   
-  allResults: {[tabTitle: string]: TAB_DATA} = {};
+  allResults: {[tabTitle: string]: TAB_DATA} = {};  // the results for every tab
+  currentDropdownItems: string[] = [];  // the items in the dropdown for the current tab
 
   private rv_uuid = 0;
 
@@ -60,29 +64,49 @@ export class OutputareaComponent implements AfterViewInit {
     });
     this.store.select(tabviewSelectors.selectSelectedTab).subscribe((tab) => {
       this.selectedTab = tab
+      this.updateDropdownItems();
       this.cd.detectChanges();
     });
     this.store.select(herosSelectors.selectOutputResponse).subscribe((response) => {
-      const obj = response || {};
-      const title: string|undefined = obj.title || this.selectedTab?.title;
+      const title: string|undefined = response?.title || this.selectedTab?.title;
       if (!title) {  // no tab selected
-        console.error('Response with no tab selected!');
+        console.assert(false, 'Response with no tab selected. (problem unless on store init)');
         return;
       }
-      this.allResults[title] = this.getRespObj(title, obj.text, obj.rvs);
+      this.allResults[title] = this.getRespObj(title, response?.text, response?.rvs);
+      this.updateDropdownItems();
       this.cd.detectChanges();
     });
   }
 
+  updateDropdownItems() {
+    const tabTitle = this.selectedTab?.title;
+    if (!tabTitle) {
+      this.currentDropdownItems = [];
+      console.error('updateDropdownItems: no tab selected');
+      return;
+    }
+    const multi_rv_data = this.allResults[tabTitle]?.multi_rv_data
+    if (!multi_rv_data) {
+      this.currentDropdownItems = [];
+      return;
+    }
+    this.currentDropdownItems = Object.keys(multi_rv_data);
+  }
 
-  private getRespObj(title: string, response?: string, rvs?: any) {
+  dropdownChange(event: any) {
+    const tabTitle = event.target.value;
+    console.log('dropdownChange', tabTitle);
+  }
+
+  private getRespObj(title: string, response_text?: string, response_rvs?: any) {
     const result = {
-      text_response: response || '',
+      text_response: response_text,
       multi_rv_data: {},
       chart: undefined,
     } as TAB_DATA;
-    if (!!rvs) {
-      rvs?.forEach(([rv, name]: ([RV, string])) => {
+    if (!!response_rvs) {
+      response_rvs?.forEach(([rv, name]: ([RV, string])) => {
         const uuid = `uuid_${++this.rv_uuid}`;
         result.multi_rv_data![uuid] = this.getCalcedRV(rv, true);
         result.multi_rv_data![uuid].named = name;
