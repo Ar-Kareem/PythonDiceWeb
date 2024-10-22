@@ -1,9 +1,11 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Input } from '@angular/core';
+import { filter } from 'rxjs';
+import { Store } from '@ngrx/store';
+import Chart from 'chart.js/auto';
+
 import { herosSelectors } from '@app/heroes/heros.reducer';
 import { TabTitles } from '@app/tabview/tabview.component';
 import { ITab, tabviewSelectors } from '@app/tabview/tabview.reducer';
-import { Store } from '@ngrx/store';
-import { filter } from 'rxjs';
 
 type RV = [val: number, prob: number][]
 type RVDATA = {
@@ -38,6 +40,8 @@ export class OutputareaComponent implements AfterViewInit {
   selectedTabIndex: number|undefined;  // from store
   selectedTab: ITab|null = null;  // from store
 
+  DEMOCHART: any = [];
+
   constructor(
     private cd: ChangeDetectorRef, 
     private store: Store, 
@@ -63,6 +67,29 @@ export class OutputareaComponent implements AfterViewInit {
       this.setResponse(response.text, response.rvs, response.title);
       this.cd.detectChanges();
     });
+
+
+    this.DEMOCHART = new Chart('canvas', {
+      type: 'bar',
+      data: {
+        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        datasets: [
+          {
+            label: '# of Votes',
+            data: [12, 19, 3, 5, 2, 3],
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+
   }
 
 

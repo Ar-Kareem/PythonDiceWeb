@@ -1,14 +1,18 @@
 <ng-container *ngFor="let tab of allTabs; let i = index">
 <div class="code-output" [ngClass]="{'myhidediv': selectedTabIndex !== i}"  *ngIf="ngContentsOutput[tab.title] && TabsWithOutput.includes(tab.title)">
-    <textarea
-    pInputTextarea
-    [readOnly]="true"
-    [autoResize]="true"
-    [ngModel]="ngContentsOutput[tab.title]"
-    ></textarea>
+  <textarea
+  pInputTextarea
+  [readOnly]="true"
+  [autoResize]="true"
+  [ngModel]="ngContentsOutput[tab.title]"
+  ></textarea>
 </div>
 <!-- GUI -->
 <div [ngClass]="{'myhidediv': selectedTabIndex !== i}" *ngIf="tab.title === TabTitles.GUI">
-    <app-gui-output [inputXML]="guiXML" />
+  <app-gui-output [inputXML]="guiXML" />
 </div>
 </ng-container>
+
+<div>
+  <canvas id="canvas">{{DEMOCHART}}</canvas>
+</div>
