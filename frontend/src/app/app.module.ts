@@ -39,6 +39,7 @@ import { HerosEffects } from './heroes/heros.effects';
 import { GuiProdComponent } from './outputs/gui-output/gui-prod/gui-prod.component';
 import { PyodideService } from './localbackend/local.service';
 import { OutputareaComponent } from './outputs/outputarea/outputarea.component';
+import { OutputchartComponent } from './outputs/outputarea/outputchart/outputchart.component';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { OutputareaComponent } from './outputs/outputarea/outputarea.component';
     GuiCompComponent,
     GuiProdComponent,
     OutputareaComponent,
+    OutputchartComponent,
   ],
   imports: [
     BrowserModule,

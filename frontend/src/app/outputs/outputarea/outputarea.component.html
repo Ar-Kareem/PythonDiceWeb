@@ -1,5 +1,5 @@
 
-<div class="calc-div">
+<div class="calc-div" [ngStyle]="{'justify-content': selectedTab?.title === TabTitles.GUISHOW ? 'center' : ''}">
   <!-- BUTTON CALCULATE -->
   <div *ngIf="selectedTab?.title !== TabTitles.GUI" [ngClass]="{'bttn-padding': true, 'center-btn': selectedTab?.title === TabTitles.GUISHOW}">
     @let status = (workerStatus$ | async);
@@ -24,7 +24,6 @@
     </p-floatLabel>
   </div>
 
-
 </div>
 
 
@@ -32,25 +31,29 @@
 <!-- OUTPUTS FOR EACH TAB -->
 <ng-container *ngFor="let tab of allTabs">
 
-  <div class="code-output" [ngClass]="{'myhidediv': tab.title !== selectedTab?.title}"  *ngIf="!!allResults[tab.title]?.text_response && TabsWithOutput.includes(tab.title)">
-    <!-- TEXT OUTPUT -->
-    <textarea
-    pInputTextarea
-    [readOnly]="true"
-    [autoResize]="true"
-    [ngModel]="allResults[tab.title]?.text_response"
-    ></textarea>
+  @let isSelected = tab.title === selectedTab?.title;
+  @let curDisplayType = allResults[tab.title]?.display_type;
 
-    <!-- CHART -->
-    <canvas id="chart{{tab.title}}">
-      {{allResults[tab.title].chart || ''}}
-    </canvas>
+  <div>
+    <div class="code-output" [ngClass]="{'myhidediv': !isSelected}"  *ngIf="TabsWithOutput.includes(tab.title)">
+      <!-- TEXT OUTPUT -->
+      @let curText = allResults[tab.title]?.text_response;
+      @let showOutputText = curDisplayType === DISPLAY_TYPE.TEXT && !!curText;
+      <textarea
+      *ngIf="showOutputText"
+      pInputTextarea
+      [readOnly]="true"
+      [autoResize]="true"
+      [ngModel]="curText"
+      ></textarea>
+      <!-- CHART -->
+      <app-outputchart [multiRvData]="allResults[tab.title]?.multi_rv_data" [displayType]="curDisplayType" />
+    </div>
+
+    <!-- GUI -->
+    <div [ngClass]="{'myhidediv': !isSelected}" *ngIf="tab.title === TabTitles.GUI">
+      <app-gui-output [inputXML]="guiXML" />
+    </div>
   </div>
-
-  <!-- GUI -->
-  <div [ngClass]="{'myhidediv': tab.title !== selectedTab?.title}" *ngIf="tab.title === TabTitles.GUI">
-    <app-gui-output [inputXML]="guiXML" />
-  </div>
-
 </ng-container>
 

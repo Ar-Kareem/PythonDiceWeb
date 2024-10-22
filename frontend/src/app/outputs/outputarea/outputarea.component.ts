@@ -21,8 +21,8 @@ type SINGLE_RV_DATA = {
   min_y: number,
   max_y: number,
 }
-type MULTI_RV_DATA = {[id: string]: SINGLE_RV_DATA}
-enum DISPLAY_TYPE {
+export type MULTI_RV_DATA = {[id: string]: SINGLE_RV_DATA}
+export enum DISPLAY_TYPE {
   TEXT = "TEXT",
   MEANS = "MEANS",
   PDF = "PDF",
@@ -55,8 +55,8 @@ export class OutputareaComponent implements AfterViewInit {
   selectedTab: ITab|null = null;  // from store
   workerStatus$: Observable<string> = this.store.select(herosSelectors.selectWorkerStatus).pipe(filter(status => typeof status === 'string'));  // from store
   
-  allResults: {[tabTitle: string]: TAB_DATA} = {};  // the results for every tab
-  currentDropdownItems: string[] = [];  // the items in the dropdown for the current tab
+  allResults: {[tabTitle: string]: TAB_DATA|undefined} = {};  // the results for every tab
+  currentDropdownItems: DISPLAY_TYPE[] = [];  // the items in the dropdown for the current tab ; updated by "updateDropdownItems"
   ddNgModel: string|undefined;
 
 
@@ -99,21 +99,24 @@ export class OutputareaComponent implements AfterViewInit {
       this.currentDropdownItems = [];
       return;
     }
-    const multi_rv_data = this.allResults[tabTitle]?.multi_rv_data
-    if (!multi_rv_data) {
+    if (!this.allResults[tabTitle]) {
       this.currentDropdownItems = [];
       return;
     }
-    // DISPLAY_TYPE
+    if (!this.allResults[tabTitle].multi_rv_data) {
+      this.allResults[tabTitle].display_type = undefined;
+      return;
+    }
+    // init dropdown
     this.currentDropdownItems = Object.values(DISPLAY_TYPE);
-    this.dropdownChange(DISPLAY_TYPE.MEANS);
+    const init_display = this.allResults[tabTitle].display_type || DISPLAY_TYPE.MEANS
+    this.ddNgModel = init_display;
+    this.dropdownChange(init_display);
   }
 
-  dropdownChange(selected_type: string) {
-    console.log('dropdownChange', selected_type);
-    this.ddNgModel = selected_type;  // in case function is called outside of p-dropdown
+  dropdownChange(selected_type: DISPLAY_TYPE) {
     const tabTitle = this.selectedTab?.title;
-    if (!tabTitle) {
+    if (!tabTitle || !this.allResults[tabTitle]) {
       console.assert(false, 'DD changed when no tab selected!');
       return
     }
@@ -133,34 +136,9 @@ export class OutputareaComponent implements AfterViewInit {
         result.multi_rv_data![uuid] = this.getCalcedRV(rv, true);
         result.multi_rv_data![uuid].named = name;
       });
-      result.chart = this.getMeanChart('chart' + title, result.multi_rv_data!);
+      // result.chart = this.getMeanChart('chart' + title, result.multi_rv_data!);
     }
     return result;
-  }
-
-  private getMeanChart(canvasTitle: string, rvs: MULTI_RV_DATA) {
-    const chart = new Chart(canvasTitle, {
-      type: 'bar',
-      data: {
-        labels: Object.entries(rvs).map(([id, {named}]) => named || id),
-        datasets: [
-          {
-            label: 'mean',
-            data: Object.values(rvs).map(({mean}) => mean),
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        indexAxis: 'y',
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-        },
-      },
-    });
-    return chart;
   }
 
   private getCalcedRV(pdf: RV, prob_is_100: boolean = true): SINGLE_RV_DATA {
