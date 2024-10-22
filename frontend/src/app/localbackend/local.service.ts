@@ -69,7 +69,6 @@ export class PyodideService {
         }
         return;
       }
-      console.log('got key', data.key);
       this.postMsg$.next(data);
       this.setWorkerStatus(WorkerStatus.IDLE);
     }

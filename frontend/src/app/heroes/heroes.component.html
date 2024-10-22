@@ -69,8 +69,9 @@
       <div *ngIf="!isLoading" [style]="{ height: '6px' }"></div>
 
       <div class="load-time">
-        <div *ngIf="loadExecTime !== undefined">{{ loadExecTime | number: '1.0-1' }}s</div>
-        <div *ngIf="loadExecTime === undefined">&nbsp;</div>
+        @let showTime = selectedTab?.title !== TabTitles.GUISHOW && loadExecTime !== undefined;
+        <div *ngIf="showTime">{{ loadExecTime | number: '1.0-1' }}s</div>
+        <div *ngIf="!showTime">&nbsp;</div>
       </div>
 
       <!-- OUTPUTS -->
