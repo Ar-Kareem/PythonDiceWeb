@@ -15,7 +15,7 @@ export class OutputareaComponent implements AfterViewInit {
 
   @Input() guiXML: string = '';
 
-  ngContentsOutput = new Map<string, string>();  // form store
+  ngContentsOutput: {[key: string]: string} = {};  // form store
   allTabs: ITab[] = [];  // from store
   selectedTabIndex: number|undefined;  // from store
   selectedTab: ITab|null = null;  // from store
@@ -52,7 +52,7 @@ export class OutputareaComponent implements AfterViewInit {
       console.error('No tab selected!!!');
       return;
     }
-    this.ngContentsOutput.set(title, response);
+    this.ngContentsOutput[title] = response;
   }
 
 }

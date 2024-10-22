@@ -1,10 +1,10 @@
 <ng-container *ngFor="let tab of allTabs; let i = index">
-<div class="code-output" [ngClass]="{'myhidediv': selectedTabIndex !== i}"  *ngIf="ngContentsOutput.get(tab.title) && TabsWithOutput.includes(tab.title)">
+<div class="code-output" [ngClass]="{'myhidediv': selectedTabIndex !== i}"  *ngIf="ngContentsOutput[tab.title] && TabsWithOutput.includes(tab.title)">
     <textarea
     pInputTextarea
     [readOnly]="true"
     [autoResize]="true"
-    [ngModel]="ngContentsOutput.get(tab.title)"
+    [ngModel]="ngContentsOutput[tab.title]"
     ></textarea>
 </div>
 <!-- GUI -->
