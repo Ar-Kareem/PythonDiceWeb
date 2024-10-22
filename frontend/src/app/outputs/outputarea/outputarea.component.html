@@ -9,6 +9,6 @@
 </div>
 <!-- GUI -->
 <div [ngClass]="{'myhidediv': selectedTabIndex !== i}" *ngIf="tab.title === TabTitles.GUI">
-    <app-gui-output [inputXML]="ngContentsInput.get(TabTitles.GUI) || ''" />
+    <app-gui-output [inputXML]="guiXML" />
 </div>
 </ng-container>

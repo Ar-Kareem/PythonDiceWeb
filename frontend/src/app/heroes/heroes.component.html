@@ -64,6 +64,7 @@
         </div>
       </div>
 
+      <!-- LOADING BAR -->
       <p-progressBar *ngIf="isLoading" mode="indeterminate" [style]="{ height: '6px' }" />
       <div *ngIf="!isLoading" [style]="{ height: '6px' }"></div>
 
@@ -85,7 +86,7 @@
       </div>
 
       <!-- OUTPUTS -->
-      <app-outputarea />
+      <app-outputarea [guiXML]="ngContentsInput.get(TabTitles.GUI) || ''" />
 
     </div>
 

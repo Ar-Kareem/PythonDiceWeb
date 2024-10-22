@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input } from '@angular/core';
 import { herosSelectors } from '@app/heroes/heros.reducer';
 import { TabTitles } from '@app/tabview/tabview.component';
 import { ITab, tabviewSelectors } from '@app/tabview/tabview.reducer';
@@ -13,9 +13,9 @@ export class OutputareaComponent implements AfterViewInit {
   readonly TabTitles = TabTitles;
   readonly TabsWithOutput: string[] = [TabTitles.DICE_CODE, TabTitles.PYTHON, TabTitles.GUISHOW];
 
-  ngContentsInput = new Map<string, string>();  // for input textareas
-  ngContentsOutput = new Map<string, string>();  // for output textareas
+  @Input() guiXML: string = '';
 
+  ngContentsOutput = new Map<string, string>();  // form store
   allTabs: ITab[] = [];  // from store
   selectedTabIndex: number|undefined;  // from store
   selectedTab: ITab|null = null;  // from store
