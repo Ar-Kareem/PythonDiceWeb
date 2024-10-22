@@ -97,20 +97,3 @@ p-sidebar.left-panel {
   top: -1000px;
   left: -1000px;
 }
-
-.code-output {
-  user-select: none; /* Prevent text selection */
-  overflow: hidden; /* Prevent scrollbars */
-  resize: none; /* Disable manual resizing */
-  width: 100%;
-  padding: 10px;
-  // background-color: var(--surface-ground);
-  textarea {
-    width: 100%;
-    padding: 10px;
-    // background-color: var(--surface-ground);
-    max-width: 100%;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 16px;
-  }
-}

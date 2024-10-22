@@ -85,21 +85,7 @@
       </div>
 
       <!-- OUTPUTS -->
-      <ng-container *ngFor="let tab of allTabs; let i = index">
-        <div class="code-output" [ngClass]="{'myhidediv': selectedTabIndex !== i}"  *ngIf="ngContentsOutput.get(tab.title) && TabsWithOutput.includes(tab.title)">
-          <textarea
-            #autoResizeTextarea
-            pInputTextarea
-            [readOnly]="true"
-            [autoResize]="true"
-            [ngModel]="ngContentsOutput.get(tab.title)"
-          ></textarea>
-        </div>
-        <!-- GUI -->
-        <div [ngClass]="{'myhidediv': selectedTabIndex !== i}" *ngIf="tab.title === TabTitles.GUI">
-          <app-gui-output [inputXML]="ngContentsInput.get(TabTitles.GUI) || ''" />
-        </div>
-      </ng-container>
+      <app-outputarea />
 
     </div>
 

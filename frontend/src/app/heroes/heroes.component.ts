@@ -17,7 +17,6 @@ import { TabTitles } from '@app/tabview/tabview.component';
 export class HeroesComponent implements AfterViewInit, OnDestroy {
   private readonly LOADING = 'Loading...';
   readonly TabsWithInput: string[] = [TabTitles.DICE_CODE, TabTitles.PYTHON, TabTitles.GUI];
-  readonly TabsWithOutput: string[] = [TabTitles.DICE_CODE, TabTitles.PYTHON, TabTitles.GUISHOW];
   readonly TabTitles = TabTitles;
 
   readonly SIDEBAR_ITEMS: any[] = [
@@ -55,12 +54,8 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
 
 ];
 
-
-  @ViewChild('autoResizeTextarea') textarea: ElementRef<HTMLTextAreaElement> | undefined;
-
   private inputSubject = new Subject<{title: string, content: string}>();  // for saving to localstorage
   ngContentsInput = new Map<string, string>();  // for input textareas
-  ngContentsOutput = new Map<string, string>();  // for output textareas
 
   isLoading = false;
   loadExecTime: number|undefined;
@@ -96,10 +91,6 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       this.onTranslateRequest();
     });
 
-    this.sidebarVisible$.subscribe(() => {
-      this.autoOutputHeight();  // sidebar change causes output height to change
-    });
-
     this.store.select(tabviewSelectors.selectOpenTabs).subscribe((tabs) => {
       this.allTabs = tabs
       this.cd.detectChanges();
@@ -119,7 +110,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     ).subscribe((data) => {
       this.isLoading = false;
       this.loadExecTime = data.time/1000;
-      this.setResponse(data.result);
+      this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: data.result}}))
     });
 
     this.store.select(herosSelectors.selectDiceExecFailure).pipe(
@@ -127,7 +118,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     ).subscribe(({response, inp_code}) => {
       this.isLoading = false;
       this.loadExecTime = undefined;
-      this.setResponse(this.getServerErrorMsg(response, inp_code));
+      this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: this.getServerErrorMsg(response, inp_code)}}))
     });
 
     this.store.select(herosSelectors.selectServTranslateRes).pipe(
@@ -137,7 +128,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
         this.onInputChange(data.response.result, TabTitles.PYTHON);
         this.isLoading = false;
         this.loadExecTime = undefined;
-        this.setResponse('', TabTitles.PYTHON);
+        this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: '', title: TabTitles.PYTHON}}))
         const pythonActiveIndex = this.allTabs.findIndex(tab => tab.title === TabTitles.PYTHON);
         if (pythonActiveIndex !== -1) {  // change existing tab
           this.store.dispatch(tabviewActions.changeActiveIndex({
@@ -165,8 +156,6 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       // console.log('Saving to localstorage', content.length);
       localStorage.setItem('input.' + title, content)
     });
-
-    this.autoOutputHeight();
   }
 
   initFromLocalStorage() {
@@ -266,28 +255,8 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  autoOutputHeight() {
-    if (!this.textarea) {
-      return;
-    }
-    const textarea = this.textarea.nativeElement;
-    textarea.style.height = 'auto'; // Reset height to auto to shrink if needed
-    textarea.style.height = `${textarea.scrollHeight + 4}px`; // Set height based on scrollHeight
-    this.cd.detectChanges();
-  }
-
   toggleSidebar() {
     this.store.dispatch(SidebarActions.toggleSidebar());
-  }
-
-  setResponse(response: string, title?: string) {
-    title = title || this.selectedTab?.title;
-    if (!title) {  // no tab selected
-      console.error('No tab selected!!!');
-      return;
-    }
-    this.ngContentsOutput.set(title, response);
-    this.autoOutputHeight();
   }
 
   private onGUIExec() {
@@ -330,7 +299,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     }
     this.isLoading = true;
     this.loadExecTime = undefined;
-    this.setResponse(this.LOADING);
+    this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: this.LOADING}}))
     this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: toExec }));
   }
 
@@ -352,12 +321,12 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     if (title === TabTitles.DICE_CODE) {
       this.isLoading = true;
       this.loadExecTime = undefined;
-      this.setResponse(this.LOADING);
+      this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: this.LOADING}}))
       this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: toExec }));
     } else if (title === TabTitles.PYTHON) {
       this.isLoading = true;
       this.loadExecTime = undefined;
-      this.setResponse(this.LOADING);
+      this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: this.LOADING}}))
       this.store.dispatch(CodeApiActions.execPythonCodeRequest({ code: toExec }));
     } else {
       this.store.dispatch(ToastActions.errorNotification({ title: 'Cant execute for this tab', message: '' }));

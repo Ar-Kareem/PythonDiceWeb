@@ -37,6 +37,7 @@ import { tabviewFeatureKey, tabviewReducer } from './tabview/tabview.reducer';
 import { HerosEffects } from './heroes/heros.effects';
 import { GuiProdComponent } from './outputs/gui-output/gui-prod/gui-prod.component';
 import { PyodideService } from './localbackend/local.service';
+import { OutputareaComponent } from './outputs/outputarea/outputarea.component';
 
 @NgModule({
   declarations: [
@@ -47,6 +48,7 @@ import { PyodideService } from './localbackend/local.service';
     GuiOutputComponent,
     GuiCompComponent,
     GuiProdComponent,
+    OutputareaComponent,
   ],
   imports: [
     BrowserModule,
