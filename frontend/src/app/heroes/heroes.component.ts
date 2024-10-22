@@ -110,7 +110,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     ).subscribe((data) => {
       this.isLoading = false;
       this.loadExecTime = data.time/1000;
-      this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: data.result}}))
+      this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: data.result, rvs: data.rvs}}))
     });
 
     this.store.select(herosSelectors.selectDiceExecFailure).pipe(
