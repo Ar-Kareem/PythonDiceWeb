@@ -73,20 +73,8 @@
         <div *ngIf="loadExecTime === undefined">&nbsp;</div>
       </div>
 
-      <!-- BUTTON CALCULATE -->
-      <div *ngIf="selectedTab?.title !== TabTitles.GUI" [ngClass]="{'bttn-padding': true, 'center-btn': selectedTab?.title === TabTitles.GUISHOW}">
-        @let status = (workerStatus$ | async);
-        <p-button 
-          pRipple 
-          [severity]="status !== 'IDLE' ? 'warning' : 'primary'"
-          [label]="status === 'IDLE' ? 'Calculate' : (status === 'BUSY' ? 'Calculating...' : 'Initializing...')"
-          [ngClass]="{'calculate-bttn': true}"
-          (click)="onButtonClick()" 
-        />
-      </div>
-
       <!-- OUTPUTS -->
-      <app-outputarea [guiXML]="ngContentsInput.get(TabTitles.GUI) || ''" />
+      <app-outputarea [guiXML]="ngContentsInput.get(TabTitles.GUI) || ''"  (onCalculate)="onButtonClick()"/>
 
     </div>
 

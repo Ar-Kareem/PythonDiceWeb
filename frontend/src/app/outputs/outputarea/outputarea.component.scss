@@ -1,4 +1,17 @@
 
+.bttn-padding {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  &.center-btn {
+    display: flex;
+    justify-content: center;
+  }
+  .calculate-bttn {
+    padding: 0px;
+  }
+}
+
+
 .code-output {
   user-select: none; /* Prevent text selection */
   overflow: hidden; /* Prevent scrollbars */

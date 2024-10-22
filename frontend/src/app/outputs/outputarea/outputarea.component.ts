@@ -1,5 +1,5 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input } from '@angular/core';
-import { filter } from 'rxjs';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
+import { filter, Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import Chart from 'chart.js/auto';
 
@@ -38,10 +38,12 @@ export class OutputareaComponent implements AfterViewInit {
   readonly TabsWithOutput: string[] = [TabTitles.DICE_CODE, TabTitles.PYTHON, TabTitles.GUISHOW];
 
   @Input() guiXML: string = '';
+  @Output() onCalculate = new EventEmitter();
 
   allTabs: ITab[] = [];  // from store
   selectedTab: ITab|null = null;  // from store
-
+  workerStatus$: Observable<string> = this.store.select(herosSelectors.selectWorkerStatus).pipe(filter(status => typeof status === 'string'));
+  
   allResults: {[tabTitle: string]: TAB_DATA} = {};
 
   private rv_uuid = 0;

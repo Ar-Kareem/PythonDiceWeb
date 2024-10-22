@@ -74,18 +74,6 @@ p-sidebar.left-panel {
   }
 }
 
-.bttn-padding {
-  padding-top: 10px;
-  padding-bottom: 10px;
-  &.center-btn {
-    display: flex;
-    justify-content: center;
-  }
-  .calculate-bttn {
-    padding: 0px;
-  }
-}
-
 .myhidediv{
   // display: none;  // display none makes ctrl-z not work
   // overflow: hidden;  // makes ctrl-z not work

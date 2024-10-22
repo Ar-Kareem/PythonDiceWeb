@@ -1,3 +1,17 @@
+
+<!-- BUTTON CALCULATE -->
+<div *ngIf="selectedTab?.title !== TabTitles.GUI" [ngClass]="{'bttn-padding': true, 'center-btn': selectedTab?.title === TabTitles.GUISHOW}">
+  @let status = (workerStatus$ | async);
+  <p-button 
+    pRipple 
+    [severity]="status !== 'IDLE' ? 'warning' : 'primary'"
+    [label]="status === 'IDLE' ? 'Calculate' : (status === 'BUSY' ? 'Calculating...' : 'Initializing...')"
+    [ngClass]="{'calculate-bttn': true}"
+    (onClick)="onCalculate.emit()"
+  />
+</div>
+
+<!-- OUTPUTS FOR EACH TAB -->
 <ng-container *ngFor="let tab of allTabs">
 
 <!-- TEXT OUTPUT -->

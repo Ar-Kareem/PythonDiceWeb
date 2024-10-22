@@ -66,7 +66,6 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   gUIVariables: { [varname: string]: any } | null = null;  // from store
 
   sidebarVisible$: Observable<boolean> = this.store.select(herosSelectors.selectSidebarVisible);
-  workerStatus$: Observable<string> = this.store.select(herosSelectors.selectWorkerStatus).pipe(filter(status => typeof status === 'string'));
   private destroyed$ = new Subject<boolean>();
   constructor(
     private cd: ChangeDetectorRef, 
