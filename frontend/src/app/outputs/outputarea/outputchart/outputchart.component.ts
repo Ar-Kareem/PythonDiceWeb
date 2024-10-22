@@ -108,7 +108,6 @@ export class OutputchartComponent {
         labels: labels,
         datasets: [
           {
-            label: title,
             data: data,
             borderWidth: 1,
           },
@@ -116,18 +115,21 @@ export class OutputchartComponent {
       },
       options: {
         plugins: {
+          title: {
+            display: true,
+            text: title,
+            align: 'top',
+            color: '#ddd',
+            font: {
+              size: 16,
+              weight: 'bolder',
+              family: 'monospace',
+            }
+          },
           legend: {
-              labels: {
-                  // This more specific font property overrides the global property
-                  color: '#ddd',
-                  font: {
-                      size: 16,
-                      weight: 'bolder',
-                      family: 'monospace',
-                  }
-              }
+            display: false,
           }
-      },
+        },
         maintainAspectRatio: false,
         indexAxis: 'y',
         scales: {

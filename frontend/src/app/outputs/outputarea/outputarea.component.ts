@@ -25,12 +25,12 @@ export type MULTI_RV_DATA = {
   rvs: {[id: string]: SINGLE_RV_DATA},
 }
 export enum DISPLAY_TYPE {
-  PDF = "normal",
-  MEANS = "means",
+  PDF = "Normal",
+  MEANS = "Means",
   // CDF = "CDF",
   // ATLEAST = "ATLEAST",
   // ATMOST = "ATMOST",
-  TEXT = "text",
+  TEXT = "Text",
 }
 
 type TAB_DATA = {
