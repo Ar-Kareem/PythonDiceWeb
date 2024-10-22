@@ -87,7 +87,7 @@ export class OutputareaComponent implements AfterViewInit {
         console.assert(false, 'Response with no tab selected. (problem unless on store init)');
         return;
       }
-      this.allResults[title] = this.getRespObj(title, response?.text, response?.rvs);
+      this.allResults[title] = this.getRespObj(response?.text, response?.rvs, this.allResults[title]?.display_type);
       this.updateDropdownItems();
       this.cd.detectChanges();
     });
@@ -105,12 +105,12 @@ export class OutputareaComponent implements AfterViewInit {
       return;
     }
     if (!this.allResults[tabTitle].multi_rv_data) {
-      this.allResults[tabTitle].display_type = undefined;
+      this.currentDropdownItems = [];
       return;
     }
     // init dropdown
     this.currentDropdownItems = Object.values(DISPLAY_TYPE);
-    const init_display = this.allResults[tabTitle].display_type || DISPLAY_TYPE.MEANS
+    const init_display = this.allResults[tabTitle].display_type || DISPLAY_TYPE.PDF;
     this.ddNgModel = init_display;
     this.dropdownChange(init_display);
   }
@@ -124,8 +124,9 @@ export class OutputareaComponent implements AfterViewInit {
     this.allResults[tabTitle].display_type = selected_type as DISPLAY_TYPE;
   }
 
-  private getRespObj(title: string, response_text?: string, response_rvs?: any) {
+  private getRespObj(response_text?: string, response_rvs?: any, prev_display_type?: DISPLAY_TYPE): TAB_DATA {
     const result = {
+      display_type: prev_display_type,
       text_response: response_text,
       multi_rv_data: undefined,
     } as TAB_DATA;

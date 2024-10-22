@@ -56,73 +56,70 @@ export class OutputchartComponent {
     if (!multiRvData || !displayType) {
       return
     }
-    try {
-      (window as any).outputchart = this;
-    } catch (error) {
-      
-    }
-
-    console.log('creating chart for', multiRvData, displayType);
+    // console.log('creating chart for', multiRvData, displayType);
     switch (displayType) {
       case DISPLAY_TYPE.TEXT:
         break;
       case DISPLAY_TYPE.MEANS:
-        this.setCanvasCount(1);
-        if (this.chartsRef.length !== 1) throw new Error('Expected exactly one chart canvas');
-        this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, this.getMeanChart(multiRvData))
+        this.setupMeanChart(multiRvData);
         break;
       case DISPLAY_TYPE.PDF:
-        const N = multiRvData.id_order.length;
-        this.setCanvasCount(N);
-        if (this.chartsRef.length !== N) throw new Error('Expected exactly one chart canvas per RV');
-        this.chartsRef.forEach((chart, i) => {
-          const rv = multiRvData.rvs[multiRvData.id_order[i]];
-          this.chartsData[i] = new Chart(chart.nativeElement, this.getPdfChart(rv));
-        });
+        this.setupPdfChart(multiRvData);
         break;
       default:
         console.error('Unknown display type', displayType);
         break;
     }
-    this.cd.detectChanges();  // to update chart data
-    console.log('chartsData', this.chartsData);
-    console.log('chartsRef', this.chartsRef);
   }
 
 
-  private getMeanChart(multi_rv: MULTI_RV_DATA) {
-    const rvs = multi_rv.rvs;
+  private setupMeanChart(multiRvData: MULTI_RV_DATA) {
+    this.setCanvasCount(1);
+    if (this.chartsRef.length !== 1) throw new Error('Expected exactly one chart canvas');
+    const rvs = multiRvData.rvs;
     const labels = Object.entries(rvs).map(([id, {named}]) => named || id)
     const data = Object.values(rvs).map(({mean}) => mean)
-    console.log('mean chart data', labels, data);
-    
-    return this.getHorizBarChart(labels, data);
+    const meanChartData = this.getHorizBarChart(labels, data, 'mean');
+    this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, meanChartData)
+    const h = 128 + 18 * labels.length;
+    this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
+}
+
+  private setupPdfChart(multiRvData: MULTI_RV_DATA) {
+    const N = multiRvData.id_order.length;
+    this.setCanvasCount(N);
+    if (this.chartsRef.length !== N) throw new Error('Expected exactly one chart canvas per RV');
+    this.chartsRef.forEach((chart, i) => {
+      const rv = multiRvData.rvs[multiRvData.id_order[i]];
+      const labels = rv.pdf.map(([val, _]) => val.toString());
+      const data = rv.pdf.map(([_, prob]) => prob);
+      const pdfChart = this.getHorizBarChart(labels, data, rv.named || 'output');
+      this.chartsData[i] = new Chart(chart.nativeElement, pdfChart);
+      const h = 128 + 18 * labels.length;
+      chart.nativeElement.parentNode.style.height = `${h}px`;
+    });
   }
 
-  private getPdfChart(rv: SINGLE_RV_DATA) {
-    const labels = rv.pdf.map(([val, _]) => val.toString());
-    const data = rv.pdf.map(([_, prob]) => prob);
-    return this.getHorizBarChart(labels, data);
-  }
-
-  private getHorizBarChart(labels: string[], data: number[]): any {
+  private getHorizBarChart(labels: string[], data: number[], title: string): any {
     return {
       type: 'bar',
       data: {
         labels: labels,
         datasets: [
           {
-            label: 'mean',
+            label: title,
             data: data,
             borderWidth: 1,
           },
         ],
       },
       options: {
+        maintainAspectRatio: false,
         indexAxis: 'y',
         scales: {
-          y: {
-            beginAtZero: true,
+          x: {
+            min: 0,
+            max: 100,
           },
         },
       },
