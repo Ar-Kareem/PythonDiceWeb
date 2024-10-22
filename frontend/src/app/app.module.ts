@@ -22,6 +22,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { PanelMenuModule } from 'primeng/panelmenu';
+import { FloatLabelModule } from 'primeng/floatlabel';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -72,6 +73,7 @@ import { OutputareaComponent } from './outputs/outputarea/outputarea.component';
     RadioButtonModule,
     ProgressBarModule,
     PanelMenuModule,
+    FloatLabelModule,
     EffectsModule.forRoot([
       HerosEffects
     ]),

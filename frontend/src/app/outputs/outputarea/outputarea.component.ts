@@ -22,11 +22,18 @@ type SINGLE_RV_DATA = {
   max_y: number,
 }
 type MULTI_RV_DATA = {[id: string]: SINGLE_RV_DATA}
-enum DISPLAY_TYPE { TEXT, MEANS, PDF, CDF, ATLEAST, ATMOST }
+enum DISPLAY_TYPE {
+  TEXT = "TEXT",
+  MEANS = "MEANS",
+  PDF = "PDF",
+  CDF = "CDF",
+  ATLEAST = "ATLEAST",
+  ATMOST = "ATMOST",
+}
 
 type TAB_DATA = {
   display_type?: DISPLAY_TYPE,
-  multi_rv_data: MULTI_RV_DATA,
+  multi_rv_data?: MULTI_RV_DATA,
   text_response?: string,
   chart?: Chart,
 }
@@ -37,6 +44,7 @@ type TAB_DATA = {
   styleUrl: './outputarea.component.scss'
 })
 export class OutputareaComponent implements AfterViewInit {
+  readonly DISPLAY_TYPE = DISPLAY_TYPE;
   readonly TabTitles = TabTitles;
   readonly TabsWithOutput: string[] = [TabTitles.DICE_CODE, TabTitles.PYTHON, TabTitles.GUISHOW];
 
@@ -49,6 +57,8 @@ export class OutputareaComponent implements AfterViewInit {
   
   allResults: {[tabTitle: string]: TAB_DATA} = {};  // the results for every tab
   currentDropdownItems: string[] = [];  // the items in the dropdown for the current tab
+  ddNgModel: string|undefined;
+
 
   private rv_uuid = 0;
 
@@ -58,6 +68,9 @@ export class OutputareaComponent implements AfterViewInit {
   ) { }
 
   ngAfterViewInit(): void {
+    if (typeof window !== 'undefined') {
+      (window as any).outputs = this
+    }
     this.store.select(tabviewSelectors.selectOpenTabs).subscribe(tabs => {
       this.allTabs = tabs;
       this.cd.detectChanges();
@@ -81,9 +94,9 @@ export class OutputareaComponent implements AfterViewInit {
 
   updateDropdownItems() {
     const tabTitle = this.selectedTab?.title;
+    this.ddNgModel = undefined;
     if (!tabTitle) {
       this.currentDropdownItems = [];
-      console.error('updateDropdownItems: no tab selected');
       return;
     }
     const multi_rv_data = this.allResults[tabTitle]?.multi_rv_data
@@ -91,21 +104,30 @@ export class OutputareaComponent implements AfterViewInit {
       this.currentDropdownItems = [];
       return;
     }
-    this.currentDropdownItems = Object.keys(multi_rv_data);
+    // DISPLAY_TYPE
+    this.currentDropdownItems = Object.values(DISPLAY_TYPE);
+    this.dropdownChange(DISPLAY_TYPE.MEANS);
   }
 
-  dropdownChange(event: any) {
-    const tabTitle = event.target.value;
-    console.log('dropdownChange', tabTitle);
+  dropdownChange(selected_type: string) {
+    console.log('dropdownChange', selected_type);
+    this.ddNgModel = selected_type;  // in case function is called outside of p-dropdown
+    const tabTitle = this.selectedTab?.title;
+    if (!tabTitle) {
+      console.assert(false, 'DD changed when no tab selected!');
+      return
+    }
+    this.allResults[tabTitle].display_type = selected_type as DISPLAY_TYPE;
   }
 
   private getRespObj(title: string, response_text?: string, response_rvs?: any) {
     const result = {
       text_response: response_text,
-      multi_rv_data: {},
+      multi_rv_data: undefined,
       chart: undefined,
     } as TAB_DATA;
     if (!!response_rvs) {
+      result.multi_rv_data = {};
       response_rvs?.forEach(([rv, name]: ([RV, string])) => {
         const uuid = `uuid_${++this.rv_uuid}`;
         result.multi_rv_data![uuid] = this.getCalcedRV(rv, true);

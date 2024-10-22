@@ -14,11 +14,17 @@
 
   <!-- DROPDOWN -->
   <div *ngIf="currentDropdownItems.length > 0">
-    <p-dropdown
+    <p-floatLabel>
+      <p-dropdown
+      [(ngModel)]="ddNgModel"
       [options]="currentDropdownItems"
-      (onChange)="dropdownChange($event)"
-    />
+      (onChange)="dropdownChange($event.value)"
+      />
+      <label for="float-label">Display:</label>
+    </p-floatLabel>
   </div>
+
+
 </div>
 
 
@@ -26,26 +32,24 @@
 <!-- OUTPUTS FOR EACH TAB -->
 <ng-container *ngFor="let tab of allTabs">
 
-  <!-- TEXT OUTPUT -->
   <div class="code-output" [ngClass]="{'myhidediv': tab.title !== selectedTab?.title}"  *ngIf="!!allResults[tab.title]?.text_response && TabsWithOutput.includes(tab.title)">
+    <!-- TEXT OUTPUT -->
     <textarea
     pInputTextarea
     [readOnly]="true"
     [autoResize]="true"
     [ngModel]="allResults[tab.title]?.text_response"
     ></textarea>
+
+    <!-- CHART -->
+    <canvas id="chart{{tab.title}}">
+      {{allResults[tab.title].chart || ''}}
+    </canvas>
   </div>
 
   <!-- GUI -->
   <div [ngClass]="{'myhidediv': tab.title !== selectedTab?.title}" *ngIf="tab.title === TabTitles.GUI">
     <app-gui-output [inputXML]="guiXML" />
-  </div>
-
-  <!-- CHART -->
-  <div [ngClass]="{'myhidediv': tab.title !== selectedTab?.title}">
-    <canvas id="chart{{tab.title}}">
-      {{allResults[tab.title]?.chart}}
-    </canvas>
   </div>
 
 </ng-container>
