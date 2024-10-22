@@ -49,6 +49,7 @@ p-sidebar.left-panel {
   color: #555;
   // margin-top: 0.5rem;
   margin-left: 3px;
+  user-select: none;
 }
 
 .inpout-content {  // contains code-input and code-output
