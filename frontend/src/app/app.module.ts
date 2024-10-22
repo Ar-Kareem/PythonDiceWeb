@@ -28,14 +28,14 @@ import { AppComponent } from './app.component';
 import { ToastComponent } from './toast/toast.component';
 import { HeroesComponent } from './heroes/heroes.component';
 import { TabviewComponent } from './tabview/tabview.component';
-import { GuiOutputComponent } from './gui-output/gui-output.component';
-import { GuiCompComponent } from './gui-output/gui-comp/gui-comp.component';
+import { GuiOutputComponent } from './outputs/gui-output/gui-output.component';
+import { GuiCompComponent } from './outputs/gui-output/gui-comp/gui-comp.component';
 
 import { herosFeatureKey, herosReducer } from './heroes/heros.reducer';
 import { toastFeatureKey, toastReducer } from './toast/toast.reducer';
 import { tabviewFeatureKey, tabviewReducer } from './tabview/tabview.reducer';
 import { HerosEffects } from './heroes/heros.effects';
-import { GuiProdComponent } from './gui-output/gui-prod/gui-prod.component';
+import { GuiProdComponent } from './outputs/gui-output/gui-prod/gui-prod.component';
 import { PyodideService } from './localbackend/local.service';
 
 @NgModule({
