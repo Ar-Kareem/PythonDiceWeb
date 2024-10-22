@@ -91,17 +91,17 @@ export class OutputchartComponent {
     if (this.chartsRef.length !== N) throw new Error('Expected exactly one chart canvas per RV');
     this.chartsRef.forEach((chart, i) => {
       const rv = multiRvData.rvs[multiRvData.id_order[i]];
-      const labels = rv.pdf.map(([val, _]) => val.toString());
+      const labels = rv.pdf.map(([val, prob]) => `${val} ${prob.toFixed(2).padStart(5, ' ')}%`);
       const data = rv.pdf.map(([_, prob]) => prob);
       const title = rv.named + ` (${rv.mean.toFixed(2)} ± ${rv.std_dev.toFixed(2)})`;
-      const pdfChart = this.getHorizBarChart(labels, data, title);
+      const pdfChart = this.getHorizBarChart(labels, data, title, 100);
       this.chartsData[i] = new Chart(chart.nativeElement, pdfChart);
       const h = 128 + 18 * labels.length;
       chart.nativeElement.parentNode.style.height = `${h}px`;
     });
   }
 
-  private getHorizBarChart(labels: string[], data: number[], title: string): any {
+  private getHorizBarChart(labels: string[], data: number[], title: string, maxprob?: number): any {
     return {
       type: 'bar',
       data: {
@@ -135,6 +135,10 @@ export class OutputchartComponent {
         scales: {
           y: {
             ticks: {
+              font: {
+                family: 'Courier New ',
+                size: 14,
+              },
               color: '#fff',
             },
           },
@@ -143,7 +147,7 @@ export class OutputchartComponent {
               color: '#fff',
             },
             min: 0,
-            max: 100,
+            max: maxprob,
           },
         },
       },
