@@ -24,6 +24,7 @@ export type SINGLE_RV_DATA = {
 export type MULTI_RV_DATA = {
   id_order: string[],
   rvs: {[id: string]: SINGLE_RV_DATA},
+  transposed: Map<number, {name: string, prob: number}[]>,
 }
 export enum DISPLAY_TYPE {
   PDF = "Normal",
@@ -132,7 +133,7 @@ export class OutputareaComponent implements AfterViewInit {
       multi_rv_data: undefined,
     } as TAB_DATA;
     if (!!response_rvs) {
-      result.multi_rv_data = {id_order: [], rvs: {}};
+      result.multi_rv_data = {id_order: [], rvs: {}, transposed: new Map()};
       response_rvs?.forEach(([rv, name]: ([RV, string]), i: number) => {
         const uuid = `uuid_${++this.rv_uuid}`;
         result.multi_rv_data!.id_order.push(uuid);
@@ -140,7 +141,31 @@ export class OutputareaComponent implements AfterViewInit {
         const named = !!name ? name : `Output ${i+1}`;
         result.multi_rv_data!.rvs[uuid] = this.getCalcedRV(rv, order, named, true);
       });
+      result.multi_rv_data!.transposed = this.getTranspose(result.multi_rv_data!.rvs, result.multi_rv_data!.id_order);
     }
+    return result;
+  }
+
+  private getTranspose(rvs: {[id: string]: SINGLE_RV_DATA}, order: string[]) {
+    const allVals = Object.values(rvs).map(rv => rv.pdf.map(([val, prob]) => val));
+    const uniqueVals = Array.from(new Set(allVals.flat())).sort((a, b) => a - b);
+    // val -> [(name, prob), ...]
+    const valNameProb: {[val: number]: {n: string, p?: number}[]} = {}
+    uniqueVals.forEach(val => {
+      valNameProb[val] = order.map(id => ({n: rvs[id].named}));
+    })
+    order.forEach((id, i) => {
+      rvs[id].pdf.forEach(([val, prob]) => {
+        valNameProb[val][i].p = prob;
+      });
+    });
+    const result: Map<number, {name: string, prob: number}[]> = new Map();
+    uniqueVals.forEach(val => {
+      result.set(val, valNameProb[val]
+        .filter(({p}) => p !== undefined)
+        .map(({n, p}) => ({name:n, prob:p!}))
+      );
+    });
     return result;
   }
 

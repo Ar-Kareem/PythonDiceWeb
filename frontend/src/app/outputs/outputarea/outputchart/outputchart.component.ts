@@ -8,7 +8,7 @@ import { DISPLAY_TYPE, MULTI_RV_DATA } from '../outputarea.component';
 Chart.register(BarWithErrorBarsController, BarWithErrorBar);
 
 const CHART_HEIGHT_PX = {
-  base: 64,  // start with this
+  base: 48,  // start with this
   per_row: 22,  // add for each row
   for_title: 64,  // extra if title
 }
@@ -80,7 +80,7 @@ export class OutputchartComponent {
         this.setupPdfChart(multiRvData, displayType);
         break;
       case DISPLAY_TYPE.TRANSPOSE:
-        this.setupTranspose(multiRvData);
+        this.setupTranspose(multiRvData.transposed);
         break;
       default:
         console.error('Unknown display type', displayType);
@@ -92,10 +92,10 @@ export class OutputchartComponent {
     this.setCanvasCount(1);
     if (this.chartsRef.length !== 1) throw new Error('Expected exactly one chart canvas');
     const rvs = Object.values(multiRvData.rvs);
-    const {labelsFormatted, valuesFormatted} = setupLabelsAndData(rvs.map(({named}) => named), rvs.map(({mean}) => mean));
+    const {labelsFormatted, valuesFormatted} = setupLabelsAndData(rvs.map(({named, mean}) => [named, mean]), '');
     const whiskers = rvs.map(({std_dev}) => +std_dev.toFixed(2))
-    const meanChartData = getHorizBarWithErrorBars(labelsFormatted, valuesFormatted, whiskers, 'Mean Roll');
-    this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, meanChartData)
+    const chartObj = getHorizBarWithErrorBars(labelsFormatted, valuesFormatted, whiskers, 'Mean Roll');
+    this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, chartObj);
     const h = CHART_HEIGHT_PX.base + (CHART_HEIGHT_PX.per_row + 10) * labelsFormatted.length + CHART_HEIGHT_PX.for_title;
     this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
 }
@@ -107,39 +107,28 @@ export class OutputchartComponent {
     this.chartsRef.forEach((chart, i) => {
       const rv = multiRvData.rvs[multiRvData.id_order[i]];
       const pdf = type === DISPLAY_TYPE.ATLEAST ? rv.atleast : (type === DISPLAY_TYPE.ATMOST ? rv.atmost : rv.pdf);
-      const {labelsFormatted, valuesFormatted} = setupLabelsAndData(pdf.map(([val, _]) => `${val}`), pdf.map(([_, prob]) => prob), '%');
+      const {labelsFormatted, valuesFormatted} = setupLabelsAndData(pdf, '%');
       const title = rv.named + ` (${rv.mean.toFixed(2)} ± ${rv.std_dev.toFixed(2)})`;
-      const pdfChart = getHorizBarChart(labelsFormatted, valuesFormatted, title, 100);
-      this.chartsData[i] = new Chart(chart.nativeElement, pdfChart);
+      const chartObj = getHorizBarChart(labelsFormatted, valuesFormatted, title, 100);
+      this.chartsData[i] = new Chart(chart.nativeElement, chartObj);
       const h = CHART_HEIGHT_PX.base + CHART_HEIGHT_PX.per_row * labelsFormatted.length;
       chart.nativeElement.parentNode.style.height = `${h}px`;
     });
   }
 
-  private setupTranspose(multiRvData: MULTI_RV_DATA) {
-    const allVals = Object.values(multiRvData.rvs).map(rv => rv.pdf.map(([val, prob]) => val));
-    const uniqueVals = Array.from(new Set(allVals.flat())).sort((a, b) => a - b);
-    // val -> [(name, prob), ...]
-    const valNameProb: {[val: number]: {n: string, p?: number}[]} = {}
-    uniqueVals.forEach(val => {
-      valNameProb[val] = multiRvData.id_order.map(id => ({n: multiRvData.rvs[id].named}));
-    })
-    multiRvData.id_order.forEach((id, i) => {
-      multiRvData.rvs[id].pdf.forEach(([val, prob]) => {
-        valNameProb[val][i].p = prob;
-      });
-    });
-    const N = uniqueVals.length;
+  private setupTranspose(transposed: Map<number, {name: string, prob: number}[]>) {
+    const N = transposed.size;
     this.setCanvasCount(N);
     if (this.chartsRef.length !== N) throw new Error('Expected exactly one chart canvas per unique value');
-    this.chartsRef.forEach((chart, i) => {
-      const val = uniqueVals[i];
-      const rows = valNameProb[val].filter(obj => obj.p !== undefined);
-      const {labelsFormatted, valuesFormatted} = setupLabelsAndData(rows.map(obj => obj.n), rows.map(obj => obj.p!), '%');
-      const pdfChart = getHorizBarChart(labelsFormatted, valuesFormatted, `${val}`, 100);
-      this.chartsData[i] = new Chart(chart.nativeElement, pdfChart);
+    let i = 0;
+    transposed.forEach((valNameProb, val) => {
+      const {labelsFormatted, valuesFormatted} = setupLabelsAndData(valNameProb.map(({name, prob}) => [name, prob]), '%');
+      const chartObj = getHorizBarChart(labelsFormatted, valuesFormatted, `${val}`, 100);
+      const chart = this.chartsRef.get(i);
+      this.chartsData[i] = new Chart(chart!.nativeElement, chartObj);
       const h = CHART_HEIGHT_PX.base + CHART_HEIGHT_PX.per_row * labelsFormatted.length;
-      chart.nativeElement.parentNode.style.height = `${h}px`;
+      chart!.nativeElement.parentNode.style.height = `${h}px`;
+      i += 1;
     });
   }
 }
@@ -238,9 +227,9 @@ const plugin_settings = (title: string) => ({
   },
 });
 
-function setupLabelsAndData(labels: string[], values: number[], suffix: string = '') {
-  const numOfSpaces = Math.max(...values.map(p => p.toFixed(2).length)) + 1;
-  const labelsFormatted = values.map((_, i) => `${labels[i]} ${values[i].toFixed(2).padStart(numOfSpaces, ' ')}${suffix}`)
-  const valuesFormatted = values.map(p => +p.toFixed(2))
+function setupLabelsAndData(lv: [number|string, number][], suffix: string = '') {
+  const numOfSpaces = Math.max(...lv.map(([l, v]) => v.toFixed(2).length)) + 1;
+  const labelsFormatted = lv.map(([l, v]) => `${l} ${v.toFixed(2).padStart(numOfSpaces, ' ')}${suffix}`)
+  const valuesFormatted = lv.map(([l, v]) => +v.toFixed(2))
   return {labelsFormatted, valuesFormatted};
 }
