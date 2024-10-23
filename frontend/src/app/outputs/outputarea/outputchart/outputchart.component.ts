@@ -69,7 +69,9 @@ export class OutputchartComponent {
         this.setupMeanChart(multiRvData);
         break;
       case DISPLAY_TYPE.PDF:
-        this.setupPdfChart(multiRvData);
+      case DISPLAY_TYPE.ATLEAST:
+      case DISPLAY_TYPE.ATMOST:
+        this.setupPdfChart(multiRvData, displayType);
         break;
       default:
         console.error('Unknown display type', displayType);
@@ -91,14 +93,15 @@ export class OutputchartComponent {
     this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
 }
 
-  private setupPdfChart(multiRvData: MULTI_RV_DATA) {
+  private setupPdfChart(multiRvData: MULTI_RV_DATA, type: DISPLAY_TYPE) {
     const N = multiRvData.id_order.length;
     this.setCanvasCount(N);
     if (this.chartsRef.length !== N) throw new Error('Expected exactly one chart canvas per RV');
     this.chartsRef.forEach((chart, i) => {
       const rv = multiRvData.rvs[multiRvData.id_order[i]];
-      const labels = rv.pdf.map(([val, prob]) => `${val} ${prob.toFixed(2).padStart(5, ' ')}%`);
-      const data = rv.pdf.map(([_, prob]) => prob);
+      const pdf = type === DISPLAY_TYPE.ATLEAST ? rv.atleast : (type === DISPLAY_TYPE.ATMOST ? rv.atmost : rv.pdf);
+      const labels = pdf.map(([val, prob]) => `${val} ${prob.toFixed(2).padStart(5, ' ')}%`);
+      const data = pdf.map(([_, prob]) => prob);
       const title = rv.named + ` (${rv.mean.toFixed(2)} ± ${rv.std_dev.toFixed(2)})`;
       const pdfChart = this.getHorizBarChart(labels, data, title, 100);
       this.chartsData[i] = new Chart(chart.nativeElement, pdfChart);

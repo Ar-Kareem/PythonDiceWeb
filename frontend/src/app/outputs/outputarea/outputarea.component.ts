@@ -26,10 +26,10 @@ export type MULTI_RV_DATA = {
 }
 export enum DISPLAY_TYPE {
   PDF = "Normal",
+  ATLEAST = "At least",
+  ATMOST = "At most",
   MEANS = "Summary",
   // CDF = "CDF",
-  // ATLEAST = "ATLEAST",
-  // ATMOST = "ATMOST",
   TEXT = "Text",
 }
 
