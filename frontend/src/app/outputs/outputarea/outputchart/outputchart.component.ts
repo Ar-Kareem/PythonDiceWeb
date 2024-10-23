@@ -24,7 +24,7 @@ export class OutputchartComponent {
   chartsData: (Chart|null)[] = [];
 
   _multiRvData: MULTI_RV_DATA|undefined;  // INPUT
-  _displayType: string|undefined;  // INPUT
+  _displayType: DISPLAY_TYPE|undefined;  // INPUT
 
   @Input()
   set multiRvData(data: MULTI_RV_DATA|undefined) {
@@ -35,7 +35,7 @@ export class OutputchartComponent {
     this.initGraph(data, this._displayType);
   }
   @Input()
-  set displayType(type: string|undefined) {
+  set displayType(type: DISPLAY_TYPE|undefined) {
     if (this._displayType === type) {
       return;
     }
@@ -59,12 +59,12 @@ export class OutputchartComponent {
     }
   }
 
-  private initGraph(multiRvData?: MULTI_RV_DATA, displayType?: string) {
+  private initGraph(multiRvData?: MULTI_RV_DATA, displayType?: DISPLAY_TYPE) {
     if (this.chartsData.length > 0) {  // destroy old charts
       this.chartsData.forEach(chart => !!chart && chart.destroy());
       this.chartsData = [];
     }
-    if (!multiRvData || !displayType) {
+    if (!multiRvData || displayType == undefined) {
       return
     }
     // console.log('creating chart for', multiRvData, displayType);

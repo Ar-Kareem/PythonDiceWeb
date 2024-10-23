@@ -27,12 +27,12 @@ export type MULTI_RV_DATA = {
   transposed: Map<number, {name: string, prob: number}[]>,
 }
 export enum DISPLAY_TYPE {
-  BAR_NORMAL = "Normal",
-  BAR_ATLEAST = "At least",
-  BAR_ATMOST = "At most",
-  BAR_TRANSPOSE = "Transpose",
-  MEANS = "Summary",
-  TEXT = "Text",
+  BAR_NORMAL,
+  BAR_ATLEAST,
+  BAR_ATMOST,
+  BAR_TRANSPOSE,
+  MEANS,
+  TEXT,
 }
 
 type TAB_DATA = {
@@ -59,10 +59,10 @@ export class OutputareaComponent implements AfterViewInit {
   workerStatus$: Observable<string> = this.store.select(herosSelectors.selectWorkerStatus).pipe(filter(status => typeof status === 'string'));  // from store
   
   allResults: {[tabTitle: string]: TAB_DATA|undefined} = {};  // the results for every tab
-  ddItemsFirst: string[] = [];  // first dd strings
-  ddItemsSecond: string[] = [];  // second dd strings
-  ddNgModelFirst: string|undefined;
-  ddNgModelSecond: string|undefined;
+  ddItemsFirst: DD1ENUM[] = [];  // first dd strings
+  ddItemsSecond: DD2ENUM[] = [];  // second dd strings
+  ddNgModelFirst: DD1ENUM|undefined;
+  ddNgModelSecond: DD2ENUM|undefined;
 
   constructor(
     private cd: ChangeDetectorRef, 
@@ -199,68 +199,69 @@ function getCalcedRV(pdf: RV, order: number, named: string, prob_is_100: boolean
   return { order, named, pdf, atleast, atmost, mean, variance, std_dev, min_x, max_x, min_y, max_y };
 }
 
-enum dd1 {
+enum DD1ENUM {
   BAR = 'Bar',
   SUMMARY = 'Summary',
   TEXT = 'Text',
 }
-enum dd2 {
+enum DD2ENUM {
   NORMAL = 'Normal',
   ATLEAST = 'At least',
   ATMOST = 'At most',
   TRANSPOSE = 'Transpose',
+  NULL = '',
 }
-function displayTypeToDropdown(init_display?: DISPLAY_TYPE): { i1: string; i2: string; } {
+function displayTypeToDropdown(init_display?: DISPLAY_TYPE): { i1: DD1ENUM; i2: DD2ENUM; } {
   // DISPLAY_TYPE => text on screen
   switch (init_display) {
     default:
-      return { i1: dd1.BAR, i2: dd2.NORMAL };
+      return { i1: DD1ENUM.BAR, i2: DD2ENUM.NORMAL };
     case DISPLAY_TYPE.BAR_NORMAL:
-      return { i1: dd1.BAR, i2: dd2.NORMAL };
+      return { i1: DD1ENUM.BAR, i2: DD2ENUM.NORMAL };
     case DISPLAY_TYPE.BAR_ATLEAST:
-      return { i1: dd1.BAR, i2: dd2.ATLEAST };
+      return { i1: DD1ENUM.BAR, i2: DD2ENUM.ATLEAST };
     case DISPLAY_TYPE.BAR_ATMOST:
-      return { i1: dd1.BAR, i2: dd2.ATMOST };
+      return { i1: DD1ENUM.BAR, i2: DD2ENUM.ATMOST };
     case DISPLAY_TYPE.BAR_TRANSPOSE:
-      return { i1: dd1.BAR, i2: dd2.TRANSPOSE };
+      return { i1: DD1ENUM.BAR, i2: DD2ENUM.TRANSPOSE };
     case DISPLAY_TYPE.MEANS:
-      return { i1: dd1.SUMMARY, i2: '' };
+      return { i1: DD1ENUM.SUMMARY, i2: DD2ENUM.NULL };
     case DISPLAY_TYPE.TEXT:
-      return { i1: dd1.TEXT, i2: '' };
+      return { i1: DD1ENUM.TEXT, i2: DD2ENUM.NULL };
   }
 }
-function selectedToDisplayType(i1?: string, i2?: string): DISPLAY_TYPE {
+function selectedToDisplayType(i1?: DD1ENUM, i2?: DD2ENUM): DISPLAY_TYPE {
   // text on screen => DISPLAY_TYPE
-  if (i1 === dd1.BAR) {
+  if (i1 === DD1ENUM.BAR) {
     switch (i2) {
-      case dd2.NORMAL:
+      case DD2ENUM.NORMAL:
         return DISPLAY_TYPE.BAR_NORMAL;
-      case dd2.ATLEAST:
+      case DD2ENUM.ATLEAST:
         return DISPLAY_TYPE.BAR_ATLEAST;
-      case dd2.ATMOST:
+      case DD2ENUM.ATMOST:
         return DISPLAY_TYPE.BAR_ATMOST;
-      case dd2.TRANSPOSE:
+      case DD2ENUM.TRANSPOSE:
         return DISPLAY_TYPE.BAR_TRANSPOSE;
       default:  // no second dropdown => normal
         return DISPLAY_TYPE.BAR_NORMAL;
     }
-  } else if (i1 === dd1.SUMMARY) {
+  } else if (i1 === DD1ENUM.SUMMARY) {
     return DISPLAY_TYPE.MEANS;
-  } else if (i1 === dd1.TEXT) {
+  } else if (i1 === DD1ENUM.TEXT) {
     return DISPLAY_TYPE.TEXT;
   } else {  // no first dropdown => normal
     return DISPLAY_TYPE.BAR_NORMAL;
     
   }
 }
-function dropdownItemsToDisplay(i1: string, i2: string): { i1s: string[]; i2s: string[]; } {
+function dropdownItemsToDisplay(i1: DD1ENUM, i2: DD2ENUM): { i1s: DD1ENUM[]; i2s: DD2ENUM[]; } {
   // text on screen => all possible dropdown items
-  const i1s = [dd1.BAR, dd1.SUMMARY, dd1.TEXT];
+  const i1s = [DD1ENUM.BAR, DD1ENUM.SUMMARY, DD1ENUM.TEXT, ];
   switch (i1) {
-    case dd1.BAR:
-      return {i1s: i1s, i2s: [dd2.NORMAL, dd2.ATLEAST, dd2.ATMOST, dd2.TRANSPOSE] }
-    case dd1.SUMMARY:
-    case dd1.TEXT:
+    case DD1ENUM.BAR:
+      return {i1s: i1s, i2s: [DD2ENUM.NORMAL, DD2ENUM.ATLEAST, DD2ENUM.ATMOST, DD2ENUM.TRANSPOSE] }
+    case DD1ENUM.SUMMARY:
+    case DD1ENUM.TEXT:
         return {i1s: i1s, i2s: [] }
     default:
       throw new Error(`Unknown dropdown item ${i1}`);
