@@ -98,6 +98,9 @@ export class OutputchartComponent {
       case DISPLAY_TYPE.GRAPH_ATMOST:
         this.setupGraph(multiRvData, displayType);
         break;
+      case DISPLAY_TYPE.GRAPH_TRANSPOSE:
+        this.setupGraphTranspose(multiRvData);
+        break;
       default:
         console.error('Unknown display type', displayType);
         break;
@@ -179,8 +182,23 @@ export class OutputchartComponent {
     this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
   }
 
-}
+  private setupGraphTranspose(multiRvData: MULTI_RV_DATA) {
+    this.setCanvasCount(1);
+    if (this.chartsRef.length !== 1) throw new Error('Expected exactly one chart canvas');
 
+    const x_labels = multiRvData.id_order.map(rv_id => multiRvData.rvs[rv_id].named);
+    const datasets: {label: string, data: number[]}[] = [];
+    multiRvData.transposed_unfiltered.forEach((valNameProb, val) => {
+      const data = valNameProb.map(({name, prob}, i) => typeof prob === 'number' ? prob : NaN);  // NaN if the RV doesn't have this value (this is how transpose works)
+      datasets.push({label: val.toString(), data});
+    });
+    console.log('graph transpose', x_labels, datasets);
+    this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, getLineChart(x_labels, datasets, 'Graph'));
+    const h = 600;
+    this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
+  }
+
+}
 
 
 function getLineChart(x_labels: string[], datasets: {label: string, data: number[]}[], title: string): any {
