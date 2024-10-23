@@ -62,9 +62,6 @@ export class OutputareaComponent implements AfterViewInit {
   currentDropdownItems: DISPLAY_TYPE[] = [];  // the items in the dropdown for the current tab ; updated by "updateDropdownItems"
   ddNgModel: string|undefined;
 
-
-  private rv_uuid = 0;
-
   constructor(
     private cd: ChangeDetectorRef, 
     private store: Store, 
@@ -89,7 +86,7 @@ export class OutputareaComponent implements AfterViewInit {
         console.assert(false, 'Response with no tab selected. (problem unless on store init)');
         return;
       }
-      this.allResults[title] = this.getRespObj(response?.text, response?.rvs, this.allResults[title]?.display_type);
+      this.allResults[title] = getRespObj(response?.text, response?.rvs, this.allResults[title]?.display_type);
       this.updateDropdownItems();
       this.cd.detectChanges();
     });
@@ -125,75 +122,75 @@ export class OutputareaComponent implements AfterViewInit {
     }
     this.allResults[tabTitle].display_type = selected_type as DISPLAY_TYPE;
   }
+}
 
-  private getRespObj(response_text?: string, response_rvs?: any, prev_display_type?: DISPLAY_TYPE): TAB_DATA {
-    const result = {
-      display_type: prev_display_type,
-      text_response: response_text,
-      multi_rv_data: undefined,
-    } as TAB_DATA;
-    if (!!response_rvs) {
-      result.multi_rv_data = {id_order: [], rvs: {}, transposed: new Map()};
-      response_rvs?.forEach(([rv, name]: ([RV, string]), i: number) => {
-        const uuid = `uuid_${++this.rv_uuid}`;
-        result.multi_rv_data!.id_order.push(uuid);
-        const order = i;
-        const named = !!name ? name : `Output ${i+1}`;
-        result.multi_rv_data!.rvs[uuid] = this.getCalcedRV(rv, order, named, true);
-      });
-      result.multi_rv_data!.transposed = this.getTranspose(result.multi_rv_data!.rvs, result.multi_rv_data!.id_order);
-    }
-    return result;
-  }
-
-  private getTranspose(rvs: {[id: string]: SINGLE_RV_DATA}, order: string[]) {
-    const allVals = Object.values(rvs).map(rv => rv.pdf.map(([val, prob]) => val));
-    const uniqueVals = Array.from(new Set(allVals.flat())).sort((a, b) => a - b);
-    // val -> [(name, prob), ...]
-    const valNameProb: {[val: number]: {n: string, p?: number}[]} = {}
-    uniqueVals.forEach(val => {
-      valNameProb[val] = order.map(id => ({n: rvs[id].named}));
-    })
-    order.forEach((id, i) => {
-      rvs[id].pdf.forEach(([val, prob]) => {
-        valNameProb[val][i].p = prob;
-      });
+let __rv_uuid = 0;
+function getRespObj(response_text?: string, response_rvs?: any, prev_display_type?: DISPLAY_TYPE): TAB_DATA {
+  const result = {
+    display_type: prev_display_type,
+    text_response: response_text,
+    multi_rv_data: undefined,
+  } as TAB_DATA;
+  if (!!response_rvs) {
+    result.multi_rv_data = {id_order: [], rvs: {}, transposed: new Map()};
+    response_rvs?.forEach(([rv, name]: ([RV, string]), i: number) => {
+      const uuid = `uuid_${++__rv_uuid}`;
+      result.multi_rv_data!.id_order.push(uuid);
+      const order = i;
+      const named = !!name ? name : `Output ${i+1}`;
+      result.multi_rv_data!.rvs[uuid] = getCalcedRV(rv, order, named, true);
     });
-    const result: Map<number, {name: string, prob: number}[]> = new Map();
-    uniqueVals.forEach(val => {
-      result.set(val, valNameProb[val]
-        .filter(({p}) => p !== undefined)
-        .map(({n, p}) => ({name:n, prob:p!}))
-      );
+    result.multi_rv_data!.transposed = getTranspose(result.multi_rv_data!.rvs, result.multi_rv_data!.id_order);
+  }
+  return result;
+}
+
+function getTranspose(rvs: {[id: string]: SINGLE_RV_DATA}, order: string[]) {
+  const allVals = Object.values(rvs).map(rv => rv.pdf.map(([val, prob]) => val));
+  const uniqueVals = Array.from(new Set(allVals.flat())).sort((a, b) => a - b);
+  // val -> [(name, prob), ...]
+  const valNameProb: {[val: number]: {n: string, p?: number}[]} = {}
+  uniqueVals.forEach(val => {
+    valNameProb[val] = order.map(id => ({n: rvs[id].named}));
+  })
+  order.forEach((id, i) => {
+    rvs[id].pdf.forEach(([val, prob]) => {
+      valNameProb[val][i].p = prob;
     });
-    return result;
-  }
+  });
+  const result: Map<number, {name: string, prob: number}[]> = new Map();
+  uniqueVals.forEach(val => {
+    result.set(val, valNameProb[val]
+      .filter(({p}) => p !== undefined)
+      .map(({n, p}) => ({name:n, prob:p!}))
+    );
+  });
+  return result;
+}
 
-  private getCalcedRV(pdf: RV, order: number, named: string, prob_is_100: boolean = true): SINGLE_RV_DATA {
-    // calculate (mean, variance, std_dev) before normalizing
-    const mean = pdf.reduce((acc, [val, prob]) => acc + val * prob, 0);
-    const variance = pdf.reduce((acc, [val, prob]) => acc + (val - mean) ** 2 * prob, 0);
-    const std_dev = Math.sqrt(variance);
-    if (prob_is_100) {
-      pdf = pdf.map(([val, prob]) => [val, prob * 100] as [number, number]);
-    }
-    const atmost = pdf.map(([val, prob]) => [val, 0] as [number, number]);
-    const atleast = pdf.map(([val, prob]) => [val, 0] as [number, number]);
-    let sum = 0;
-    for (let i = 0; i < pdf.length; i++) {
-      sum += pdf[i][1];
-      atmost[i][1] = sum;
-    }
-    sum = 0;
-    for (let i = pdf.length-1; i >= 0; i--) {
-      sum += pdf[i][1];
-      atleast[i][1] = sum;
-    }
-    const min_x = pdf[0][0];
-    const max_x = pdf[pdf.length-1][0];
-    const min_y = Math.min(...pdf.map(([_, prob]) => prob));
-    const max_y = Math.max(...pdf.map(([_, prob]) => prob));
-    return { order, named, pdf, atleast, atmost, mean, variance, std_dev, min_x, max_x, min_y, max_y };
+function getCalcedRV(pdf: RV, order: number, named: string, prob_is_100: boolean = true): SINGLE_RV_DATA {
+  // calculate (mean, variance, std_dev) before normalizing
+  const mean = pdf.reduce((acc, [val, prob]) => acc + val * prob, 0);
+  const variance = pdf.reduce((acc, [val, prob]) => acc + (val - mean) ** 2 * prob, 0);
+  const std_dev = Math.sqrt(variance);
+  if (prob_is_100) {
+    pdf = pdf.map(([val, prob]) => [val, prob * 100] as [number, number]);
   }
-
+  const atmost = pdf.map(([val, prob]) => [val, 0] as [number, number]);
+  const atleast = pdf.map(([val, prob]) => [val, 0] as [number, number]);
+  let sum = 0;
+  for (let i = 0; i < pdf.length; i++) {
+    sum += pdf[i][1];
+    atmost[i][1] = sum;
+  }
+  sum = 0;
+  for (let i = pdf.length-1; i >= 0; i--) {
+    sum += pdf[i][1];
+    atleast[i][1] = sum;
+  }
+  const min_x = pdf[0][0];
+  const max_x = pdf[pdf.length-1][0];
+  const min_y = Math.min(...pdf.map(([_, prob]) => prob));
+  const max_y = Math.max(...pdf.map(([_, prob]) => prob));
+  return { order, named, pdf, atleast, atmost, mean, variance, std_dev, min_x, max_x, min_y, max_y };
 }
