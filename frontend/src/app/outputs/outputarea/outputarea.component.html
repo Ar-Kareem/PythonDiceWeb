@@ -50,7 +50,8 @@
       <div class="text-output">
         <!-- TEXT OUTPUT -->
         @let curText = allResults[tab.title]?.text_response;
-        @let showOutputText = curDisplayType === DISPLAY_TYPE.TEXT && !!curText;
+        @let errMsg = !allResults[tab.title]?.multi_rv_data && !!curText;
+        @let showOutputText = !!errMsg || (!!curText && curDisplayType === DISPLAY_TYPE.TEXT);
         <textarea
           *ngIf="showOutputText"
           pInputTextarea
