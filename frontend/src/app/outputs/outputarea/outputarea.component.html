@@ -46,17 +46,19 @@
   @let curDisplayType = allResults[tab.title]?.display_type;
 
   <div>
-    <div class="code-output" [ngClass]="{'myhidediv': !isSelected}"  *ngIf="TabsWithOutput.includes(tab.title)">
-      <!-- TEXT OUTPUT -->
-      @let curText = allResults[tab.title]?.text_response;
-      @let showOutputText = curDisplayType === DISPLAY_TYPE.TEXT && !!curText;
-      <textarea
-      *ngIf="showOutputText"
-      pInputTextarea
-      [readOnly]="true"
-      [autoResize]="true"
-      [ngModel]="curText"
-      ></textarea>
+    <div class="outputs" [ngClass]="{'myhidediv': !isSelected}"  *ngIf="TabsWithOutput.includes(tab.title)">
+      <div class="text-output">
+        <!-- TEXT OUTPUT -->
+        @let curText = allResults[tab.title]?.text_response;
+        @let showOutputText = curDisplayType === DISPLAY_TYPE.TEXT && !!curText;
+        <textarea
+          *ngIf="showOutputText"
+          pInputTextarea
+          [readOnly]="true"
+          [autoResize]="true"
+          [ngModel]="curText"
+        ></textarea>
+      </div>
       <!-- ROLLER -->
       <app-roller *ngIf="curDisplayType === DISPLAY_TYPE.ROLLER" [rollerData]="allResults[tab.title]?.multi_rv_data" />
       <!-- CHART -->

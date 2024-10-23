@@ -20,8 +20,10 @@
   }
 }
 
-
-.code-output {
+.outputs {
+  width: 100%;
+}
+.text-output {
   user-select: none; /* Prevent text selection */
   overflow: hidden; /* Prevent scrollbars */
   resize: none; /* Disable manual resizing */
