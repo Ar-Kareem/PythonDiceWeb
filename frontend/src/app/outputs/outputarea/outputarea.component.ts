@@ -152,17 +152,17 @@ export class OutputareaComponent implements AfterViewInit {
     if (prob_is_100) {
       pdf = pdf.map(([val, prob]) => [val, prob * 100] as [number, number]);
     }
-    const atleast = pdf.map(([val, prob]) => [val, 0] as [number, number]);
     const atmost = pdf.map(([val, prob]) => [val, 0] as [number, number]);
+    const atleast = pdf.map(([val, prob]) => [val, 0] as [number, number]);
     let sum = 0;
     for (let i = 0; i < pdf.length; i++) {
       sum += pdf[i][1];
-      atleast[i][1] = sum;
+      atmost[i][1] = sum;
     }
     sum = 0;
     for (let i = pdf.length-1; i >= 0; i--) {
       sum += pdf[i][1];
-      atmost[i][1] = sum;
+      atleast[i][1] = sum;
     }
     const min_x = pdf[0][0];
     const max_x = pdf[pdf.length-1][0];
