@@ -200,7 +200,14 @@ function getLineChart(x_labels: string[], datasets: {label: string, data: number
         },
       },
       scales: {
-        y: tick_style,
+        y: {
+          ticks: {
+            ...tick_style.ticks,
+            callback: function(value: any, index: any, ticks: any) {
+                return value + '%';  // Include a percent sign in the ticks
+            },
+          },
+        },
         x: tick_style,
       },
     },
