@@ -106,6 +106,7 @@ abstract class PYTHON_CODE_REPO {
   static readonly SHARED_CODE = `
 def coerce_to_rv(rv):
   from dice_calc import RV
+  from typing import Iterable
   if isinstance(rv, RV):
     return rv
   if rv is None or isinstance(rv, int) or isinstance(rv, Iterable) or isinstance(rv, bool):
