@@ -61,6 +61,8 @@
       <app-roller *ngIf="curDisplayType === DISPLAY_TYPE.ROLLER" [rollerData]="allResults[tab.title]?.multi_rv_data" />
       <!-- CHART -->
       <app-outputchart [multiRvData]="allResults[tab.title]?.multi_rv_data" [displayType]="curDisplayType" />
+      <!-- EXPORTER -->
+      <app-exporter [multiRvData]="allResults[tab.title]?.multi_rv_data" [displayType]="curDisplayType" />
     </div>
 
     <!-- GUI -->

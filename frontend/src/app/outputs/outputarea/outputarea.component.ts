@@ -34,6 +34,11 @@ export enum DISPLAY_TYPE {
   MEANS,
   TEXT,
   ROLLER,
+  EXPORT_NORMAL,
+  EXPORT_ATLEAST,
+  EXPORT_ATMOST,
+  EXPORT_TRANSPOSE,
+  EXPORT_MEANS,
 }
 
 type TAB_DATA = {
@@ -205,17 +210,20 @@ enum DD1ENUM {
   SUMMARY = 'Summary',
   TEXT = 'Text',
   ROLLER = 'Roller',
+  EXPORT = 'Export',
 }
 enum DD2ENUM {
   NORMAL = 'Normal',
   ATLEAST = 'At least',
   ATMOST = 'At most',
   TRANSPOSE = 'Transpose',
+  SUMMARY = 'Summary',
   NULL = '',
 }
 function displayTypeToDropdown(init_display?: DISPLAY_TYPE): { i1: DD1ENUM; i2: DD2ENUM; } {
   // DISPLAY_TYPE => text on screen
   switch (init_display) {
+    case undefined:  // default option
     case DISPLAY_TYPE.BAR_NORMAL:
       return { i1: DD1ENUM.BAR, i2: DD2ENUM.NORMAL };
     case DISPLAY_TYPE.BAR_ATLEAST:
@@ -228,9 +236,18 @@ function displayTypeToDropdown(init_display?: DISPLAY_TYPE): { i1: DD1ENUM; i2: 
       return { i1: DD1ENUM.SUMMARY, i2: DD2ENUM.NULL };
     case DISPLAY_TYPE.TEXT:
       return { i1: DD1ENUM.TEXT, i2: DD2ENUM.NULL };
-    case undefined:  // default option
     case DISPLAY_TYPE.ROLLER:
       return { i1: DD1ENUM.ROLLER, i2: DD2ENUM.NULL };
+    case DISPLAY_TYPE.EXPORT_NORMAL:
+      return { i1: DD1ENUM.EXPORT, i2: DD2ENUM.NORMAL };
+    case DISPLAY_TYPE.EXPORT_ATLEAST:
+      return { i1: DD1ENUM.EXPORT, i2: DD2ENUM.ATLEAST };
+    case DISPLAY_TYPE.EXPORT_ATMOST:
+      return { i1: DD1ENUM.EXPORT, i2: DD2ENUM.ATMOST };
+    case DISPLAY_TYPE.EXPORT_TRANSPOSE:
+      return { i1: DD1ENUM.EXPORT, i2: DD2ENUM.TRANSPOSE };
+    case DISPLAY_TYPE.EXPORT_MEANS:
+      return { i1: DD1ENUM.EXPORT, i2: DD2ENUM.SUMMARY };
   }
 }
 function selectedToDisplayType(i1?: DD1ENUM, i2?: DD2ENUM): DISPLAY_TYPE {
@@ -239,6 +256,7 @@ function selectedToDisplayType(i1?: DD1ENUM, i2?: DD2ENUM): DISPLAY_TYPE {
     switch (i2) {
       case undefined:  // no second dropdown => normal
       case DD2ENUM.NULL:
+      case DD2ENUM.SUMMARY:
       case DD2ENUM.NORMAL:
         return DISPLAY_TYPE.BAR_NORMAL;
       case DD2ENUM.ATLEAST:
@@ -254,6 +272,21 @@ function selectedToDisplayType(i1?: DD1ENUM, i2?: DD2ENUM): DISPLAY_TYPE {
     return DISPLAY_TYPE.TEXT;
   } else if (i1 === DD1ENUM.ROLLER) {
     return DISPLAY_TYPE.ROLLER;
+  } else if (i1 === DD1ENUM.EXPORT) {
+    switch (i2) {
+      case undefined:  // no second dropdown => normal
+      case DD2ENUM.NULL:
+      case DD2ENUM.NORMAL:
+        return DISPLAY_TYPE.EXPORT_NORMAL;
+      case DD2ENUM.ATLEAST:
+        return DISPLAY_TYPE.EXPORT_ATLEAST;
+      case DD2ENUM.ATMOST:
+        return DISPLAY_TYPE.EXPORT_ATMOST;
+      case DD2ENUM.TRANSPOSE:
+        return DISPLAY_TYPE.EXPORT_TRANSPOSE;
+      case DD2ENUM.SUMMARY:
+        return DISPLAY_TYPE.EXPORT_MEANS;
+    }
   } else if (i1 === undefined) {  // no first dropdown => normal
     return DISPLAY_TYPE.BAR_NORMAL;
   }
@@ -262,10 +295,12 @@ function selectedToDisplayType(i1?: DD1ENUM, i2?: DD2ENUM): DISPLAY_TYPE {
 }
 function dropdownItemsToDisplay(i1: DD1ENUM, i2: DD2ENUM): { i1s: DD1ENUM[]; i2s: DD2ENUM[]; } {
   // text on screen => all possible dropdown items
-  const i1s = [DD1ENUM.BAR, DD1ENUM.SUMMARY, DD1ENUM.TEXT, DD1ENUM.ROLLER];
+  const i1s = [DD1ENUM.BAR, DD1ENUM.SUMMARY, DD1ENUM.TEXT, DD1ENUM.ROLLER, DD1ENUM.EXPORT];
   switch (i1) {
     case DD1ENUM.BAR:
       return {i1s: i1s, i2s: [DD2ENUM.NORMAL, DD2ENUM.ATLEAST, DD2ENUM.ATMOST, DD2ENUM.TRANSPOSE] }
+    case DD1ENUM.EXPORT:
+      return {i1s: i1s, i2s: [DD2ENUM.NORMAL, DD2ENUM.ATLEAST, DD2ENUM.ATMOST, DD2ENUM.TRANSPOSE, DD2ENUM.SUMMARY] }
     case DD1ENUM.SUMMARY:
     case DD1ENUM.TEXT:
     case DD1ENUM.ROLLER:

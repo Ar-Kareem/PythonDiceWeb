@@ -73,6 +73,11 @@ export class OutputchartComponent {
       // do nothing for the following
       case DISPLAY_TYPE.TEXT:
       case DISPLAY_TYPE.ROLLER:
+      case DISPLAY_TYPE.EXPORT_NORMAL:
+      case DISPLAY_TYPE.EXPORT_ATLEAST:
+      case DISPLAY_TYPE.EXPORT_ATMOST:
+      case DISPLAY_TYPE.EXPORT_TRANSPOSE:
+      case DISPLAY_TYPE.EXPORT_MEANS:
         break;
       case DISPLAY_TYPE.MEANS:
         this.setupMeanChart(multiRvData);
