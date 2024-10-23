@@ -295,7 +295,13 @@ function selectedToDisplayType(i1?: DD1ENUM, i2?: DD2ENUM): DISPLAY_TYPE {
 }
 function dropdownItemsToDisplay(i1: DD1ENUM, i2: DD2ENUM): { i1s: DD1ENUM[]; i2s: DD2ENUM[]; } {
   // text on screen => all possible dropdown items
-  const i1s = [DD1ENUM.BAR, DD1ENUM.SUMMARY, DD1ENUM.TEXT, DD1ENUM.ROLLER, DD1ENUM.EXPORT];
+  const i1s = [
+    DD1ENUM.BAR, 
+    DD1ENUM.SUMMARY, 
+    // DD1ENUM.TEXT, 
+    DD1ENUM.ROLLER, 
+    DD1ENUM.EXPORT
+  ];
   switch (i1) {
     case DD1ENUM.BAR:
       return {i1s: i1s, i2s: [DD2ENUM.NORMAL, DD2ENUM.ATLEAST, DD2ENUM.ATMOST, DD2ENUM.TRANSPOSE] }
