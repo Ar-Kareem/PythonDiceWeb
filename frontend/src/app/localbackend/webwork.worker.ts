@@ -104,6 +104,14 @@ function exec_dice_code(code:string) {
 
 abstract class PYTHON_CODE_REPO {
   static readonly SHARED_CODE = `
+def coerce_to_rv(rv):
+  from dice_calc import RV
+  if isinstance(rv, RV):
+    return rv
+  if rv is None or isinstance(rv, int) or isinstance(rv, Iterable) or isinstance(rv, bool):
+    return RV.from_seq([rv])
+  assert False, f'Invalid rv: {type(rv)}'
+
 def compile(code, flags):
   from dice_calc.parser import compile_anydice
   compiler_flags = {'COMPILER_FLAG_NON_LOCAL_SCOPE': True, 'COMPILER_FLAG_OPERATOR_ON_INT': True} if flags else {}
@@ -112,7 +120,7 @@ def run_python(parsed):
   from dice_calc import output
   from dice_calc.parser.parse_and_exec import unsafe_exec
   outputs = []
-  unsafe_exec(parsed, global_vars={'output': lambda x, named=None: outputs.append((x, named))})
+  unsafe_exec(parsed, global_vars={'output': lambda x, named=None: outputs.append((coerce_to_rv(x), named))})
   out_str = '\\n'.join([output(r, named=n, print_=False, blocks_width=80) for r, n in outputs])
   return {'rvs': outputs, 'parsed': parsed, 'output': out_str}
 
