@@ -1,6 +1,6 @@
 
 <div>
-  <div *ngFor="let chartData of chartsData ; trackBy: alwaysTrue">
+  <div *ngFor="let chartData of chartsData ; trackBy: alwaysTrue" style="margin-bottom: 25px;">
     <canvas #chart>
       {{!!chartData ? chartData : ''}}
     </canvas>

@@ -1,6 +1,11 @@
 import { ChangeDetectorRef, Component, ElementRef, Input, QueryList, ViewChildren } from '@angular/core';
 import { Chart } from 'chart.js/auto';
-import { DISPLAY_TYPE, MULTI_RV_DATA, SINGLE_RV_DATA } from '../outputarea.component';
+import { BarWithErrorBarsController, BarWithErrorBar } from 'chartjs-chart-error-bars';
+
+import { DISPLAY_TYPE, MULTI_RV_DATA } from '../outputarea.component';
+
+// register controller in chart.js and ensure the defaults are set
+Chart.register(BarWithErrorBarsController, BarWithErrorBar);
 
 @Component({
   selector: 'app-outputchart',
@@ -77,9 +82,10 @@ export class OutputchartComponent {
     this.setCanvasCount(1);
     if (this.chartsRef.length !== 1) throw new Error('Expected exactly one chart canvas');
     const rvs = multiRvData.rvs;
-    const labels = Object.entries(rvs).map(([id, {named}]) => named || id)
-    const data = Object.values(rvs).map(({mean}) => mean)
-    const meanChartData = this.getHorizBarChart(labels, data, 'means');
+    const labels = Object.values(rvs).map(({named, mean}) => `${named} ${mean.toFixed(2).padStart(5, ' ')}`)
+    const data = Object.values(rvs).map(({mean}) => +mean.toFixed(2))
+    const whiskers = Object.values(rvs).map(({std_dev}) => +std_dev.toFixed(2))
+    const meanChartData = this.getHorizBarWithErrorBars(labels, data, whiskers, 'means');
     this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, meanChartData)
     const h = 128 + 18 * labels.length;
     this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
@@ -136,13 +142,22 @@ export class OutputchartComponent {
           y: {
             ticks: {
               font: {
-                family: 'Courier New ',
+                family: 'Consolas',
                 size: 14,
               },
               color: '#fff',
             },
           },
           x: {
+            title: {
+              text: 'Probability',
+              display: true,
+              color: '#fff',
+              font: {
+                family: 'Consolas',
+                size: 16,
+              },
+            },
             ticks: {
               color: '#fff',
             },
@@ -154,4 +169,75 @@ export class OutputchartComponent {
     };
   }
 
+  private getHorizBarWithErrorBars(labels: string[], data: number[], whiskers: number[], title: string, maxprob?: number): any {
+    return {
+      type: 'barWithErrorBars',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            // label: title,
+            data: data.map((v, i) => ({
+              x: v,
+              xMin: +(v - whiskers[i]).toFixed(2),
+              xMax: +(v + whiskers[i]).toFixed(2),
+            })),
+            errorBarLineWidth: 2,
+            errorBarWhiskerLineWidth: 2,
+            errorBarWhiskerRatio: 0.35,
+            errorBarColor: '#ddd',
+            errorBarWhiskerColor: '#ddd',
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        plugins: {
+          title: {
+            display: true,
+            text: title,
+            align: 'top',
+            color: '#ddd',
+            font: {
+              size: 16,
+              weight: 'bolder',
+              family: 'monospace',
+            }
+          },
+          legend: {
+            display: false,
+          }
+        },
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        scales: {
+          y: {
+            ticks: {
+              font: {
+                family: 'Consolas',
+                size: 14,
+              },
+              color: '#fff',
+            },
+          },
+          x: {
+            title: {
+              text: 'Mean Roll',
+              display: true,
+              color: '#fff',
+              font: {
+                family: 'Consolas',
+                size: 16,
+              },
+            },
+            ticks: {
+              color: '#fff',
+            },
+            min: 0,
+            max: maxprob,
+          },
+        },
+      },
+    };
+  }
 }
