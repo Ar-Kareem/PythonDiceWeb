@@ -3,7 +3,7 @@
   width: 98%;
   height: fit-content;
   padding-left: 10px;
-  @media (min-width: 768px) {  // <tablet
+  @media (min-width: 768px) {  // if >= 768px
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
