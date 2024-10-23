@@ -74,12 +74,12 @@ export class OutputchartComponent {
       case DISPLAY_TYPE.MEANS:
         this.setupMeanChart(multiRvData);
         break;
-      case DISPLAY_TYPE.PDF:
-      case DISPLAY_TYPE.ATLEAST:
-      case DISPLAY_TYPE.ATMOST:
+      case DISPLAY_TYPE.BAR_NORMAL:
+      case DISPLAY_TYPE.BAR_ATLEAST:
+      case DISPLAY_TYPE.BAR_ATMOST:
         this.setupPdfChart(multiRvData, displayType);
         break;
-      case DISPLAY_TYPE.TRANSPOSE:
+      case DISPLAY_TYPE.BAR_TRANSPOSE:
         this.setupTranspose(multiRvData.transposed);
         break;
       default:
@@ -106,7 +106,7 @@ export class OutputchartComponent {
     if (this.chartsRef.length !== N) throw new Error('Expected exactly one chart canvas per RV');
     this.chartsRef.forEach((chart, i) => {
       const rv = multiRvData.rvs[multiRvData.id_order[i]];
-      const pdf = type === DISPLAY_TYPE.ATLEAST ? rv.atleast : (type === DISPLAY_TYPE.ATMOST ? rv.atmost : rv.pdf);
+      const pdf = type === DISPLAY_TYPE.BAR_ATLEAST ? rv.atleast : (type === DISPLAY_TYPE.BAR_ATMOST ? rv.atmost : rv.pdf);
       const {labelsFormatted, valuesFormatted} = setupLabelsAndData(pdf, '%');
       const title = rv.named + ` (${rv.mean.toFixed(2)} ± ${rv.std_dev.toFixed(2)})`;
       const chartObj = getHorizBarChart(labelsFormatted, valuesFormatted, title, 100);

@@ -13,14 +13,25 @@
   </div>
 
   <!-- DROPDOWN -->
-  <div *ngIf="currentDropdownItems.length > 0">
+  <div *ngIf="ddItemsFirst.length > 0">
     <p-floatLabel>
       <p-dropdown
-      [(ngModel)]="ddNgModel"
-      [options]="currentDropdownItems"
-      (onChange)="dropdownChange($event.value)"
+      [(ngModel)]="ddNgModelFirst"
+      [options]="ddItemsFirst"
+      (onChange)="dropdownNgChanged()"
       />
       <label for="float-label">Display:</label>
+    </p-floatLabel>
+  </div>
+  <!-- DROPDOWN -->
+  <div *ngIf="ddItemsSecond.length > 0">
+    <p-floatLabel>
+      <p-dropdown
+      [(ngModel)]="ddNgModelSecond"
+      [options]="ddItemsSecond"
+      (onChange)="dropdownNgChanged()"
+      />
+      <label for="float-label">Type:</label>
     </p-floatLabel>
   </div>
 

@@ -27,11 +27,11 @@ export type MULTI_RV_DATA = {
   transposed: Map<number, {name: string, prob: number}[]>,
 }
 export enum DISPLAY_TYPE {
-  PDF = "Normal",
-  ATLEAST = "At least",
-  ATMOST = "At most",
+  BAR_NORMAL = "Normal",
+  BAR_ATLEAST = "At least",
+  BAR_ATMOST = "At most",
+  BAR_TRANSPOSE = "Transpose",
   MEANS = "Summary",
-  TRANSPOSE = "Transpose",
   TEXT = "Text",
 }
 
@@ -59,8 +59,10 @@ export class OutputareaComponent implements AfterViewInit {
   workerStatus$: Observable<string> = this.store.select(herosSelectors.selectWorkerStatus).pipe(filter(status => typeof status === 'string'));  // from store
   
   allResults: {[tabTitle: string]: TAB_DATA|undefined} = {};  // the results for every tab
-  currentDropdownItems: DISPLAY_TYPE[] = [];  // the items in the dropdown for the current tab ; updated by "updateDropdownItems"
-  ddNgModel: string|undefined;
+  ddItemsFirst: string[] = [];  // first dd strings
+  ddItemsSecond: string[] = [];  // second dd strings
+  ddNgModelFirst: string|undefined;
+  ddNgModelSecond: string|undefined;
 
   constructor(
     private cd: ChangeDetectorRef, 
@@ -94,33 +96,35 @@ export class OutputareaComponent implements AfterViewInit {
 
   updateDropdownItems() {
     const tabTitle = this.selectedTab?.title;
-    this.ddNgModel = undefined;
-    if (!tabTitle) {
-      this.currentDropdownItems = [];
-      return;
-    }
-    if (!this.allResults[tabTitle]) {
-      this.currentDropdownItems = [];
-      return;
-    }
-    if (!this.allResults[tabTitle].multi_rv_data) {
-      this.currentDropdownItems = [];
+    this.ddNgModelFirst = undefined;
+    this.ddNgModelSecond = undefined;
+    if (!tabTitle || !this.allResults[tabTitle]?.multi_rv_data) {
+      this.ddItemsFirst = [];
+      this.ddItemsSecond = [];
       return;
     }
     // init dropdown
-    this.currentDropdownItems = Object.values(DISPLAY_TYPE);
-    const init_display = this.allResults[tabTitle].display_type || DISPLAY_TYPE.MEANS;
-    this.ddNgModel = init_display;
-    this.dropdownChange(init_display);
+    const {i1, i2} = displayTypeToDropdown(this.allResults[tabTitle].display_type);
+    this.ddNgModelFirst = i1;
+    this.ddNgModelSecond = i2;
+    this.dropdownNgChanged();
   }
 
-  dropdownChange(selected_type: DISPLAY_TYPE) {
+  dropdownNgChanged() {
     const tabTitle = this.selectedTab?.title;
     if (!tabTitle || !this.allResults[tabTitle]) {
       console.assert(false, 'DD changed when no tab selected!');
       return
     }
-    this.allResults[tabTitle].display_type = selected_type as DISPLAY_TYPE;
+    const chosen = selectedToDisplayType(this.ddNgModelFirst, this.ddNgModelSecond)
+    this.allResults[tabTitle].display_type = chosen;
+    const { i1, i2 } = displayTypeToDropdown(chosen);
+    const { i1s, i2s } = dropdownItemsToDisplay(i1, i2);
+    this.ddItemsFirst = i1s;
+    this.ddItemsSecond = i2s;
+    this.ddNgModelFirst = i1;
+    this.ddNgModelSecond = i2;
+    this.cd.detectChanges();
   }
 }
 
@@ -193,4 +197,72 @@ function getCalcedRV(pdf: RV, order: number, named: string, prob_is_100: boolean
   const min_y = Math.min(...pdf.map(([_, prob]) => prob));
   const max_y = Math.max(...pdf.map(([_, prob]) => prob));
   return { order, named, pdf, atleast, atmost, mean, variance, std_dev, min_x, max_x, min_y, max_y };
+}
+
+enum dd1 {
+  BAR = 'Bar',
+  SUMMARY = 'Summary',
+  TEXT = 'Text',
+}
+enum dd2 {
+  NORMAL = 'Normal',
+  ATLEAST = 'At least',
+  ATMOST = 'At most',
+  TRANSPOSE = 'Transpose',
+}
+function displayTypeToDropdown(init_display?: DISPLAY_TYPE): { i1: string; i2: string; } {
+  // DISPLAY_TYPE => text on screen
+  switch (init_display) {
+    default:
+      return { i1: dd1.BAR, i2: dd2.NORMAL };
+    case DISPLAY_TYPE.BAR_NORMAL:
+      return { i1: dd1.BAR, i2: dd2.NORMAL };
+    case DISPLAY_TYPE.BAR_ATLEAST:
+      return { i1: dd1.BAR, i2: dd2.ATLEAST };
+    case DISPLAY_TYPE.BAR_ATMOST:
+      return { i1: dd1.BAR, i2: dd2.ATMOST };
+    case DISPLAY_TYPE.BAR_TRANSPOSE:
+      return { i1: dd1.BAR, i2: dd2.TRANSPOSE };
+    case DISPLAY_TYPE.MEANS:
+      return { i1: dd1.SUMMARY, i2: '' };
+    case DISPLAY_TYPE.TEXT:
+      return { i1: dd1.TEXT, i2: '' };
+  }
+}
+function selectedToDisplayType(i1?: string, i2?: string): DISPLAY_TYPE {
+  // text on screen => DISPLAY_TYPE
+  if (i1 === dd1.BAR) {
+    switch (i2) {
+      case dd2.NORMAL:
+        return DISPLAY_TYPE.BAR_NORMAL;
+      case dd2.ATLEAST:
+        return DISPLAY_TYPE.BAR_ATLEAST;
+      case dd2.ATMOST:
+        return DISPLAY_TYPE.BAR_ATMOST;
+      case dd2.TRANSPOSE:
+        return DISPLAY_TYPE.BAR_TRANSPOSE;
+      default:  // no second dropdown => normal
+        return DISPLAY_TYPE.BAR_NORMAL;
+    }
+  } else if (i1 === dd1.SUMMARY) {
+    return DISPLAY_TYPE.MEANS;
+  } else if (i1 === dd1.TEXT) {
+    return DISPLAY_TYPE.TEXT;
+  } else {  // no first dropdown => normal
+    return DISPLAY_TYPE.BAR_NORMAL;
+    
+  }
+}
+function dropdownItemsToDisplay(i1: string, i2: string): { i1s: string[]; i2s: string[]; } {
+  // text on screen => all possible dropdown items
+  const i1s = [dd1.BAR, dd1.SUMMARY, dd1.TEXT];
+  switch (i1) {
+    case dd1.BAR:
+      return {i1s: i1s, i2s: [dd2.NORMAL, dd2.ATLEAST, dd2.ATMOST, dd2.TRANSPOSE] }
+    case dd1.SUMMARY:
+    case dd1.TEXT:
+        return {i1s: i1s, i2s: [] }
+    default:
+      throw new Error(`Unknown dropdown item ${i1}`);
+  }
 }
