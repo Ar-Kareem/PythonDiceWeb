@@ -8,7 +8,8 @@ import { ITab, tabviewSelectors } from '@app/tabview/tabview.reducer';
 
 type RV = [val: number, prob: number][]
 export type SINGLE_RV_DATA = {
-  named?: string,
+  named: string,
+  order: number,
   pdf: RV,
   atleast: RV,
   atmost: RV,
@@ -29,7 +30,7 @@ export enum DISPLAY_TYPE {
   ATLEAST = "At least",
   ATMOST = "At most",
   MEANS = "Summary",
-  // CDF = "CDF",
+  TRANSPOSE = "Transpose",
   TEXT = "Text",
 }
 
@@ -110,7 +111,7 @@ export class OutputareaComponent implements AfterViewInit {
     }
     // init dropdown
     this.currentDropdownItems = Object.values(DISPLAY_TYPE);
-    const init_display = this.allResults[tabTitle].display_type || DISPLAY_TYPE.PDF;
+    const init_display = this.allResults[tabTitle].display_type || DISPLAY_TYPE.MEANS;
     this.ddNgModel = init_display;
     this.dropdownChange(init_display);
   }
@@ -135,14 +136,15 @@ export class OutputareaComponent implements AfterViewInit {
       response_rvs?.forEach(([rv, name]: ([RV, string]), i: number) => {
         const uuid = `uuid_${++this.rv_uuid}`;
         result.multi_rv_data!.id_order.push(uuid);
-        result.multi_rv_data!.rvs[uuid] = this.getCalcedRV(rv, true);
-        result.multi_rv_data!.rvs[uuid].named = !!name ? name : `Output ${i+1}`;
+        const order = i;
+        const named = !!name ? name : `Output ${i+1}`;
+        result.multi_rv_data!.rvs[uuid] = this.getCalcedRV(rv, order, named, true);
       });
     }
     return result;
   }
 
-  private getCalcedRV(pdf: RV, prob_is_100: boolean = true): SINGLE_RV_DATA {
+  private getCalcedRV(pdf: RV, order: number, named: string, prob_is_100: boolean = true): SINGLE_RV_DATA {
     // calculate (mean, variance, std_dev) before normalizing
     const mean = pdf.reduce((acc, [val, prob]) => acc + val * prob, 0);
     const variance = pdf.reduce((acc, [val, prob]) => acc + (val - mean) ** 2 * prob, 0);
@@ -166,7 +168,7 @@ export class OutputareaComponent implements AfterViewInit {
     const max_x = pdf[pdf.length-1][0];
     const min_y = Math.min(...pdf.map(([_, prob]) => prob));
     const max_y = Math.max(...pdf.map(([_, prob]) => prob));
-    return { pdf, atleast, atmost, mean, variance, std_dev, min_x, max_x, min_y, max_y };
+    return { order, named, pdf, atleast, atmost, mean, variance, std_dev, min_x, max_x, min_y, max_y };
   }
 
 }

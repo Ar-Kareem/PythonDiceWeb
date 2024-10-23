@@ -73,13 +73,18 @@ export class OutputchartComponent {
       case DISPLAY_TYPE.ATMOST:
         this.setupPdfChart(multiRvData, displayType);
         break;
+      case DISPLAY_TYPE.TRANSPOSE:
+        this.setupTranspose(multiRvData);
+        break;
       default:
         console.error('Unknown display type', displayType);
         break;
     }
   }
 
-
+  private PER_ROW = 24;
+  private STABLE = 55;
+  private EXTRA_FOR_AXIS_TITLE = 64;
   private setupMeanChart(multiRvData: MULTI_RV_DATA) {
     this.setCanvasCount(1);
     if (this.chartsRef.length !== 1) throw new Error('Expected exactly one chart canvas');
@@ -89,7 +94,8 @@ export class OutputchartComponent {
     const whiskers = Object.values(rvs).map(({std_dev}) => +std_dev.toFixed(2))
     const meanChartData = this.getHorizBarWithErrorBars(labels, data, whiskers, 'means');
     this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, meanChartData)
-    const h = 128 + 18 * labels.length;
+    const h = this.STABLE + (this.PER_ROW + 10) * labels.length + this.EXTRA_FOR_AXIS_TITLE;
+    console.log('setting height to', h, labels.length);
     this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
 }
 
@@ -105,7 +111,39 @@ export class OutputchartComponent {
       const title = rv.named + ` (${rv.mean.toFixed(2)} ± ${rv.std_dev.toFixed(2)})`;
       const pdfChart = this.getHorizBarChart(labels, data, title, 100);
       this.chartsData[i] = new Chart(chart.nativeElement, pdfChart);
-      const h = 128 + 18 * labels.length;
+      const h = this.STABLE + this.PER_ROW * labels.length;
+      console.log('setting height to', h, labels.length);
+      chart.nativeElement.parentNode.style.height = `${h}px`;
+    });
+  }
+
+  private setupTranspose(multiRvData: MULTI_RV_DATA) {
+    const allVals = Object.values(multiRvData.rvs).map(rv => rv.pdf.map(([val, prob]) => val));
+    const uniqueVals = Array.from(new Set(allVals.flat())).sort((a, b) => a - b);
+    // val -> [(name, prob), ...]
+    const valNameProb: {[val: number]: (string|number|undefined)[][]} = {}
+    uniqueVals.forEach(val => {
+      valNameProb[val] = multiRvData.id_order.map(id => [multiRvData.rvs[id].named, undefined]);
+    })
+    multiRvData.id_order.forEach((id, i) => {
+      const rv = multiRvData.rvs[id];
+      rv.pdf.forEach(([val, prob]) => {
+        valNameProb[val][i][1] = prob;
+      });
+    });
+    const N = uniqueVals.length;
+    this.setCanvasCount(N);
+    if (this.chartsRef.length !== N) throw new Error('Expected exactly one chart canvas per unique value');
+    this.chartsRef.forEach((chart, i) => {
+      const val = uniqueVals[i];
+      const rows = valNameProb[val].filter(([_, prob]) => prob !== undefined);
+      const labels = rows.map(([name, prob]) => `${name} ${(prob as number).toFixed(2).padStart(5, ' ')}%`);
+      const data = rows.map(([_, prob]) => prob as number);
+      const title = `${val}`;
+      const pdfChart = this.getHorizBarChart(labels, data, title, 100);
+      this.chartsData[i] = new Chart(chart.nativeElement, pdfChart);
+      const h = this.STABLE + this.PER_ROW * labels.length;
+      console.log('setting height to', h, labels.length);
       chart.nativeElement.parentNode.style.height = `${h}px`;
     });
   }
@@ -152,15 +190,16 @@ export class OutputchartComponent {
             },
           },
           x: {
-            title: {
-              text: 'Probability',
-              display: true,
-              color: '#fff',
-              font: {
-                family: 'Consolas',
-                size: 16,
-              },
-            },
+            // title: {
+            //   text: 'Probability',
+            //   display: true,
+            //   color: '#fff',
+            //   font: {
+            //     family: 'Consolas',
+            //     size: 16,
+            //   },
+            // },
+            display: false,
             ticks: {
               color: '#fff',
             },
