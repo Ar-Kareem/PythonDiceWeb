@@ -93,6 +93,11 @@ export class OutputchartComponent {
       case DISPLAY_TYPE.BAR_TRANSPOSE:
         this.setupTranspose(multiRvData.transposed);
         break;
+      case DISPLAY_TYPE.GRAPH_NORMAL:
+      case DISPLAY_TYPE.GRAPH_ATLEAST:
+      case DISPLAY_TYPE.GRAPH_ATMOST:
+        this.setupGraph(multiRvData, displayType);
+        break;
       default:
         console.error('Unknown display type', displayType);
         break;
@@ -101,7 +106,7 @@ export class OutputchartComponent {
 
   private setupMeanChart(multiRvData: MULTI_RV_DATA) {
     this.setCanvasCount(2);
-    if (this.chartsRef.length !== 2) throw new Error('Expected exactly one chart canvas');
+    if (this.chartsRef.length !== 2) throw new Error('Expected exactly 2 chart canvas');
 
     const rvs = Object.values(multiRvData.rvs);
     const min_x = Math.min(...rvs.map(({min_x}) => min_x)) - 1;
@@ -155,8 +160,52 @@ export class OutputchartComponent {
       i += 1;
     });
   }
+
+
+  private setupGraph(multiRvData: MULTI_RV_DATA, displayType: DISPLAY_TYPE) {
+    this.setCanvasCount(1);
+    if (this.chartsRef.length !== 1) throw new Error('Expected exactly one chart canvas');
+
+    const uniqueVals = Array.from(multiRvData.transposed.keys());
+    const x_labels = uniqueVals.map(v => v.toString());
+    const datasets = multiRvData.id_order.map(rv_id => {
+      const rv = multiRvData.rvs[rv_id];
+      const pdf = displayType === DISPLAY_TYPE.GRAPH_NORMAL ? rv.pdf : (displayType === DISPLAY_TYPE.GRAPH_ATLEAST ? rv.atleast : rv.atmost);
+      const data = uniqueVals.map(v => rv.pdfMap.has(v) ? pdf[rv.pdfMap.get(v)!.index][1] : NaN);
+      return {label: rv.named, data};
+    });
+    this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, getLineChart(x_labels, datasets, 'Graph'));
+    const h = 600;
+    this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
+  }
+
 }
 
+
+
+function getLineChart(x_labels: string[], datasets: {label: string, data: number[]}[], title: string): any {
+  return {
+    type: 'line',
+    data: {
+      labels: x_labels,
+      datasets: datasets,
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        ...plugin_settings(title),
+        legend: {
+          position: 'right',
+        },
+      },
+      scales: {
+        y: tick_style,
+        x: tick_style,
+      },
+    },
+  };
+}
 
 
 function getHorizBarChart(labels: string[], data: number[], title: string, maxprob?: number): any {

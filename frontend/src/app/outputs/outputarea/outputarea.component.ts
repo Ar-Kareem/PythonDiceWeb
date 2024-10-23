@@ -11,6 +11,7 @@ export type SINGLE_RV_DATA = {
   named: string,
   order: number,
   pdf: RV,
+  pdfMap: Map<number, {index: number, prob: number}>,
   atleast: RV,
   atmost: RV,
   mean: number,
@@ -30,13 +31,21 @@ export type MULTI_RV_DATA = {
   transposed: Map<number, {name: string, prob: number}[]>,
 }
 export enum DISPLAY_TYPE {
+  MEANS,
+  TEXT,
+  ROLLER,
+
   BAR_NORMAL,
   BAR_ATLEAST,
   BAR_ATMOST,
   BAR_TRANSPOSE,
-  MEANS,
-  TEXT,
-  ROLLER,
+
+  GRAPH_NORMAL,
+  GRAPH_ATLEAST,
+  GRAPH_ATMOST,
+  // GRAPH_TRANSPOSE,
+  // GRAPH_MEANS,
+
   EXPORT_NORMAL,
   EXPORT_ATLEAST,
   EXPORT_ATMOST,
@@ -189,6 +198,9 @@ function getCalcedRV(pdf: RV, order: number, named: string, prob_is_100: boolean
   if (prob_is_100) {
     pdf = pdf.map(([val, prob]) => [val, prob * 100] as [number, number]);
   }
+  const pdfMap = new Map<number, {index: number, prob: number}>();
+  pdf.forEach(([val, prob], i) => pdfMap.set(val, {index: i, prob}));
+
   const atmost = pdf.map(([val, prob]) => [val, 0] as [number, number]);
   const atleast = pdf.map(([val, prob]) => [val, 0] as [number, number]);
   let sum = 0;
@@ -218,11 +230,12 @@ function getCalcedRV(pdf: RV, order: number, named: string, prob_is_100: boolean
   const max_x = pdf[pdf.length-1][0];
   const min_y = Math.min(...pdf.map(([_, prob]) => prob));
   const max_y = Math.max(...pdf.map(([_, prob]) => prob));
-  return { order, named, pdf, atleast, atmost, mean, variance, std_dev, min_x, max_x, min_y, max_y, q1_x: q1_x as number, median_x: median_x as number, q3_x: q3_x as number };
+  return { order, named, pdf, pdfMap, atleast, atmost, mean, variance, std_dev, min_x, max_x, min_y, max_y, q1_x: q1_x as number, median_x: median_x as number, q3_x: q3_x as number };
 }
 
 enum DD1ENUM {
   BAR = 'Bar',
+  GRAPH = 'Graph',
   SUMMARY = 'Summary',
   TEXT = 'Text',
   ROLLER = 'Roller',
@@ -248,6 +261,12 @@ function displayTypeToDropdown(init_display?: DISPLAY_TYPE): { i1: DD1ENUM; i2: 
     case DISPLAY_TYPE.BAR_TRANSPOSE:
       return { i1: DD1ENUM.BAR, i2: DD2ENUM.TRANSPOSE };
     case undefined:  // default option
+    case DISPLAY_TYPE.GRAPH_NORMAL:
+      return { i1: DD1ENUM.GRAPH, i2: DD2ENUM.NORMAL };
+    case DISPLAY_TYPE.GRAPH_ATLEAST:
+      return { i1: DD1ENUM.GRAPH, i2: DD2ENUM.ATLEAST };
+    case DISPLAY_TYPE.GRAPH_ATMOST:
+      return { i1: DD1ENUM.GRAPH, i2: DD2ENUM.ATMOST };
     case DISPLAY_TYPE.MEANS:
       return { i1: DD1ENUM.SUMMARY, i2: DD2ENUM.NULL };
     case DISPLAY_TYPE.TEXT:
@@ -282,6 +301,19 @@ function selectedToDisplayType(i1?: DD1ENUM, i2?: DD2ENUM): DISPLAY_TYPE {
       case DD2ENUM.TRANSPOSE:
         return DISPLAY_TYPE.BAR_TRANSPOSE;
     }
+  } else if (i1 === DD1ENUM.GRAPH) {
+    switch (i2) {
+      case undefined:
+      case DD2ENUM.NULL:
+      case DD2ENUM.SUMMARY:
+      case DD2ENUM.NORMAL:
+      case DD2ENUM.TRANSPOSE:
+        return DISPLAY_TYPE.GRAPH_NORMAL
+      case DD2ENUM.ATLEAST:
+        return DISPLAY_TYPE.GRAPH_ATLEAST
+      case DD2ENUM.ATMOST:
+        return DISPLAY_TYPE.GRAPH_ATMOST
+    }
   } else if (i1 === DD1ENUM.SUMMARY) {
     return DISPLAY_TYPE.MEANS;
   } else if (i1 === DD1ENUM.TEXT) {
@@ -314,6 +346,7 @@ function dropdownItemsToDisplay(i1: DD1ENUM, i2: DD2ENUM): { i1s: DD1ENUM[]; i2s
   const i1s = [
     DD1ENUM.BAR, 
     DD1ENUM.SUMMARY, 
+    DD1ENUM.GRAPH,
     // DD1ENUM.TEXT, 
     DD1ENUM.ROLLER, 
     DD1ENUM.EXPORT
@@ -321,6 +354,8 @@ function dropdownItemsToDisplay(i1: DD1ENUM, i2: DD2ENUM): { i1s: DD1ENUM[]; i2s
   switch (i1) {
     case DD1ENUM.BAR:
       return {i1s: i1s, i2s: [DD2ENUM.NORMAL, DD2ENUM.ATLEAST, DD2ENUM.ATMOST, DD2ENUM.TRANSPOSE] }
+    case DD1ENUM.GRAPH:
+      return {i1s: i1s, i2s: [DD2ENUM.NORMAL, DD2ENUM.ATLEAST, DD2ENUM.ATMOST] }
     case DD1ENUM.EXPORT:
       return {i1s: i1s, i2s: [DD2ENUM.NORMAL, DD2ENUM.ATLEAST, DD2ENUM.ATMOST, DD2ENUM.TRANSPOSE, DD2ENUM.SUMMARY] }
     case DD1ENUM.SUMMARY:
