@@ -33,6 +33,7 @@ export enum DISPLAY_TYPE {
   BAR_TRANSPOSE,
   MEANS,
   TEXT,
+  ROLLER,
 }
 
 type TAB_DATA = {
@@ -203,6 +204,7 @@ enum DD1ENUM {
   BAR = 'Bar',
   SUMMARY = 'Summary',
   TEXT = 'Text',
+  ROLLER = 'Roller',
 }
 enum DD2ENUM {
   NORMAL = 'Normal',
@@ -214,8 +216,6 @@ enum DD2ENUM {
 function displayTypeToDropdown(init_display?: DISPLAY_TYPE): { i1: DD1ENUM; i2: DD2ENUM; } {
   // DISPLAY_TYPE => text on screen
   switch (init_display) {
-    default:
-      return { i1: DD1ENUM.BAR, i2: DD2ENUM.NORMAL };
     case DISPLAY_TYPE.BAR_NORMAL:
       return { i1: DD1ENUM.BAR, i2: DD2ENUM.NORMAL };
     case DISPLAY_TYPE.BAR_ATLEAST:
@@ -228,12 +228,17 @@ function displayTypeToDropdown(init_display?: DISPLAY_TYPE): { i1: DD1ENUM; i2: 
       return { i1: DD1ENUM.SUMMARY, i2: DD2ENUM.NULL };
     case DISPLAY_TYPE.TEXT:
       return { i1: DD1ENUM.TEXT, i2: DD2ENUM.NULL };
+    case undefined:  // default option
+    case DISPLAY_TYPE.ROLLER:
+      return { i1: DD1ENUM.ROLLER, i2: DD2ENUM.NULL };
   }
 }
 function selectedToDisplayType(i1?: DD1ENUM, i2?: DD2ENUM): DISPLAY_TYPE {
   // text on screen => DISPLAY_TYPE
   if (i1 === DD1ENUM.BAR) {
     switch (i2) {
+      case undefined:  // no second dropdown => normal
+      case DD2ENUM.NULL:
       case DD2ENUM.NORMAL:
         return DISPLAY_TYPE.BAR_NORMAL;
       case DD2ENUM.ATLEAST:
@@ -242,28 +247,28 @@ function selectedToDisplayType(i1?: DD1ENUM, i2?: DD2ENUM): DISPLAY_TYPE {
         return DISPLAY_TYPE.BAR_ATMOST;
       case DD2ENUM.TRANSPOSE:
         return DISPLAY_TYPE.BAR_TRANSPOSE;
-      default:  // no second dropdown => normal
-        return DISPLAY_TYPE.BAR_NORMAL;
     }
   } else if (i1 === DD1ENUM.SUMMARY) {
     return DISPLAY_TYPE.MEANS;
   } else if (i1 === DD1ENUM.TEXT) {
     return DISPLAY_TYPE.TEXT;
-  } else {  // no first dropdown => normal
+  } else if (i1 === DD1ENUM.ROLLER) {
+    return DISPLAY_TYPE.ROLLER;
+  } else if (i1 === undefined) {  // no first dropdown => normal
     return DISPLAY_TYPE.BAR_NORMAL;
-    
   }
+  console.assert(false, 'SHOULD NEVER HAPPEN', i1, i2);
+  return DISPLAY_TYPE.BAR_NORMAL;
 }
 function dropdownItemsToDisplay(i1: DD1ENUM, i2: DD2ENUM): { i1s: DD1ENUM[]; i2s: DD2ENUM[]; } {
   // text on screen => all possible dropdown items
-  const i1s = [DD1ENUM.BAR, DD1ENUM.SUMMARY, DD1ENUM.TEXT, ];
+  const i1s = [DD1ENUM.BAR, DD1ENUM.SUMMARY, DD1ENUM.TEXT, DD1ENUM.ROLLER];
   switch (i1) {
     case DD1ENUM.BAR:
       return {i1s: i1s, i2s: [DD2ENUM.NORMAL, DD2ENUM.ATLEAST, DD2ENUM.ATMOST, DD2ENUM.TRANSPOSE] }
     case DD1ENUM.SUMMARY:
     case DD1ENUM.TEXT:
-        return {i1s: i1s, i2s: [] }
-    default:
-      throw new Error(`Unknown dropdown item ${i1}`);
+    case DD1ENUM.ROLLER:
+      return {i1s: i1s, i2s: [] }
   }
 }

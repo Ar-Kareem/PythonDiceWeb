@@ -69,7 +69,10 @@ export class OutputchartComponent {
     }
     // console.log('creating chart for', multiRvData, displayType);
     switch (displayType) {
+
+      // do nothing for the following
       case DISPLAY_TYPE.TEXT:
+      case DISPLAY_TYPE.ROLLER:
         break;
       case DISPLAY_TYPE.MEANS:
         this.setupMeanChart(multiRvData);

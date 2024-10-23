@@ -23,6 +23,7 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { FloatLabelModule } from 'primeng/floatlabel';
+import { CardModule } from 'primeng/card';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -40,6 +41,7 @@ import { GuiProdComponent } from './outputs/gui-output/gui-prod/gui-prod.compone
 import { PyodideService } from './localbackend/local.service';
 import { OutputareaComponent } from './outputs/outputarea/outputarea.component';
 import { OutputchartComponent } from './outputs/outputarea/outputchart/outputchart.component';
+import { RollerComponent } from './outputs/outputarea/roller/roller.component';
 
 @NgModule({
   declarations: [
@@ -52,6 +54,7 @@ import { OutputchartComponent } from './outputs/outputarea/outputchart/outputcha
     GuiProdComponent,
     OutputareaComponent,
     OutputchartComponent,
+    RollerComponent,
   ],
   imports: [
     BrowserModule,
@@ -76,6 +79,7 @@ import { OutputchartComponent } from './outputs/outputarea/outputchart/outputcha
     ProgressBarModule,
     PanelMenuModule,
     FloatLabelModule,
+    CardModule,
     EffectsModule.forRoot([
       HerosEffects
     ]),
