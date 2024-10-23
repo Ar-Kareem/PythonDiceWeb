@@ -25,6 +25,7 @@ export class OutputchartComponent {
 
   @ViewChildren('chart') chartsRef: QueryList<ElementRef> = new QueryList();
   chartsData: (Chart|null)[] = [];
+  displayedText: string|undefined;
 
   _multiRvData: MULTI_RV_DATA|undefined;  // INPUT
   _displayType: DISPLAY_TYPE|undefined;  // INPUT
@@ -63,6 +64,7 @@ export class OutputchartComponent {
   }
 
   private initGraph(multiRvData?: MULTI_RV_DATA, displayType?: DISPLAY_TYPE) {
+    this.displayedText = undefined;
     if (this.chartsData.length > 0) {  // destroy old charts
       this.chartsData.forEach(chart => !!chart && chart.destroy());
       this.chartsData = [];
@@ -167,12 +169,15 @@ export class OutputchartComponent {
     });
   }
 
-
   private setupGraph(multiRvData: MULTI_RV_DATA, displayType: DISPLAY_TYPE) {
+    const uniqueVals = Array.from(multiRvData.transposed.keys());
+    if (uniqueVals.length < 2) {
+      this.displayedText = 'Need at least 2 Unique values to display graph';
+      return;
+    }
     this.setCanvasCount(1);
     if (this.chartsRef.length !== 1) throw new Error('Expected exactly one chart canvas');
 
-    const uniqueVals = Array.from(multiRvData.transposed.keys());
     const x_labels = uniqueVals.map(v => v.toString());
     const datasets = multiRvData.id_order.map(rv_id => {
       const rv = multiRvData.rvs[rv_id];
@@ -186,6 +191,10 @@ export class OutputchartComponent {
   }
 
   private setupGraphTranspose(multiRvData: MULTI_RV_DATA) {
+    if (multiRvData.id_order.length < 2) {
+      this.displayedText = 'Need at least 2 Outputs to display transpose graph';
+      return;
+    }
     this.setCanvasCount(1);
     if (this.chartsRef.length !== 1) throw new Error('Expected exactly one chart canvas');
 
@@ -200,8 +209,11 @@ export class OutputchartComponent {
     this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
   }
 
-
   private setupGraphMeans(multiRvData: MULTI_RV_DATA) {
+    if (multiRvData.id_order.length < 2) {
+      this.displayedText = 'Need at least 2 Outputs to display summary graph';
+      return;
+    }
     this.setCanvasCount(1);
     if (this.chartsRef.length !== 1) throw new Error('Expected exactly one chart canvas');
 

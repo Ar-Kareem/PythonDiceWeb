@@ -5,4 +5,7 @@
       {{!!chartData ? chartData : ''}}
     </canvas>
   </div>
+  <div class="p-parent" *ngIf="!!displayedText">
+    <p>{{ displayedText }}</p>
+  </div>
 </div>
