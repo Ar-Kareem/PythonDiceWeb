@@ -45,7 +45,7 @@ export enum DISPLAY_TYPE {
   GRAPH_ATLEAST,
   GRAPH_ATMOST,
   GRAPH_TRANSPOSE,
-  // GRAPH_MEANS,
+  GRAPH_MEANS,
 
   EXPORT_NORMAL,
   EXPORT_ATLEAST,
@@ -270,7 +270,6 @@ function displayTypeToDropdown(init_display?: DISPLAY_TYPE): { i1: DD1ENUM; i2: 
       return { i1: DD1ENUM.BAR, i2: DD2ENUM.TRANSPOSE };
 
     // GRAPHS
-    case undefined:  // default option
     case DISPLAY_TYPE.GRAPH_NORMAL:
       return { i1: DD1ENUM.GRAPH, i2: DD2ENUM.NORMAL };
     case DISPLAY_TYPE.GRAPH_ATLEAST:
@@ -279,6 +278,9 @@ function displayTypeToDropdown(init_display?: DISPLAY_TYPE): { i1: DD1ENUM; i2: 
       return { i1: DD1ENUM.GRAPH, i2: DD2ENUM.ATMOST };
     case DISPLAY_TYPE.GRAPH_TRANSPOSE:
       return { i1: DD1ENUM.GRAPH, i2: DD2ENUM.TRANSPOSE };
+    case undefined:  // default option
+    case DISPLAY_TYPE.GRAPH_MEANS:
+      return { i1: DD1ENUM.GRAPH, i2: DD2ENUM.SUMMARY };
 
     // OTHER
     case DISPLAY_TYPE.MEANS:
@@ -321,7 +323,6 @@ function selectedToDisplayType(i1?: DD1ENUM, i2?: DD2ENUM): DISPLAY_TYPE {
     switch (i2) {
       case undefined:
       case DD2ENUM.NULL:
-      case DD2ENUM.SUMMARY:
       case DD2ENUM.NORMAL:
         return DISPLAY_TYPE.GRAPH_NORMAL
       case DD2ENUM.ATLEAST:
@@ -330,6 +331,8 @@ function selectedToDisplayType(i1?: DD1ENUM, i2?: DD2ENUM): DISPLAY_TYPE {
         return DISPLAY_TYPE.GRAPH_ATMOST
       case DD2ENUM.TRANSPOSE:
         return DISPLAY_TYPE.GRAPH_TRANSPOSE
+      case DD2ENUM.SUMMARY:
+        return DISPLAY_TYPE.GRAPH_MEANS
     }
   } else if (i1 === DD1ENUM.SUMMARY) {
     return DISPLAY_TYPE.MEANS;
@@ -372,7 +375,7 @@ function dropdownItemsToDisplay(i1: DD1ENUM, i2: DD2ENUM): { i1s: DD1ENUM[]; i2s
     case DD1ENUM.BAR:
       return {i1s: i1s, i2s: [DD2ENUM.NORMAL, DD2ENUM.ATLEAST, DD2ENUM.ATMOST, DD2ENUM.TRANSPOSE] }
     case DD1ENUM.GRAPH:
-      return {i1s: i1s, i2s: [DD2ENUM.NORMAL, DD2ENUM.ATLEAST, DD2ENUM.ATMOST, DD2ENUM.TRANSPOSE] }
+      return {i1s: i1s, i2s: [DD2ENUM.NORMAL, DD2ENUM.ATLEAST, DD2ENUM.ATMOST, DD2ENUM.TRANSPOSE, DD2ENUM.SUMMARY] }
     case DD1ENUM.EXPORT:
       return {i1s: i1s, i2s: [DD2ENUM.NORMAL, DD2ENUM.ATLEAST, DD2ENUM.ATMOST, DD2ENUM.TRANSPOSE, DD2ENUM.SUMMARY] }
     case DD1ENUM.SUMMARY:
