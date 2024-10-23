@@ -8,9 +8,9 @@ import { DISPLAY_TYPE, MULTI_RV_DATA } from '../outputarea.component';
 Chart.register(BarWithErrorBarsController, BarWithErrorBar);
 
 const CHART_HEIGHT_PX = {
-  base: 48,  // start with this
-  per_row: 22,  // add for each row
-  for_title: 64,  // extra if title
+  base: 50,  // start with this
+  per_row: 20,  // add for each row
+  for_title: 124,  // extra if title
 }
 
 @Component({
@@ -96,7 +96,7 @@ export class OutputchartComponent {
     const whiskers = rvs.map(({std_dev}) => +std_dev.toFixed(2))
     const chartObj = getHorizBarWithErrorBars(labelsFormatted, valuesFormatted, whiskers, 'Mean Roll');
     this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, chartObj);
-    const h = CHART_HEIGHT_PX.base + (CHART_HEIGHT_PX.per_row + 10) * labelsFormatted.length + CHART_HEIGHT_PX.for_title;
+    const h = CHART_HEIGHT_PX.base + (CHART_HEIGHT_PX.per_row) * labelsFormatted.length + CHART_HEIGHT_PX.for_title;
     this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
 }
 
