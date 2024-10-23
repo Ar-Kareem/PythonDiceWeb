@@ -7,6 +7,12 @@ import { DISPLAY_TYPE, MULTI_RV_DATA } from '../outputarea.component';
 // register controller in chart.js and ensure the defaults are set
 Chart.register(BarWithErrorBarsController, BarWithErrorBar);
 
+const CHART_HEIGHT_PX = {
+  base: 64,  // start with this
+  per_row: 22,  // add for each row
+  for_title: 64,  // extra if title
+}
+
 @Component({
   selector: 'app-outputchart',
   templateUrl: './outputchart.component.html',
@@ -82,20 +88,15 @@ export class OutputchartComponent {
     }
   }
 
-  private PER_ROW = 24;
-  private STABLE = 55;
-  private EXTRA_FOR_AXIS_TITLE = 64;
   private setupMeanChart(multiRvData: MULTI_RV_DATA) {
     this.setCanvasCount(1);
     if (this.chartsRef.length !== 1) throw new Error('Expected exactly one chart canvas');
-    const rvs = multiRvData.rvs;
-    const labels = Object.values(rvs).map(({named, mean}) => `${named} ${mean.toFixed(2).padStart(5, ' ')}`)
-    const data = Object.values(rvs).map(({mean}) => +mean.toFixed(2))
-    const whiskers = Object.values(rvs).map(({std_dev}) => +std_dev.toFixed(2))
-    const meanChartData = this.getHorizBarWithErrorBars(labels, data, whiskers, 'means');
+    const rvs = Object.values(multiRvData.rvs);
+    const {labelsFormatted, valuesFormatted} = setupLabelsAndData(rvs.map(({named}) => named), rvs.map(({mean}) => mean));
+    const whiskers = rvs.map(({std_dev}) => +std_dev.toFixed(2))
+    const meanChartData = getHorizBarWithErrorBars(labelsFormatted, valuesFormatted, whiskers, 'Mean Roll');
     this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, meanChartData)
-    const h = this.STABLE + (this.PER_ROW + 10) * labels.length + this.EXTRA_FOR_AXIS_TITLE;
-    console.log('setting height to', h, labels.length);
+    const h = CHART_HEIGHT_PX.base + (CHART_HEIGHT_PX.per_row + 10) * labelsFormatted.length + CHART_HEIGHT_PX.for_title;
     this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
 }
 
@@ -106,13 +107,11 @@ export class OutputchartComponent {
     this.chartsRef.forEach((chart, i) => {
       const rv = multiRvData.rvs[multiRvData.id_order[i]];
       const pdf = type === DISPLAY_TYPE.ATLEAST ? rv.atleast : (type === DISPLAY_TYPE.ATMOST ? rv.atmost : rv.pdf);
-      const labels = pdf.map(([val, prob]) => `${val} ${prob.toFixed(2).padStart(5, ' ')}%`);
-      const data = pdf.map(([_, prob]) => prob);
+      const {labelsFormatted, valuesFormatted} = setupLabelsAndData(pdf.map(([val, _]) => `${val}`), pdf.map(([_, prob]) => prob), '%');
       const title = rv.named + ` (${rv.mean.toFixed(2)} ± ${rv.std_dev.toFixed(2)})`;
-      const pdfChart = this.getHorizBarChart(labels, data, title, 100);
+      const pdfChart = getHorizBarChart(labelsFormatted, valuesFormatted, title, 100);
       this.chartsData[i] = new Chart(chart.nativeElement, pdfChart);
-      const h = this.STABLE + this.PER_ROW * labels.length;
-      console.log('setting height to', h, labels.length);
+      const h = CHART_HEIGHT_PX.base + CHART_HEIGHT_PX.per_row * labelsFormatted.length;
       chart.nativeElement.parentNode.style.height = `${h}px`;
     });
   }
@@ -121,14 +120,13 @@ export class OutputchartComponent {
     const allVals = Object.values(multiRvData.rvs).map(rv => rv.pdf.map(([val, prob]) => val));
     const uniqueVals = Array.from(new Set(allVals.flat())).sort((a, b) => a - b);
     // val -> [(name, prob), ...]
-    const valNameProb: {[val: number]: (string|number|undefined)[][]} = {}
+    const valNameProb: {[val: number]: {n: string, p?: number}[]} = {}
     uniqueVals.forEach(val => {
-      valNameProb[val] = multiRvData.id_order.map(id => [multiRvData.rvs[id].named, undefined]);
+      valNameProb[val] = multiRvData.id_order.map(id => ({n: multiRvData.rvs[id].named}));
     })
     multiRvData.id_order.forEach((id, i) => {
-      const rv = multiRvData.rvs[id];
-      rv.pdf.forEach(([val, prob]) => {
-        valNameProb[val][i][1] = prob;
+      multiRvData.rvs[id].pdf.forEach(([val, prob]) => {
+        valNameProb[val][i].p = prob;
       });
     });
     const N = uniqueVals.length;
@@ -136,150 +134,113 @@ export class OutputchartComponent {
     if (this.chartsRef.length !== N) throw new Error('Expected exactly one chart canvas per unique value');
     this.chartsRef.forEach((chart, i) => {
       const val = uniqueVals[i];
-      const rows = valNameProb[val].filter(([_, prob]) => prob !== undefined);
-      const labels = rows.map(([name, prob]) => `${name} ${(prob as number).toFixed(2).padStart(5, ' ')}%`);
-      const data = rows.map(([_, prob]) => prob as number);
-      const title = `${val}`;
-      const pdfChart = this.getHorizBarChart(labels, data, title, 100);
+      const rows = valNameProb[val].filter(obj => obj.p !== undefined);
+      const {labelsFormatted, valuesFormatted} = setupLabelsAndData(rows.map(obj => obj.n), rows.map(obj => obj.p!), '%');
+      const pdfChart = getHorizBarChart(labelsFormatted, valuesFormatted, `${val}`, 100);
       this.chartsData[i] = new Chart(chart.nativeElement, pdfChart);
-      const h = this.STABLE + this.PER_ROW * labels.length;
-      console.log('setting height to', h, labels.length);
+      const h = CHART_HEIGHT_PX.base + CHART_HEIGHT_PX.per_row * labelsFormatted.length;
       chart.nativeElement.parentNode.style.height = `${h}px`;
     });
   }
+}
 
-  private getHorizBarChart(labels: string[], data: number[], title: string, maxprob?: number): any {
-    return {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            data: data,
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        plugins: {
-          title: {
-            display: true,
-            text: title,
-            align: 'top',
-            color: '#ddd',
-            font: {
-              size: 16,
-              weight: 'bolder',
-              family: 'monospace',
-            }
-          },
-          legend: {
-            display: false,
-          }
-        },
-        maintainAspectRatio: false,
-        indexAxis: 'y',
-        scales: {
-          y: {
-            ticks: {
-              font: {
-                family: 'Consolas',
-                size: 14,
-              },
-              color: '#fff',
-            },
-          },
-          x: {
-            // title: {
-            //   text: 'Probability',
-            //   display: true,
-            //   color: '#fff',
-            //   font: {
-            //     family: 'Consolas',
-            //     size: 16,
-            //   },
-            // },
-            display: false,
-            ticks: {
-              color: '#fff',
-            },
-            min: 0,
-            max: maxprob,
-          },
-        },
-      },
-    };
-  }
 
-  private getHorizBarWithErrorBars(labels: string[], data: number[], whiskers: number[], title: string, maxprob?: number): any {
-    return {
-      type: 'barWithErrorBars',
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            // label: title,
-            data: data.map((v, i) => ({
-              x: v,
-              xMin: +(v - whiskers[i]).toFixed(2),
-              xMax: +(v + whiskers[i]).toFixed(2),
-            })),
-            errorBarLineWidth: 2,
-            errorBarWhiskerLineWidth: 2,
-            errorBarWhiskerRatio: 0.35,
-            errorBarColor: '#ddd',
-            errorBarWhiskerColor: '#ddd',
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        plugins: {
-          title: {
-            display: true,
-            text: title,
-            align: 'top',
-            color: '#ddd',
-            font: {
-              size: 16,
-              weight: 'bolder',
-              family: 'monospace',
-            }
-          },
-          legend: {
-            display: false,
-          }
+
+function getHorizBarChart(labels: string[], data: number[], title: string, maxprob?: number): any {
+  return {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          data: data,
+          borderWidth: 1,
         },
-        maintainAspectRatio: false,
-        indexAxis: 'y',
-        scales: {
-          y: {
-            ticks: {
-              font: {
-                family: 'Consolas',
-                size: 14,
-              },
-              color: '#fff',
-            },
-          },
-          x: {
-            title: {
-              text: 'Mean Roll',
-              display: true,
-              color: '#fff',
-              font: {
-                family: 'Consolas',
-                size: 16,
-              },
-            },
-            ticks: {
-              color: '#fff',
-            },
-            min: 0,
-            max: maxprob,
-          },
+      ],
+    },
+    options: {
+      plugins: plugin_settings(title),
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      scales: {
+        y: tick_style,
+        x: {
+          display: false,
+          min: 0,
+          max: maxprob,
         },
       },
-    };
-  }
+    },
+  };
+}
+
+function getHorizBarWithErrorBars(labels: string[], data: number[], whiskers: number[], title: string, maxprob?: number): any {
+  return {
+    type: 'barWithErrorBars',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          // label: title,
+          data: data.map((v, i) => ({
+            x: v,
+            xMin: +(v - whiskers[i]).toFixed(2),
+            xMax: +(v + whiskers[i]).toFixed(2),
+          })),
+          errorBarLineWidth: 2,
+          errorBarWhiskerLineWidth: 2,
+          errorBarWhiskerRatio: 0.35,
+          errorBarColor: '#ddd',
+          errorBarWhiskerColor: '#ddd',
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      plugins: plugin_settings(title),
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      scales: {
+        y: tick_style,
+        x: {
+          ...tick_style,
+          min: 0,
+          max: maxprob,
+        },
+      },
+    },
+  };
+}
+
+const tick_style = {
+  ticks: {
+    font: {
+      family: '"Courier New", Courier, monospace',
+      size: 14,
+    },
+    color: '#fff',
+  },
+};
+const plugin_settings = (title: string) => ({
+  title: {
+    display: true,
+    text: title,
+    align: 'top',
+    color: '#ddd',
+    font: {
+      size: 16,
+      weight: 'bolder',
+      family: '"Courier New", Courier, monospace',
+    }
+  },
+  legend: {
+    display: false,
+  },
+});
+
+function setupLabelsAndData(labels: string[], values: number[], suffix: string = '') {
+  const numOfSpaces = Math.max(...values.map(p => p.toFixed(2).length)) + 1;
+  const labelsFormatted = values.map((_, i) => `${labels[i]} ${values[i].toFixed(2).padStart(numOfSpaces, ' ')}${suffix}`)
+  const valuesFormatted = values.map(p => +p.toFixed(2))
+  return {labelsFormatted, valuesFormatted};
 }
