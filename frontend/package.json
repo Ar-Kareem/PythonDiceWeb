@@ -23,6 +23,7 @@
     "@angular/ssr": "^18.2.7",
     "@ngrx/effects": "^18.1.0",
     "@ngrx/store": "^18.1.0",
+    "@sgratzl/chartjs-chart-boxplot": "^4.4.3",
     "chart.js": "^4.4.5",
     "chartjs-chart-error-bars": "^4.4.3",
     "express": "^4.18.2",

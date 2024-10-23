@@ -1,11 +1,14 @@
 import { ChangeDetectorRef, Component, ElementRef, Input, QueryList, ViewChildren } from '@angular/core';
 import { Chart } from 'chart.js/auto';
 import { BarWithErrorBarsController, BarWithErrorBar } from 'chartjs-chart-error-bars';
+import { BoxPlotController, BoxAndWiskers } from '@sgratzl/chartjs-chart-boxplot';
 
 import { DISPLAY_TYPE, MULTI_RV_DATA } from '../outputarea.component';
 
 // register controller in chart.js and ensure the defaults are set
 Chart.register(BarWithErrorBarsController, BarWithErrorBar);
+Chart.register(BoxPlotController, BoxAndWiskers);
+
 
 const CHART_HEIGHT_PX = {
   base: 50,  // start with this
@@ -97,15 +100,28 @@ export class OutputchartComponent {
   }
 
   private setupMeanChart(multiRvData: MULTI_RV_DATA) {
-    this.setCanvasCount(1);
-    if (this.chartsRef.length !== 1) throw new Error('Expected exactly one chart canvas');
+    this.setCanvasCount(2);
+    if (this.chartsRef.length !== 2) throw new Error('Expected exactly one chart canvas');
+
     const rvs = Object.values(multiRvData.rvs);
+    const min_x = Math.min(...rvs.map(({min_x}) => min_x)) - 1;
+    const max_x = Math.max(...rvs.map(({max_x}) => max_x)) + 1;
+
     const {labelsFormatted, valuesFormatted} = setupLabelsAndData(rvs.map(({named, mean}) => [named, mean]), '');
     const whiskers = rvs.map(({std_dev}) => +std_dev.toFixed(2))
     const chartObj = getHorizBarWithErrorBars(labelsFormatted, valuesFormatted, whiskers, 'Mean Roll');
     this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, chartObj);
     const h = CHART_HEIGHT_PX.base + (CHART_HEIGHT_PX.per_row) * labelsFormatted.length + CHART_HEIGHT_PX.for_title;
     this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
+
+    // boxplot
+    const boxData = rvs.map(({min_x, q1_x, median_x, mean, q3_x, max_x}) => ({whiskerMax: min_x, min: min_x, q1: q1_x, mean, median: median_x, q3: q3_x, whiskerMin: max_x, max: max_x}));
+    const boxLabels = rvs.map(({named}) => named);
+    console.log('boxplot', boxLabels, boxData, min_x, max_x);
+    const boxChartObj = getHorizBoxPlot(boxLabels, boxData, 'Box Plot', min_x, max_x);
+    this.chartsData[1] = new Chart(this.chartsRef.last.nativeElement, boxChartObj);
+    const h2 = CHART_HEIGHT_PX.base + (CHART_HEIGHT_PX.per_row) * boxLabels.length + CHART_HEIGHT_PX.for_title;
+    this.chartsRef.last.nativeElement.parentNode.style.height = `${h2}px`;
 }
 
   private setupPdfChart(multiRvData: MULTI_RV_DATA, type: DISPLAY_TYPE) {
@@ -209,6 +225,34 @@ function getHorizBarWithErrorBars(labels: string[], data: number[], whiskers: nu
   };
 }
 
+function getHorizBoxPlot(labels: string[], data: {min: number, whiskerMax: number, q1: number, median: number, mean: number, q3: number, max: number, whiskerMin: number}[], title: string, minval: number, maxval: number): any {
+  return {
+    type: 'boxplot',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: title,
+          data: data,
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      plugins: plugin_settings(title),
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      scales: {
+        y: tick_style,
+        x: {
+          ...tick_style,
+          min: minval,
+          max: maxval,
+        },
+      },
+    },
+  };
+}
 const tick_style = {
   ticks: {
     font: {

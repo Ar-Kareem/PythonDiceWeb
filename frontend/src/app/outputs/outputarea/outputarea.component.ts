@@ -20,6 +20,9 @@ export type SINGLE_RV_DATA = {
   max_x: number,
   min_y: number,
   max_y: number,
+  q1_x: number,
+  median_x: number,
+  q3_x: number,
 }
 export type MULTI_RV_DATA = {
   id_order: string[],
@@ -193,16 +196,29 @@ function getCalcedRV(pdf: RV, order: number, named: string, prob_is_100: boolean
     sum += pdf[i][1];
     atmost[i][1] = sum;
   }
+  // next is "atleast" which is the cdf. calculate more useful stats
   sum = 0;
+  let q1_x = null;  // 25th percentile
+  let median_x = null;
+  let q3_x = null;  // 75th percentile
   for (let i = pdf.length-1; i >= 0; i--) {
     sum += pdf[i][1];
     atleast[i][1] = sum;
+    if (q1_x == null && atleast[i][1] >= .25*(prob_is_100?100:1)) {
+      q1_x = pdf[i][0];
+    }
+    if (median_x == null && atleast[i][1] >= .50*(prob_is_100?100:1)) {
+      median_x = pdf[i][0];
+    }
+    if (q3_x == null && atleast[i][1] >= .75*(prob_is_100?100:1)) {
+      q3_x = pdf[i][0];
+    }
   }
   const min_x = pdf[0][0];
   const max_x = pdf[pdf.length-1][0];
   const min_y = Math.min(...pdf.map(([_, prob]) => prob));
   const max_y = Math.max(...pdf.map(([_, prob]) => prob));
-  return { order, named, pdf, atleast, atmost, mean, variance, std_dev, min_x, max_x, min_y, max_y };
+  return { order, named, pdf, atleast, atmost, mean, variance, std_dev, min_x, max_x, min_y, max_y, q1_x: q1_x as number, median_x: median_x as number, q3_x: q3_x as number };
 }
 
 enum DD1ENUM {
@@ -223,7 +239,6 @@ enum DD2ENUM {
 function displayTypeToDropdown(init_display?: DISPLAY_TYPE): { i1: DD1ENUM; i2: DD2ENUM; } {
   // DISPLAY_TYPE => text on screen
   switch (init_display) {
-    case undefined:  // default option
     case DISPLAY_TYPE.BAR_NORMAL:
       return { i1: DD1ENUM.BAR, i2: DD2ENUM.NORMAL };
     case DISPLAY_TYPE.BAR_ATLEAST:
@@ -232,6 +247,7 @@ function displayTypeToDropdown(init_display?: DISPLAY_TYPE): { i1: DD1ENUM; i2: 
       return { i1: DD1ENUM.BAR, i2: DD2ENUM.ATMOST };
     case DISPLAY_TYPE.BAR_TRANSPOSE:
       return { i1: DD1ENUM.BAR, i2: DD2ENUM.TRANSPOSE };
+    case undefined:  // default option
     case DISPLAY_TYPE.MEANS:
       return { i1: DD1ENUM.SUMMARY, i2: DD2ENUM.NULL };
     case DISPLAY_TYPE.TEXT:
@@ -254,7 +270,7 @@ function selectedToDisplayType(i1?: DD1ENUM, i2?: DD2ENUM): DISPLAY_TYPE {
   // text on screen => DISPLAY_TYPE
   if (i1 === DD1ENUM.BAR) {
     switch (i2) {
-      case undefined:  // no second dropdown => normal
+      case undefined:
       case DD2ENUM.NULL:
       case DD2ENUM.SUMMARY:
       case DD2ENUM.NORMAL:
@@ -274,7 +290,7 @@ function selectedToDisplayType(i1?: DD1ENUM, i2?: DD2ENUM): DISPLAY_TYPE {
     return DISPLAY_TYPE.ROLLER;
   } else if (i1 === DD1ENUM.EXPORT) {
     switch (i2) {
-      case undefined:  // no second dropdown => normal
+      case undefined:
       case DD2ENUM.NULL:
       case DD2ENUM.NORMAL:
         return DISPLAY_TYPE.EXPORT_NORMAL;
@@ -287,7 +303,7 @@ function selectedToDisplayType(i1?: DD1ENUM, i2?: DD2ENUM): DISPLAY_TYPE {
       case DD2ENUM.SUMMARY:
         return DISPLAY_TYPE.EXPORT_MEANS;
     }
-  } else if (i1 === undefined) {  // no first dropdown => normal
+  } else if (i1 === undefined) {
     return DISPLAY_TYPE.BAR_NORMAL;
   }
   console.assert(false, 'SHOULD NEVER HAPPEN', i1, i2);
