@@ -1,0 +1,45 @@
+.roller-inputs {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.roller-outputs {
+  padding: 35px;
+
+  @keyframes smooth-appear {
+    to{
+      // bottom: 200px;
+      opacity:1;
+      margin-bottom: 0px;
+    }
+  }
+
+  ::ng-deep .card {
+    border-bottom: 8px solid var(--primary-color);
+    border-left: 2px solid var(--primary-color);
+    border-right: 2px solid var(--primary-color);
+    border-radius: 20px;
+
+    padding: 20px;
+    opacity:0;
+    margin-bottom: -100px;
+    animation: smooth-appear 1s ease forwards;
+  }
+}
+.card-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  p {
+      margin: 0 auto;
+      max-width: 600px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 1.2em;
+      color:white;
+  }
+}

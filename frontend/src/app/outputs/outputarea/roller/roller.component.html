@@ -1,0 +1,38 @@
+<div *ngIf="isDisplayed" style="min-height: 300px;">
+
+<div class="roller-inputs">
+  <p-dropdown 
+    [options]="outputsDropdown" 
+    [(ngModel)]="selectedOutput" 
+    optionLabel="label"
+    optionValue="value"
+  />
+
+  <p-inputNumber 
+    [(ngModel)]="inputNumber" 
+    [showButtons]="true" 
+    size="3"
+    placeholder="#"
+    buttonLayout="horizontal" 
+    spinnerMode="vertical" 
+    inputId="horizontal"
+    decrementButtonClass="p-button-info"
+    incrementButtonClass="p-button-info" 
+    incrementButtonIcon="pi pi-plus" 
+    decrementButtonIcon="pi pi-minus" />
+
+  <p-button label="Roll" (click)="rollDice()" />
+</div>
+
+
+<div class="roller-outputs">
+  <div *ngFor="let r of rollResults; trackBy: trackByFn">
+    <p-card [header]="r.name" [styleClass]="'card'">
+      <div class="card-content">
+        <p>{{ r.roll }}</p>
+      </div>
+    </p-card>
+  </div>
+</div>
+
+</div>

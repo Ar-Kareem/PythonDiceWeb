@@ -22,21 +22,27 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { PanelMenuModule } from 'primeng/panelmenu';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { CardModule } from 'primeng/card';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ToastComponent } from './toast/toast.component';
 import { HeroesComponent } from './heroes/heroes.component';
 import { TabviewComponent } from './tabview/tabview.component';
-import { GuiOutputComponent } from './gui-output/gui-output.component';
-import { GuiCompComponent } from './gui-output/gui-comp/gui-comp.component';
+import { GuiOutputComponent } from './outputs/gui-output/gui-output.component';
+import { GuiCompComponent } from './outputs/gui-output/gui-comp/gui-comp.component';
 
 import { herosFeatureKey, herosReducer } from './heroes/heros.reducer';
 import { toastFeatureKey, toastReducer } from './toast/toast.reducer';
 import { tabviewFeatureKey, tabviewReducer } from './tabview/tabview.reducer';
 import { HerosEffects } from './heroes/heros.effects';
-import { GuiProdComponent } from './gui-output/gui-prod/gui-prod.component';
+import { GuiProdComponent } from './outputs/gui-output/gui-prod/gui-prod.component';
 import { PyodideService } from './localbackend/local.service';
+import { OutputareaComponent } from './outputs/outputarea/outputarea.component';
+import { OutputchartComponent } from './outputs/outputarea/outputchart/outputchart.component';
+import { RollerComponent } from './outputs/outputarea/roller/roller.component';
+import { ExporterComponent } from './outputs/outputarea/exporter/exporter.component';
 
 @NgModule({
   declarations: [
@@ -47,6 +53,10 @@ import { PyodideService } from './localbackend/local.service';
     GuiOutputComponent,
     GuiCompComponent,
     GuiProdComponent,
+    OutputareaComponent,
+    OutputchartComponent,
+    RollerComponent,
+    ExporterComponent,
   ],
   imports: [
     BrowserModule,
@@ -70,6 +80,8 @@ import { PyodideService } from './localbackend/local.service';
     RadioButtonModule,
     ProgressBarModule,
     PanelMenuModule,
+    FloatLabelModule,
+    CardModule,
     EffectsModule.forRoot([
       HerosEffects
     ]),

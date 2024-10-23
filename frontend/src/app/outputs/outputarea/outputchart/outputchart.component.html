@@ -1,0 +1,11 @@
+
+<div>
+  <div *ngFor="let chartData of chartsData ; trackBy: alwaysTrue" style="border-bottom: 1px solid #ccc;">
+    <canvas #chart>
+      {{!!chartData ? chartData : ''}}
+    </canvas>
+  </div>
+  <div class="p-parent" *ngIf="!!displayedText">
+    <p>{{ displayedText }}</p>
+  </div>
+</div>

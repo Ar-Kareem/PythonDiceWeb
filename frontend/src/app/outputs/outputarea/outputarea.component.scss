@@ -1,0 +1,52 @@
+
+.calc-div {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 10px;
+  align-items: center;
+
+  margin-top: 7px;
+  margin-left: 3px;
+  margin-bottom: 10px;
+}
+
+.bttn-padding {
+  &.center-btn {
+    display: flex;
+    justify-content: center;
+  }
+  .calculate-bttn {
+    padding: 0px;
+  }
+}
+
+.outputs {
+  width: 100%;
+}
+.text-output {
+  user-select: none; /* Prevent text selection */
+  overflow: hidden; /* Prevent scrollbars */
+  resize: none; /* Disable manual resizing */
+  width: 100%;
+  // background-color: var(--surface-ground);
+  textarea {
+    width: 100%;
+    padding: 10px;
+    // background-color: var(--surface-ground);
+    max-width: 100%;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
+  }
+}
+
+.myhidediv{
+  // display: none;  // display none makes ctrl-z not work
+  // overflow: hidden;  // makes ctrl-z not work
+  // workaround to hide div without breaking ctrl-z
+  height: 0;
+  visibility: collapse;
+  // i think below fixes black bar on bottom of page on mobile
+  position: relative;
+  top: -1000px;
+  left: -1000px;
+}

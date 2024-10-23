@@ -19,6 +19,7 @@ export const SidebarActions = createActionGroup({
     'Set Sidebar': props<{ newState: boolean }>(),
     'GUI Variable Change': props<{ varname: string, value: any }>(),
     'Set GUI Tree': props<{ element: GUIElement }>(),
+    'Set Current Response': props<{ response: any }>(),
   },
 });
 
@@ -46,6 +47,7 @@ interface State {
   GUIVariables: { [varname: string]: any },
   GUITree: GUIElement | null,
   WorkerStatus: string|null,
+  OutputResponse: any,
 };
 const initialState: State = {
   sidebarVisible: false,
@@ -55,6 +57,7 @@ const initialState: State = {
   GUIVariables: {},
   GUITree: null,
   WorkerStatus: null,
+  OutputResponse: null,
 };
 
 export const feature = createFeature({
@@ -91,6 +94,9 @@ export const feature = createFeature({
     on(CodeApiActions.setWorkerStatus, (state, { status }) => {
       return { ...state, WorkerStatus: status };
     }),
+    on(SidebarActions.setCurrentResponse, (state, { response }) => {
+      return { ...state, OutputResponse: response };
+    }),
   ),
 });
 
@@ -112,5 +118,6 @@ export const herosSelectors = {
   selectGUIVariables: feature.selectGUIVariables,
   selectGUITree: feature.selectGUITree,
   selectWorkerStatus: feature.selectWorkerStatus,
+  selectOutputResponse: feature.selectOutputResponse,
   factorySelectSingleGUIVariable: factorySelectSingleGUIVariable,
 };

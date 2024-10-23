@@ -20,16 +20,27 @@ p-sidebar.left-panel {
   .sidebar-title {
     text-align: center;
     margin-bottom: 1rem;
+    user-select: none;
     h2 {
-      font-size: 1.5rem;
+      margin: 0;
+      margin-bottom: 0.5rem;
+      font-size: 3rem;
       font-weight: bold;
       color: var(--primary-color);
     }
+    h3 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--secondary-color);
+    }
   }
   .sidebar-description {
+    margin: 0;
     font-size: 16px;
     line-height: 1.6;
     // color: #555;
+    text-align: center;
   }
 }
 
@@ -49,6 +60,7 @@ p-sidebar.left-panel {
   color: #555;
   // margin-top: 0.5rem;
   margin-left: 3px;
+  user-select: none;
 }
 
 .inpout-content {  // contains code-input and code-output
@@ -74,18 +86,6 @@ p-sidebar.left-panel {
   }
 }
 
-.bttn-padding {
-  padding-top: 10px;
-  padding-bottom: 10px;
-  &.center-btn {
-    display: flex;
-    justify-content: center;
-  }
-  .calculate-bttn {
-    padding: 0px;
-  }
-}
-
 .myhidediv{
   // display: none;  // display none makes ctrl-z not work
   // overflow: hidden;  // makes ctrl-z not work
@@ -96,21 +96,4 @@ p-sidebar.left-panel {
   position: relative;
   top: -1000px;
   left: -1000px;
-}
-
-.code-output {
-  user-select: none; /* Prevent text selection */
-  overflow: hidden; /* Prevent scrollbars */
-  resize: none; /* Disable manual resizing */
-  width: 100%;
-  padding: 10px;
-  // background-color: var(--surface-ground);
-  textarea {
-    width: 100%;
-    padding: 10px;
-    // background-color: var(--surface-ground);
-    max-width: 100%;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 16px;
-  }
 }

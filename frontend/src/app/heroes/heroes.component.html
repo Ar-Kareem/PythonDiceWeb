@@ -9,6 +9,7 @@
     </ng-template>
     <div class="sidebar-title">
       <h2>PyDice</h2>
+      <h3>Python Dice Probability Calculator</h3>
     </div>
     <p-panel header="About">
         <p class="sidebar-description">
@@ -64,42 +65,18 @@
         </div>
       </div>
 
+      <!-- LOADING BAR -->
       <p-progressBar *ngIf="isLoading" mode="indeterminate" [style]="{ height: '6px' }" />
       <div *ngIf="!isLoading" [style]="{ height: '6px' }"></div>
 
       <div class="load-time">
-        <div *ngIf="loadExecTime !== undefined">{{ loadExecTime | number: '1.0-1' }}s</div>
-        <div *ngIf="loadExecTime === undefined">&nbsp;</div>
-      </div>
-
-      <!-- BUTTON CALCULATE -->
-      <div *ngIf="selectedTab?.title !== TabTitles.GUI" [ngClass]="{'bttn-padding': true, 'center-btn': selectedTab?.title === TabTitles.GUISHOW}">
-        @let status = (workerStatus$ | async);
-        <p-button 
-          pRipple 
-          [severity]="status !== 'IDLE' ? 'warning' : 'primary'"
-          [label]="status === 'IDLE' ? 'Calculate' : (status === 'BUSY' ? 'Calculating...' : 'Initializing...')"
-          [ngClass]="{'calculate-bttn': true}"
-          (click)="onButtonClick()" 
-        />
+        @let showTime = selectedTab?.title !== TabTitles.GUISHOW && loadExecTime !== undefined;
+        <div *ngIf="showTime">{{ loadExecTime | number: '1.0-1' }}s</div>
+        <div *ngIf="!showTime">&nbsp;</div>
       </div>
 
       <!-- OUTPUTS -->
-      <ng-container *ngFor="let tab of allTabs; let i = index">
-        <div class="code-output" [ngClass]="{'myhidediv': selectedTabIndex !== i}"  *ngIf="ngContentsOutput.get(tab.title) && TabsWithOutput.includes(tab.title)">
-          <textarea
-            #autoResizeTextarea
-            pInputTextarea
-            [readOnly]="true"
-            [autoResize]="true"
-            [ngModel]="ngContentsOutput.get(tab.title)"
-          ></textarea>
-        </div>
-        <!-- GUI -->
-        <div [ngClass]="{'myhidediv': selectedTabIndex !== i}" *ngIf="tab.title === TabTitles.GUI">
-          <app-gui-output [inputXML]="ngContentsInput.get(TabTitles.GUI) || ''" />
-        </div>
-      </ng-container>
+      <app-outputarea [guiXML]="ngContentsInput.get(TabTitles.GUI) || ''"  (onCalculate)="onButtonClick()"/>
 
     </div>
 

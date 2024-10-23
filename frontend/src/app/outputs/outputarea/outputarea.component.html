@@ -1,0 +1,77 @@
+
+<div class="calc-div" [ngStyle]="{'justify-content': selectedTab?.title === TabTitles.GUISHOW ? 'center' : ''}">
+  <!-- BUTTON CALCULATE -->
+  <div *ngIf="selectedTab?.title !== TabTitles.GUI" [ngClass]="{'bttn-padding': true, 'center-btn': selectedTab?.title === TabTitles.GUISHOW}">
+    @let status = (workerStatus$ | async);
+    <p-button 
+      pRipple 
+      [severity]="status !== 'IDLE' ? 'warning' : 'primary'"
+      [label]="status === 'IDLE' ? 'Calculate' : (status === 'BUSY' ? 'Calculating...' : 'Initializing...')"
+      [ngClass]="{'calculate-bttn': true}"
+      (onClick)="onCalculate.emit()"
+    />
+  </div>
+
+  <!-- DROPDOWN -->
+  <div *ngIf="ddItemsFirst.length > 0">
+    <p-floatLabel>
+      <p-dropdown
+      [(ngModel)]="ddNgModelFirst"
+      [options]="ddItemsFirst"
+      (onChange)="dropdownNgChanged()"
+      />
+      <label for="float-label">Display:</label>
+    </p-floatLabel>
+  </div>
+  <!-- DROPDOWN -->
+  <div *ngIf="ddItemsSecond.length > 0">
+    <p-floatLabel>
+      <p-dropdown
+      [(ngModel)]="ddNgModelSecond"
+      [options]="ddItemsSecond"
+      (onChange)="dropdownNgChanged()"
+      />
+      <label for="float-label">Type:</label>
+    </p-floatLabel>
+  </div>
+
+</div>
+
+
+
+<!-- OUTPUTS FOR EACH TAB -->
+<ng-container *ngFor="let tab of allTabs">
+
+  @let isSelected = tab.title === selectedTab?.title;
+  @let curDisplayType = allResults[tab.title]?.display_type;
+
+  <div>
+    <div class="outputs" [ngClass]="{'myhidediv': !isSelected}"  *ngIf="TabsWithOutput.includes(tab.title)">
+      <div class="text-output">
+        <!-- TEXT OUTPUT -->
+        @let curText = allResults[tab.title]?.text_response;
+        @let errMsg = !allResults[tab.title]?.multi_rv_data && !!curText;
+        @let showOutputText = !!errMsg || (!!curText && curDisplayType === DISPLAY_TYPE.TEXT);
+        <textarea
+          *ngIf="showOutputText"
+          pInputTextarea
+          [readOnly]="true"
+          [autoResize]="true"
+          [ngModel]="curText"
+        ></textarea>
+      </div>
+      <!-- ROLLER -->
+      <app-roller *ngIf="curDisplayType === DISPLAY_TYPE.ROLLER" [rollerData]="allResults[tab.title]?.multi_rv_data" />
+      <!-- CHART -->
+      <app-outputchart [multiRvData]="allResults[tab.title]?.multi_rv_data" [displayType]="curDisplayType" />
+      <!-- EXPORTER -->
+      <app-exporter [multiRvData]="allResults[tab.title]?.multi_rv_data" [displayType]="curDisplayType" />
+    </div>
+
+    <!-- GUI -->
+    <div [ngClass]="{'myhidediv': !isSelected}" *ngIf="tab.title === TabTitles.GUI">
+      <app-gui-output [inputXML]="guiXML" />
+    </div>
+  </div>
+</ng-container>
+
