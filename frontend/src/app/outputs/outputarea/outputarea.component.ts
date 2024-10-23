@@ -260,6 +260,7 @@ function displayTypeToDropdown(init_display?: DISPLAY_TYPE): { i1: DD1ENUM; i2: 
   // DISPLAY_TYPE => text on screen
   switch (init_display) {
     // BARS
+    case undefined:  // default option
     case DISPLAY_TYPE.BAR_NORMAL:
       return { i1: DD1ENUM.BAR, i2: DD2ENUM.NORMAL };
     case DISPLAY_TYPE.BAR_ATLEAST:
@@ -278,7 +279,6 @@ function displayTypeToDropdown(init_display?: DISPLAY_TYPE): { i1: DD1ENUM; i2: 
       return { i1: DD1ENUM.GRAPH, i2: DD2ENUM.ATMOST };
     case DISPLAY_TYPE.GRAPH_TRANSPOSE:
       return { i1: DD1ENUM.GRAPH, i2: DD2ENUM.TRANSPOSE };
-    case undefined:  // default option
     case DISPLAY_TYPE.GRAPH_MEANS:
       return { i1: DD1ENUM.GRAPH, i2: DD2ENUM.SUMMARY };
 
