@@ -6,6 +6,7 @@ import { map, catchError, switchMap } from 'rxjs/operators';
 import { CodeApiActions } from './heros.reducer';
 import { HerosService } from './code.service';
 import { PyodideService } from '../localbackend/local.service';
+import { GetprogService } from '@app/getprog.service';
 
 // EFFECTS
 
@@ -49,11 +50,28 @@ export class HerosEffects {
         catchError((response) => of(CodeApiActions.translateDiceCodeRespone({ response, inp_code: action.code, err: true })))
       ))
     ));
+  
+  getProgram$ = createEffect(() =>
+    this.actions$.pipe(
+    ofType(CodeApiActions.getProgramRequest),
+    switchMap(action =>
+      this.getprogService.getprog(action.id)
+      .pipe(
+        map(response => CodeApiActions.getProgramSuccess({ response })),
+        catchError((response) => {
+          console.error('getProgram$ error', response);
+          return of(CodeApiActions.getProgramFailure({ error: {response: response, id: action.id} }))
+        },
+        )
+      ))
+    )
+  );
 
   constructor(
     private actions$: Actions,
     private herosService: HerosService,
-    private pyodideService: PyodideService
+    private pyodideService: PyodideService,
+    private getprogService: GetprogService,
   ) {}
 }
 
