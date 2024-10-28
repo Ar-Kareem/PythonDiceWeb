@@ -6,7 +6,7 @@
 }
 
 .main-content {  // contains button, shifted-div, and inpout-content
-    width: calc(100vw - 8px);  // 100% - padding-left
+    width: calc(100vw - 8px - 16px);  // 100% - padding-left - scrollbar (old firefox?
     display: flex;
     flex-direction: row;
     box-sizing:border-box;
