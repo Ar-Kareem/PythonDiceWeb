@@ -40,7 +40,7 @@ jobs:
         working-directory: ./frontend
 
       - name: Build Angular Project | Use Node.js ${{ matrix.node-version }}
-        run: ng build --configuration production --output-path ./docs --base-href https://pydice.abdulrahman-kareem.com/
+        run: ng build --configuration production --output-path ./docs --base-href https://ar-kareem.github.io/PythonDiceWeb/
         working-directory: ./frontend
 
       - name: Deploy to GitHub Pages
