@@ -35,6 +35,9 @@ export const CodeApiActions = createActionGroup({
     'Translate dice code Request': props<{ code: string }>(),
     'Translate dice code Respone': props<TranslateResp>(),
     'Set Worker Status': props<{ status: string }>(),
+    'Get Program Request': props<{ id: number }>(),
+    'Get Program Success': props<{ response: any }>(),
+    'Get Program Failure': props<{ error: any }>(),
   },
 });
 
@@ -48,6 +51,7 @@ interface State {
   GUITree: GUIElement | null,
   WorkerStatus: string|null,
   OutputResponse: any,
+  progResponse: any,
 };
 const initialState: State = {
   sidebarVisible: false,
@@ -58,6 +62,7 @@ const initialState: State = {
   GUITree: null,
   WorkerStatus: null,
   OutputResponse: null,
+  progResponse: null,
 };
 
 export const feature = createFeature({
@@ -96,6 +101,10 @@ export const feature = createFeature({
     }),
     on(SidebarActions.setCurrentResponse, (state, { response }) => {
       return { ...state, OutputResponse: response };
+    }),
+    on(CodeApiActions.getProgramSuccess, (state, { response }) => {
+      console.log('GET PROGRAM SUCCESS', response);
+      return { ...state, progResponse: response };
     }),
   ),
 });

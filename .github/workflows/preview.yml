@@ -39,8 +39,8 @@ jobs:
 
       - name: Build Angular Project | Use Node.js ${{ matrix.node-version }}
         if: github.event.action != 'closed'
-        # base-href is set to the PR number. exact style here https://github.com/marketplace/actions/deploy-pr-preview
-        run: ng build --configuration production --output-path ./docs --base-href https://ar-kareem.github.io/PythonDiceWeb/pr-preview/pr-${{ github.event.number }}/
+        # base-href is set to the PR number. exact style here https://github.com/marketplace/actions/deploy-pr-preview | CNAME points "https://ar-kareem.github.io/PythonDiceWeb" to "https://pydice.abdulrahman-kareem.com/"
+        run: ng build --configuration production --output-path ./docs --base-href https://pydice.abdulrahman-kareem.com/pr-preview/pr-${{ github.event.number }}/
         working-directory: ./frontend
 
 
