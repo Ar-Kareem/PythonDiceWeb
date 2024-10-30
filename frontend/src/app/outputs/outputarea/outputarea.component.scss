@@ -1,8 +1,9 @@
 
 .calc-div {
   display: flex;
-  flex-flow: row nowrap;
-  gap: 10px;
+  flex-flow: row wrap;
+  column-gap: 10px;
+  row-gap: 30px;
   align-items: center;
 
   margin-top: 7px;
