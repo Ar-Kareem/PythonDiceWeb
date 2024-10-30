@@ -170,7 +170,19 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     });
     // if no code, set default code
     if (!this.ngContentsInput.has(TabTitles.DICE_CODE)) {
-      this.ngContentsInput.set(TabTitles.DICE_CODE, `\\ example code \\ \noutput 5d2\noutput 1d20 + 1d4 + 2\noutput (1d20 + 1d4 + 2) > 10`);
+      this.ngContentsInput.set(TabTitles.DICE_CODE, `\\ example code \\ 
+output 1d20 named "Just D20"
+output 3 @ 4d20 named "3rd of 4D20"
+
+function: dmg D:n saveroll S:n savetarget T:n {
+  if S >= T {
+    result: D/2
+  } else {
+    result: D
+  }
+}
+
+output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16DC"`);
       loaded.unshift(TabTitles.DICE_CODE);  // add to front
     }
     // update tabs
