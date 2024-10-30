@@ -103,10 +103,12 @@ export class OutputareaComponent implements AfterViewInit {
       this.updateDropdownItems();
       this.cd.detectChanges();
     });
-    this.store.select(herosSelectors.selectOutputResponse).subscribe((response) => {
+    this.store.select(herosSelectors.selectOutputResponse).pipe(
+      filter(response => response !== null)
+    ).subscribe((response) => {
       const title: string|undefined = response?.title || this.selectedTab?.title;
       if (!title) {  // no tab selected
-        console.assert(false, 'Response with no tab selected. (problem unless on store init)');
+        console.assert(false, 'Response with no tab selected. Should never happen.');
         return;
       }
       this.allResults[title] = getRespObj(response?.text, response?.rvs, this.allResults[title]?.display_type);

@@ -60,6 +60,7 @@ export class PyodideService {
         return;
       }
       if ( data.result === 'init_done' ) {
+        console.assert(this.currentWorkerStatus === WorkerStatus.INIT_NO_REQUEST || this.currentWorkerStatus === WorkerStatus.INIT_WITH_REQUEST, 'should never happen');
         if (this.currentWorkerStatus === WorkerStatus.INIT_WITH_REQUEST) {
           // console.log('worker init done, sending request');
           this.setWorkerStatus(WorkerStatus.BUSY);
