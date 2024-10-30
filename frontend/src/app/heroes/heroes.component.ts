@@ -186,15 +186,16 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
       loaded.unshift(TabTitles.DICE_CODE);  // add to front
     }
     // update tabs
-    if (loaded.length > 0 && typeof localStorage !== 'undefined') {
+    console.assert(loaded.length > 0, 'should never happen');
+    if (typeof localStorage !== 'undefined') {
       let selectedTabIndex = parseInt(localStorage.getItem('selectedTabIndex') || '0');
       selectedTabIndex = Math.min(selectedTabIndex, loaded.length - 1);
       this.store.dispatch(tabviewActions.changeOpenTabs({
         openTabs: [...loaded.map(title => ({title}))],
         newIndex: selectedTabIndex,
       }));
-    } else {
-      this.store.dispatch(tabviewActions.changeActiveIndex({newIndex: 0}));  // initial tab
+      const selectedTitle = loaded[selectedTabIndex];
+      this.onButtonClick(selectedTitle)  // initial calculate on page load
     }
     this.cd.detectChanges();
   }
@@ -314,8 +315,8 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
     this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: toExec }));
   }
 
-  onButtonClick() {
-    const title = this.selectedTab?.title;
+  onButtonClick(title?: string) {
+    title = title || this.selectedTab?.title;
     if (!title) {
       this.store.dispatch(ToastActions.errorNotification({ title: 'No tab selected', message: '' }));
       return;
