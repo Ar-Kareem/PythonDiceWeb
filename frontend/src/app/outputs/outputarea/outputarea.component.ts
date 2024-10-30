@@ -5,6 +5,7 @@ import { Store } from '@ngrx/store';
 import { herosSelectors } from '@app/heroes/heros.reducer';
 import { TabTitles } from '@app/tabview/tabview.component';
 import { ITab, tabviewSelectors } from '@app/tabview/tabview.reducer';
+import { WorkerStatus } from '@app/localbackend/local.service';
 
 type RV = [val: number, prob: number][]
 export type SINGLE_RV_DATA = {
@@ -68,6 +69,7 @@ type TAB_DATA = {
 export class OutputareaComponent implements AfterViewInit {
   readonly DISPLAY_TYPE = DISPLAY_TYPE;
   readonly TabTitles = TabTitles;
+  readonly WorkerStatus = WorkerStatus;
   readonly TabsWithOutput: string[] = [TabTitles.DICE_CODE, TabTitles.PYTHON, TabTitles.GUISHOW];
 
   @Input() guiXML: string = '';

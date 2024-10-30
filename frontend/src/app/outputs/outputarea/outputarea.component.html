@@ -5,8 +5,8 @@
     @let status = (workerStatus$ | async);
     <p-button 
       pRipple 
-      [severity]="status !== 'IDLE' ? 'warning' : 'primary'"
-      [label]="status === 'IDLE' ? 'Calculate' : (status === 'BUSY' ? 'Calculating...' : 'Initializing...')"
+      [severity]="status !== WorkerStatus.IDLE ? 'warning' : 'primary'"
+      [label]="status === WorkerStatus.IDLE ? 'Calculate' : (status === WorkerStatus.BUSY ? 'Calculating...' : 'Initializing...')"
       [ngClass]="{'calculate-bttn': true}"
       (onClick)="onCalculate.emit()"
     />

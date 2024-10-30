@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { CodeApiActions } from '@app/heroes/heros.reducer';
 import { Store } from '@ngrx/store';
-import { BehaviorSubject, filter, firstValueFrom, from, Observable, of, ReplaySubject, Subject, take } from 'rxjs';
+import { filter, Observable, ReplaySubject, take } from 'rxjs';
 
 
-enum WorkerStatus {
+export enum WorkerStatus {
   INIT_NO_REQUEST = 'INIT_NO_REQUEST',
   INIT_WITH_REQUEST = 'INIT_WITH_REQUEST',  // worker is being created and a request is pending
   IDLE = 'IDLE',
