@@ -8,9 +8,13 @@ export class GetprogService {
 
   constructor(private http: HttpClient) { }
 
-  getprog(id: number) {
-    const url = `http://anydice.com/program/${id}`;
-    throw new Error('Not implemented');
-    return this.http.get(url);
+  getprog(id: number|string) {
+    const url = `https://pydiceapi.abdulrahman-kareem.com/get_prog`;
+    return this.http.post(url, {key: id});
+  }
+
+  saveprog(prog: string) {
+    const url = `https://pydiceapi.abdulrahman-kareem.com/save_prog`;
+    return this.http.post(url, {prog: prog});
   }
 }

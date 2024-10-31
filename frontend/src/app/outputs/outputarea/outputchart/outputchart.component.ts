@@ -186,7 +186,7 @@ export class OutputchartComponent {
       return {label: rv.named, data};
     });
     this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, getLineChart(x_labels, datasets, 'Graph'));
-    const h = 600;
+    const h = getGraphHeight();
     this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
   }
 
@@ -205,7 +205,7 @@ export class OutputchartComponent {
       datasets.push({label: val.toString(), data});
     });
     this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, getLineChart(x_labels, datasets, 'Graph'));
-    const h = 600;
+    const h = getGraphHeight();
     this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
   }
 
@@ -226,13 +226,24 @@ export class OutputchartComponent {
     ]
 
     this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, getLineChart(x_labels, datasets, 'Graph'));
-    const h = 600;
+    const h = getGraphHeight();
     this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
 
   }
 
 }
 
+function getGraphHeight() {
+  const screenHeight = window.innerHeight;
+  const screenWidth = window.innerWidth;
+  if (screenWidth < 600) {  // prevent tall lanky graphs on small screens
+    return screenWidth;
+  }
+  if (screenHeight < 600) {  // prevent too tall graphs on landscape
+    return screenHeight
+  }
+  return 600;
+}
 
 function getLineChart(x_labels: string[], datasets: {label: string, data: number[]}[], title: string): any {
   return {
