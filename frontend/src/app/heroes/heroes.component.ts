@@ -87,12 +87,19 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       (params) => {
         const progId = params.get('progId');
         if (!!progId) {
+          console.log('progId:', progId, 'loading program');
+          // TODO check if progId is valid
           this.store.dispatch(CodeApiActions.getProgramRequest({ id: progId }));
+        } else {
+          console.log('progId:', progId, 'loading from localstorage');
+          this.initFromLocalStorage();
         }
       }
     );
 
-    this.initFromLocalStorage();
+    this.store.select(herosSelectors.selectProgResponse).subscribe((data) => 
+      this.handleSharedProg(data)
+    );
 
     this.actions$.pipe(
       ofType(tabviewActions.toPythonButtonClicked),
@@ -167,6 +174,46 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       localStorage.setItem('input.' + title, content)
     });
   }
+  handleSharedProg(data: any): void {
+    if (!data) {
+      return;
+    }
+    console.log('handleSharedProg', data);
+    switch (data.command + ' | ' + data.status) {
+      case 'get | success':
+        try {
+          const prog = JSON.parse(data.response.prog);
+          for (let title in prog) {
+            this.ngContentsInput.set(title, prog[title]);
+          }
+        } catch (error) {
+          this.store.dispatch(ToastActions.errorNotification({ title: 'Error loading program', message: 'Invalid program data' }));
+          this.initFromLocalStorage();
+        }
+        break;
+      case 'get | error':
+        if (!!(data?.error?.error)) {
+          this.store.dispatch(ToastActions.errorNotification({ title: 'Error loading program', message: data.error.error }));
+        } else {
+          this.store.dispatch(ToastActions.errorNotification({ title: 'Error loading program', message: 'Server error' }));
+        }
+        this.initFromLocalStorage();
+        break;
+      case 'save | success':
+        this.store.dispatch(ToastActions.successNotification({ title: 'Program saved', message: data.key }));
+        break;
+      case 'save | error':
+        if (!!(data?.error?.error)) {
+          this.store.dispatch(ToastActions.errorNotification({ title: 'Error saving program', message: data.error.error }));
+        } else {
+          this.store.dispatch(ToastActions.errorNotification({ title: 'Error saving program', message: 'Server error' }));
+        }
+        break;
+      default:
+        console.assert(false, 'should never happen');
+        break;
+    }
+  }
 
   initFromLocalStorage() {
     let loaded: string[] = [];
@@ -180,7 +227,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       }
     });
     // if no code, set default code
-    if (!this.ngContentsInput.has(TabTitles.DICE_CODE)) {
+    if (loaded.length === 0) {
       this.ngContentsInput.set(TabTitles.DICE_CODE, `\\ example code \\ 
 output 1d20 named "Just D20"
 output 3 @ 4d20 named "3rd of 4D20"
