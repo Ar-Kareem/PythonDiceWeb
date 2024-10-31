@@ -35,9 +35,12 @@ export const CodeApiActions = createActionGroup({
     'Translate dice code Request': props<{ code: string }>(),
     'Translate dice code Respone': props<TranslateResp>(),
     'Set Worker Status': props<{ status: string }>(),
-    'Get Program Request': props<{ id: number }>(),
+    'Get Program Request': props<{ id: number|string }>(),
     'Get Program Success': props<{ response: any }>(),
     'Get Program Failure': props<{ error: any }>(),
+    'Save Program Request': props<{ prog: string }>(),
+    'Save Program Success': props<{ response: any }>(),
+    'Save Program Failure': props<{ error: any }>(),
   },
 });
 
@@ -104,7 +107,11 @@ export const feature = createFeature({
     }),
     on(CodeApiActions.getProgramSuccess, (state, { response }) => {
       console.log('GET PROGRAM SUCCESS', response);
-      return { ...state, progResponse: response };
+      return { ...state, progResponse: {status: 'get', response} };
+    }),
+    on(CodeApiActions.saveProgramSuccess, (state, { response }) => {
+      console.log('SAVE PROGRAM SUCCESS', response);
+      return { ...state, progResponse: {status: 'save', response} };
     }),
   ),
 });

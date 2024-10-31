@@ -67,6 +67,19 @@ export class HerosEffects {
     )
   );
 
+  saveProgram$ = createEffect(() =>
+    this.actions$.pipe(
+    ofType(CodeApiActions.saveProgramRequest),
+    switchMap(action =>
+      this.getprogService.saveprog(action.prog)
+      .pipe(
+        map(response => CodeApiActions.saveProgramSuccess({ response })),
+        catchError((response) => of(CodeApiActions.saveProgramFailure({ error: {response: response, prog: action.prog} }))
+        )
+      ))
+    )
+  );
+
   constructor(
     private actions$: Actions,
     private herosService: HerosService,

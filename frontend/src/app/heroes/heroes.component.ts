@@ -7,6 +7,7 @@ import { CodeApiActions, herosSelectors, SidebarActions } from './heros.reducer'
 import { ITab, tabviewActions, tabviewSelectors } from '@app/tabview/tabview.reducer';
 import { ToastActions } from '@app/toast/toast.reducer';
 import { TabTitles } from '@app/tabview/tabview.component';
+import { ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -71,6 +72,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     private cd: ChangeDetectorRef, 
     private store: Store, 
     private actions$: Actions,
+    private route: ActivatedRoute,
   ) { }
 
   ngAfterViewInit() {
@@ -80,6 +82,15 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       const sideBarInitStatus = window.innerWidth > 800;
       this.store.dispatch(SidebarActions.setSidebar({ newState: sideBarInitStatus }));
     }
+
+    this.route.paramMap.subscribe(
+      (params) => {
+        const progId = params.get('progId');
+        if (!!progId) {
+          this.store.dispatch(CodeApiActions.getProgramRequest({ id: progId }));
+        }
+      }
+    );
 
     this.initFromLocalStorage();
 
@@ -357,6 +368,21 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
       return;
     }
     this.store.dispatch(CodeApiActions.translateDiceCodeRequest({ code: toTranslate }));
+  }
+
+  onSaveProg(tabTitles: string[]) {
+    let toSave: {[key: string]: string} = {};
+    tabTitles.forEach((title) => {
+      const content = this.ngContentsInput.get(title);
+      if (content) {
+        toSave[title] = content;
+      }
+    });
+    if (Object.keys(toSave).length === 0) {
+      this.store.dispatch(ToastActions.warningNotification({ title: 'No code to save', message: '' }));
+      return;
+    }
+    this.store.dispatch(CodeApiActions.saveProgramRequest({ prog: JSON.stringify(toSave) }));
   }
 
   onDonateClick() {

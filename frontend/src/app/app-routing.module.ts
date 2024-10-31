@@ -5,6 +5,7 @@ import { TabviewComponent } from './tabview/tabview.component';
 
 const routes: Routes = [
   { path: 'emptyTabExample', component: TabviewComponent },
+  { path: 'program/:progId', component: HeroesComponent },
   { path: '', component: HeroesComponent },
   { path: '**', redirectTo: '/' }
 ];
