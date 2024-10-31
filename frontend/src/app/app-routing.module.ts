@@ -8,7 +8,7 @@ const routes: Routes = [
   // { path: 'pr-preview', redirectTo: 'pr-preview', pathMatch: 'prefix' },
   { path: 'program/:progId', component: HeroesComponent },
   { path: '', component: HeroesComponent },
-  // { path: '**', redirectTo: '/' }
+  { path: '**', redirectTo: '/' }
 ];
 
 @NgModule({
