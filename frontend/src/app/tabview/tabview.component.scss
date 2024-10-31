@@ -3,17 +3,22 @@
   width: 98%;
   height: fit-content;
   padding-left: 10px;
-  @media (min-width: 768px) {  // if >= 768px
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-between;
-  }
+  display: flex;
+  flex-flow: row wrap-reverse;
+  row-gap: 5px;
+  // @media (min-width: 768px) {  // if >= 768px FOR LARGE SCREENS
+  //   flex-flow: row nowrap;
+  // }
+  // @media (max-width: 767px) {  // if < 768px FOR SMALL SCREENS
+  //   flex-flow: row wrap-reverse;
+  // }
 }
 
 .tabview-custom {
   // width: fit-content;
   // padding: 10px;
   // padding-bottom: 0px;
+  overflow-x: auto;  // allows scrolling while parent is flex ( https://github.com/primefaces/primeng/issues/1701#issuecomment-341379749 )
   
   ::ng-deep .p-tabview-nav-link {
     padding: 10px;
@@ -53,14 +58,25 @@
   }
 }
 
-.btnConvertNg {
+.btnParentDiv {
   margin-left: auto;  // in flex container, push to right  https://stackoverflow.com/questions/33924655/position-last-flex-item-at-the-end-of-container
-  ::ng-deep .btnConvert {
-    font-size: 0.6rem;
-    line-height: 15px;
-    width: 60px;
-    height: 38px;
-    padding: 3px 2px;  // make the text centered  https://stackoverflow.com/a/27576899/6173665
+  .btnConvertNg {
+    ::ng-deep .btnConvert {
+      font-size: 0.6rem;
+      line-height: 15px;
+      width: 60px;
+      height: 38px;
+      padding: 3px 2px;  // make the text centered  https://stackoverflow.com/a/27576899/6173665
+    }
+  }
+  
+  .btnShareNg {
+    padding-left: 4px;
+    ::ng-deep .btnShare {
+      width: 44px;
+      height: 38px;
+    }
   }
 }
+
 
