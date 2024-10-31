@@ -23,7 +23,7 @@ async function loadPyodideAndPackages() {
   if (typeof loadPyodide === 'undefined') {
     // wait and retry
     console.log('loadPyodide retrying...');
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    await new Promise((resolve) => setTimeout(resolve, 100));
     return await loadPyodideAndPackages();
   }
   pyodide = await loadPyodide({ indexURL: BASE_PYODIDE_URL });
