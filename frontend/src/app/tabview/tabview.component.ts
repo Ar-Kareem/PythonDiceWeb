@@ -4,6 +4,7 @@ import { Dropdown, DropdownChangeEvent } from 'primeng/dropdown';
 
 import { ToastActions } from '@app/toast/toast.reducer';
 import { ITab, tabviewActions, tabviewSelectors } from './tabview.reducer';
+import { herosSelectors } from '@app/heroes/heros.reducer';
 
 export enum TabTitles {
   DICE_CODE = 'DiceCode',
@@ -36,6 +37,7 @@ export class TabviewComponent implements AfterViewInit {
   preActiveIndex: number = 0;  // only used to deny tab change
   convertBtnViewable: boolean = false;
   SharingDisabledStatus: {python: boolean, dice: boolean, gui: boolean} = {python: false, dice: false, gui: false};
+  sharedURL: string|undefined;
 
   constructor(private cd: ChangeDetectorRef, private store: Store) { }
 
@@ -46,6 +48,14 @@ export class TabviewComponent implements AfterViewInit {
       this.ngDropdownNamed = allowedNewTabs;
       this.cd.detectChanges();
     });
+
+    this.store.select(herosSelectors.selectProgResponse).subscribe((data) => {
+        if (data?.command === 'save' && data?.status === 'success') {
+          const key = data?.response?.key;
+          this.sharedURL = !!key ? `${window.location.origin}/program/${key}` : undefined;
+        }
+      }
+    );
 
     this.store.select(tabviewSelectors.selectOpenTabs).subscribe((tabs) => {
       const curTabTitles = tabs.map(tab => tab.title);
@@ -89,6 +99,12 @@ export class TabviewComponent implements AfterViewInit {
     }
     const tabsToShare = [this.ngShareRaioModel, ...this.ngShareCheckboxModel]
     this.store.dispatch(tabviewActions.shareCodeButtonClicked({tabTitles: tabsToShare}));
+  }
+
+  copyToClipboard(text: string) {
+    if (!!text) {
+      navigator.clipboard.writeText(text);
+    }
   }
 
   activeIndexChange(newIndex: number) {
