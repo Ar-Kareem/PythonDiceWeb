@@ -174,7 +174,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       localStorage.setItem('input.' + title, content)
     });
   }
-  handleSharedProg(data: any): void {
+  private handleSharedProg(data: any): void {
     if (!data) {
       return;
     }
@@ -215,7 +215,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  initFromLocalStorage() {
+  private initFromLocalStorage() {
     let loaded: string[] = [];
     console.log('initFromLocalStorage');
     Object.values(TabTitles).forEach((title) => {
@@ -258,7 +258,7 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
     this.cd.detectChanges();
   }
 
-  getServerErrorMsg(response: any, inp_code: string) {
+  private getServerErrorMsg(response: any, inp_code: string) {
     console.log('Error:', response);
     console.log('Input code:', inp_code);
     let code = response.message;
@@ -403,7 +403,7 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
     }
   }
 
-  onTranslateRequest() {
+  private onTranslateRequest() {
     const title = this.selectedTab?.title;
     if (title !== TabTitles.DICE_CODE) {
       this.store.dispatch(ToastActions.errorNotification({ title: 'Can only translate DiceCode', message: '' }));
@@ -417,7 +417,7 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
     this.store.dispatch(CodeApiActions.translateDiceCodeRequest({ code: toTranslate }));
   }
 
-  onSaveProg(tabTitles: string[]) {
+  private onSaveProg(tabTitles: string[]) {
     let toSave: {[key: string]: string} = {};
     tabTitles.forEach((title) => {
       const content = this.ngContentsInput.get(title);
@@ -432,7 +432,7 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
     this.store.dispatch(CodeApiActions.saveProgramRequest({ prog: JSON.stringify(toSave) }));
   }
 
-  onDonateClick() {
+  private onDonateClick() {
     this.store.dispatch(ToastActions.dialogOnlyDismissNotification({ message: 'We are currently not taking donations.\n\n Giving us a star on github is free and we greatly appreciate it.\n\n Showing us support incentivises us to improve the site.', title: 'Thank you!', callback: {
       onConfirm: () => {},
       onReject: () => {}
