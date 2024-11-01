@@ -200,7 +200,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
         this.initFromLocalStorage();
         break;
       case 'save | success':
-        this.store.dispatch(ToastActions.successNotification({ title: 'Program saved', message: data.key }));
+        this.store.dispatch(ToastActions.successNotification({ title: 'Program saved', message: data.response.key }));
         break;
       case 'save | error':
         if (!!(data?.error?.error)) {
