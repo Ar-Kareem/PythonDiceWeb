@@ -106,12 +106,16 @@ export const feature = createFeature({
       return { ...state, OutputResponse: response };
     }),
     on(CodeApiActions.getProgramSuccess, (state, { response }) => {
-      console.log('GET PROGRAM SUCCESS', response);
-      return { ...state, progResponse: {status: 'get', response} };
+      return { ...state, progResponse: {command: 'get', status: 'success', response} };
+    }),
+    on(CodeApiActions.getProgramFailure, (state, { error }) => {
+      return { ...state, progResponse: {command: 'get', status: 'error', error} };
     }),
     on(CodeApiActions.saveProgramSuccess, (state, { response }) => {
-      console.log('SAVE PROGRAM SUCCESS', response);
-      return { ...state, progResponse: {status: 'save', response} };
+      return { ...state, progResponse: {command: 'save', status: 'success', response} };
+    }),
+    on(CodeApiActions.saveProgramFailure, (state, { error }) => {
+      return { ...state, progResponse: {command: 'save', status: 'error', error} };
     }),
   ),
 });
@@ -135,5 +139,6 @@ export const herosSelectors = {
   selectGUITree: feature.selectGUITree,
   selectWorkerStatus: feature.selectWorkerStatus,
   selectOutputResponse: feature.selectOutputResponse,
+  selectProgResponse: feature.selectProgResponse,
   factorySelectSingleGUIVariable: factorySelectSingleGUIVariable,
 };

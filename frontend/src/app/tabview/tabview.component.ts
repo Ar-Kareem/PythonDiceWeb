@@ -4,6 +4,7 @@ import { Dropdown, DropdownChangeEvent } from 'primeng/dropdown';
 
 import { ToastActions } from '@app/toast/toast.reducer';
 import { ITab, tabviewActions, tabviewSelectors } from './tabview.reducer';
+import { herosSelectors } from '@app/heroes/heros.reducer';
 
 export enum TabTitles {
   DICE_CODE = 'DiceCode',
@@ -19,18 +20,24 @@ const AllDropDowns = [TabTitles.DICE_CODE, TabTitles.PYTHON, TabTitles.GUI];
   styleUrl: './tabview.component.scss'
 })
 export class TabviewComponent implements AfterViewInit {
+  readonly TabTitles = TabTitles;
 
   @ViewChild('dd') dropdown: Dropdown | undefined;
   @ViewChild('dd', {read: ElementRef, static:false}) dropdownElement: ElementRef | undefined;
   @ViewChild('plusBtn', {read: ElementRef, static:false}) plusBtn: ElementRef | undefined;
 
-  ngDropdownModel: string|undefined;
+  ngDropdownModel: string|undefined;  // ngModel
   ngDropdownNamed: string[] = [];
   ngTabPanels: ITab[] = [];
   ngActiveIndex: number = 0;
 
+  ngShareRaioModel: string|undefined;  // ngModel
+  ngShareCheckboxModel: string[] = [];  // ngModel
+
   preActiveIndex: number = 0;  // only used to deny tab change
   convertBtnViewable: boolean = false;
+  SharingDisabledStatus: {python: boolean, dice: boolean, gui: boolean} = {python: false, dice: false, gui: false};
+  sharedURL: string|undefined;
 
   constructor(private cd: ChangeDetectorRef, private store: Store) { }
 
@@ -42,6 +49,15 @@ export class TabviewComponent implements AfterViewInit {
       this.cd.detectChanges();
     });
 
+    this.store.select(herosSelectors.selectProgResponse).subscribe((data) => {
+        if (data?.command === 'save' && data?.status === 'success') {
+          const key = data?.response?.key;
+          const curUrl = window.location.href.split('/program')[0];  // TODO implement this properly, this is a hack and will not work if more diverse URI segments are added
+          this.sharedURL = !!key ? `${curUrl}/program/${key}` : undefined;
+        }
+      }
+    );
+
     this.store.select(tabviewSelectors.selectOpenTabs).subscribe((tabs) => {
       const curTabTitles = tabs.map(tab => tab.title);
       this.store.dispatch(tabviewActions.changeAllowedNewTabs({
@@ -49,6 +65,10 @@ export class TabviewComponent implements AfterViewInit {
       }));
       this.ngTabPanels = tabs;
       this.convertBtnViewable = this.ngTabPanels[this.ngActiveIndex]?.title === TabTitles.DICE_CODE;
+      // update sharing status
+      this.SharingDisabledStatus.dice = !this.ngTabPanels.some(tab => tab.title === TabTitles.DICE_CODE)
+      this.SharingDisabledStatus.python = !this.ngTabPanels.some(tab => tab.title === TabTitles.PYTHON)
+      this.SharingDisabledStatus.gui = !this.ngTabPanels.some(tab => tab.title === TabTitles.GUI)
       // this.cd.detectChanges();
     });
 
@@ -71,6 +91,21 @@ export class TabviewComponent implements AfterViewInit {
 
   convertToPython() {
     this.store.dispatch(tabviewActions.toPythonButtonClicked());
+  }
+
+  onShareButtonClicked() {
+    if (!this.ngShareRaioModel) {
+      console.assert(false, 'should never happen');
+      return;
+    }
+    const tabsToShare = [this.ngShareRaioModel, ...this.ngShareCheckboxModel]
+    this.store.dispatch(tabviewActions.shareCodeButtonClicked({tabTitles: tabsToShare}));
+  }
+
+  copyToClipboard(text: string) {
+    if (!!text) {
+      navigator.clipboard.writeText(text);
+    }
   }
 
   activeIndexChange(newIndex: number) {

@@ -22,14 +22,75 @@
   </p-tabPanel>
 </p-tabView>
 
-<p-button 
-  #plusBtn 
-  [ngClass]="{'btnConvertNg': true, 'hidden': !convertBtnViewable}" 
-  styleClass="btnConvert" 
-  size="small" 
-  label="Convert To Python" 
-  (onClick)="convertToPython()"
-/>
+<div class="btnParentDiv">
+  <p-button 
+    #plusBtn 
+    [ngClass]="{'btnConvertNg': true, 'hidden': !convertBtnViewable}" 
+    styleClass="btnConvert" 
+    size="small" 
+    label="Convert To Python" 
+    (onClick)="convertToPython()"
+  />
+
+  <p-button 
+    [ngClass]="{'btnShareNg': true}" 
+    styleClass="btnShare" 
+    (onClick)="op.toggle($event)" 
+    icon="pi pi-share-alt" 
+    size="small" 
+    label="" 
+  />
+  <p-overlayPanel #op>
+    <div class="flex flex-column gap-3 w-20rem">
+      <ng-container *ngIf="!sharedURL">
+        <div>
+          <span class="font-medium text-900 block mb-2">Share code:</span>
+        </div>
+        <!-- radio buttons for DiceCode or PythonCode -->
+        <div class="flex flex-row gap-2">
+          <p-radioButton 
+            [value]="TabTitles.DICE_CODE" 
+            [label]="TabTitles.DICE_CODE" 
+            [(ngModel)]="ngShareRaioModel"
+            [disabled]="SharingDisabledStatus.dice"
+          />
+          <p-radioButton 
+            [value]="TabTitles.PYTHON"
+            [label]="TabTitles.PYTHON"
+            [(ngModel)]="ngShareRaioModel"
+            [disabled]="SharingDisabledStatus.python"
+          />
+        </div>
+        <!-- checkbox, GUI Editor Code -->
+        <p-checkbox 
+          [value]="TabTitles.GUI"
+          [label]="TabTitles.GUI"
+          [(ngModel)]="ngShareCheckboxModel"
+          [disabled]="SharingDisabledStatus.gui"
+        />
+        <p-button 
+          icon="pi pi-share-alt"
+          label="Share" 
+          styleClass="btnShare" 
+          [disabled]="!ngShareRaioModel"
+          [severity]="!ngShareRaioModel ? 'danger' : 'primary'"
+          (onClick)="onShareButtonClicked()"
+        />
+      </ng-container>
+      <ng-container *ngIf="sharedURL">
+        <span class="font-medium text-900 block mb-2">Shared URL:</span>
+        <span class="font-light text-600 block mb-2">{{ sharedURL }}</span>
+        <p-button 
+          icon="pi pi-copy"
+          label="Copy" 
+          styleClass="btnShare" 
+          (onClick)="copyToClipboard(sharedURL)"
+        />
+      </ng-container>
+      <span class="font-light text-600 block mb-2">Sharing is in alpha, please don't rely on it. The database is deleted periodically.</span>
+    </div>
+  </p-overlayPanel>
+</div>
 
 <p-dropdown #dd
   class="hidden-dropdown"

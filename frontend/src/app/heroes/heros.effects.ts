@@ -57,14 +57,17 @@ export class HerosEffects {
     switchMap(action =>
       this.getprogService.getprog(action.id)
       .pipe(
-        map(response => CodeApiActions.getProgramSuccess({ response })),
-        catchError((response) => {
-          console.error('getProgram$ error', response);
-          return of(CodeApiActions.getProgramFailure({ error: {response: response, id: action.id} }))
-        },
+        map((response: any) => {
+          if (response?.resp == 'success') {
+            return CodeApiActions.getProgramSuccess({ response })
+          } else {
+            return CodeApiActions.getProgramFailure({ error: response })
+          }
+        }),
+        catchError((response) => of(CodeApiActions.getProgramFailure({ error: response }))
         )
-      ))
-    )
+      )
+    ))
   );
 
   saveProgram$ = createEffect(() =>
@@ -73,8 +76,14 @@ export class HerosEffects {
     switchMap(action =>
       this.getprogService.saveprog(action.prog)
       .pipe(
-        map(response => CodeApiActions.saveProgramSuccess({ response })),
-        catchError((response) => of(CodeApiActions.saveProgramFailure({ error: {response: response, prog: action.prog} }))
+        map((response: any) => {
+          if (response?.resp == 'success') {
+            return CodeApiActions.saveProgramSuccess({ response })
+          } else {
+            return CodeApiActions.saveProgramFailure({ error: response })
+          }
+        }),
+        catchError((response) => of(CodeApiActions.saveProgramFailure({ error: response }))
         )
       ))
     )
