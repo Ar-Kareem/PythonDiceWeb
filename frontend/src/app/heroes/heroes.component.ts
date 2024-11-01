@@ -85,6 +85,9 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
 
     this.route.paramMap.subscribe(
       (params) => {
+        if (typeof localStorage === 'undefined') {  // SSR
+          return;
+        }
         const progId = params.get('progId');
         if (!!progId) {
           console.log('progId:', progId, 'loading program');
