@@ -52,7 +52,10 @@ export class TabviewComponent implements AfterViewInit {
     this.store.select(herosSelectors.selectProgResponse).subscribe((data) => {
         if (data?.command === 'save' && data?.status === 'success') {
           const key = data?.response?.key;
-          const curUrl = window.location.href.split('/program')[0];  // TODO implement this properly, this is a hack and will not work if more diverse URI segments are added
+          let curUrl = window.location.href.split('/program')[0];  // TODO implement this properly, this is a hack and will not work if more diverse URI segments are added
+          if (curUrl[curUrl.length - 1] === '/') {  // remove trailing slash
+            curUrl = curUrl.slice(0, -1);
+          }
           this.sharedURL = !!key ? `${curUrl}/program/${key}` : undefined;
         }
       }
