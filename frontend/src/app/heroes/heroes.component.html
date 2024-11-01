@@ -7,21 +7,25 @@
     <ng-template pTemplate="closeicon">
       <i class="pi pi-arrow-left"></i> 
     </ng-template>
-    <div class="sidebar-title">
-      <h2>PyDice</h2>
-      <h3>Python Dice Probability Calculator</h3>
+    <div class="flex flex-column gap-3" style="height: 100%;">
+      <div class="sidebar-title">
+        <h2>PyDice</h2>
+        <h3>Python Dice Probability Calculator</h3>
+      </div>
+      <p-panel header="About">
+          <p class="sidebar-description">
+              Welcome to PyDice!
+              <br />An implementation of our 
+              <a href="https://github.com/Ar-Kareem/PythonDice/" target="_blank" rel="noopener noreferrer" class="p-button p-button-sm font-bold h-1rem" style="text-decoration: none; padding: 3px 2px; vertical-align: middle;">
+                PythonDice
+              </a>
+              project on the browser.
+          </p>
+      </p-panel>
+      <p-panelMenu [model]="SIDEBAR_ITEMS" />
+      <span class="font-light text-600 text-center block" style="margin-top: auto; user-select: none;">Version 0.7.1</span>
     </div>
-    <p-panel header="About">
-        <p class="sidebar-description">
-            Welcome to PyDice!
-            <br />An implementation of our 
-            <a href="https://github.com/Ar-Kareem/PythonDice/" target="_blank" rel="noopener noreferrer" class="p-button p-button-sm font-bold h-1rem" style="text-decoration: none; padding: 3px 2px; vertical-align: middle;">
-              PythonDice
-            </a>
-            project on the browser.
-        </p>
-    </p-panel>
-    <p-panelMenu [model]="SIDEBAR_ITEMS" />
+
   </p-sidebar>
 
 
