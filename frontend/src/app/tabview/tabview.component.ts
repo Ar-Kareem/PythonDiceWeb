@@ -52,7 +52,8 @@ export class TabviewComponent implements AfterViewInit {
     this.store.select(herosSelectors.selectProgResponse).subscribe((data) => {
         if (data?.command === 'save' && data?.status === 'success') {
           const key = data?.response?.key;
-          this.sharedURL = !!key ? `${window.location.origin}/program/${key}` : undefined;
+          const curUrl = window.location.href.split('/program')[0];  // TODO implement this properly, this is a hack and will not work if more diverse URI segments are added
+          this.sharedURL = !!key ? `${curUrl}/program/${key}` : undefined;
         }
       }
     );
