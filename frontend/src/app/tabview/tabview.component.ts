@@ -19,18 +19,23 @@ const AllDropDowns = [TabTitles.DICE_CODE, TabTitles.PYTHON, TabTitles.GUI];
   styleUrl: './tabview.component.scss'
 })
 export class TabviewComponent implements AfterViewInit {
+  readonly TabTitles = TabTitles;
 
   @ViewChild('dd') dropdown: Dropdown | undefined;
   @ViewChild('dd', {read: ElementRef, static:false}) dropdownElement: ElementRef | undefined;
   @ViewChild('plusBtn', {read: ElementRef, static:false}) plusBtn: ElementRef | undefined;
 
-  ngDropdownModel: string|undefined;
+  ngDropdownModel: string|undefined;  // ngModel
   ngDropdownNamed: string[] = [];
   ngTabPanels: ITab[] = [];
   ngActiveIndex: number = 0;
 
+  ngShareRaioModel: string|undefined;  // ngModel
+  ngShareCheckboxModel: string[] = [];  // ngModel
+
   preActiveIndex: number = 0;  // only used to deny tab change
   convertBtnViewable: boolean = false;
+  SharingDisabledStatus: {python: boolean, dice: boolean, gui: boolean} = {python: false, dice: false, gui: false};
 
   constructor(private cd: ChangeDetectorRef, private store: Store) { }
 
@@ -49,6 +54,10 @@ export class TabviewComponent implements AfterViewInit {
       }));
       this.ngTabPanels = tabs;
       this.convertBtnViewable = this.ngTabPanels[this.ngActiveIndex]?.title === TabTitles.DICE_CODE;
+      // update sharing status
+      this.SharingDisabledStatus.dice = !this.ngTabPanels.some(tab => tab.title === TabTitles.DICE_CODE)
+      this.SharingDisabledStatus.python = !this.ngTabPanels.some(tab => tab.title === TabTitles.PYTHON)
+      this.SharingDisabledStatus.gui = !this.ngTabPanels.some(tab => tab.title === TabTitles.GUI)
       // this.cd.detectChanges();
     });
 
@@ -71,6 +80,11 @@ export class TabviewComponent implements AfterViewInit {
 
   convertToPython() {
     this.store.dispatch(tabviewActions.toPythonButtonClicked());
+  }
+
+  onShareButtonClicked() {
+    const tabsToShare = [this.ngShareRaioModel, ...this.ngShareCheckboxModel]
+    console.log('onShareButtonClicked', tabsToShare);
   }
 
   activeIndexChange(newIndex: number) {
