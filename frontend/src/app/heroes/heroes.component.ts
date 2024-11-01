@@ -108,6 +108,13 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       this.onTranslateRequest();
     });
 
+    this.actions$.pipe(
+      ofType(tabviewActions.shareCodeButtonClicked),
+      takeUntil(this.destroyed$),
+    ).subscribe(({tabTitles}) => {
+      this.onSaveProg(tabTitles);
+    });
+
     this.store.select(tabviewSelectors.selectOpenTabs).subscribe((tabs) => {
       this.allTabs = tabs
       this.cd.detectChanges();
@@ -178,14 +185,25 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     if (!data) {
       return;
     }
-    console.log('handleSharedProg', data);
     switch (data.command + ' | ' + data.status) {
       case 'get | success':
         try {
           const prog = JSON.parse(data.response.prog);
+          let loaded: string[] = [];
           for (let title in prog) {
             this.ngContentsInput.set(title, prog[title]);
+            loaded.push(title);
           }
+          if (loaded.length == 0) {
+            this.initFromLocalStorage();
+            return;
+          }
+          this.store.dispatch(tabviewActions.changeOpenTabs({
+            openTabs: [...loaded.map(title => ({title}))],
+            newIndex: 0,
+          }));
+          this.onButtonClick(loaded[0])  // initial calculate on page load
+          this.cd.detectChanges();
         } catch (error) {
           this.store.dispatch(ToastActions.errorNotification({ title: 'Error loading program', message: 'Invalid program data' }));
           this.initFromLocalStorage();

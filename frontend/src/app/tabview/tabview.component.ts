@@ -83,8 +83,12 @@ export class TabviewComponent implements AfterViewInit {
   }
 
   onShareButtonClicked() {
+    if (!this.ngShareRaioModel) {
+      console.assert(false, 'should never happen');
+      return;
+    }
     const tabsToShare = [this.ngShareRaioModel, ...this.ngShareCheckboxModel]
-    console.log('onShareButtonClicked', tabsToShare);
+    this.store.dispatch(tabviewActions.shareCodeButtonClicked({tabTitles: tabsToShare}));
   }
 
   activeIndexChange(newIndex: number) {
