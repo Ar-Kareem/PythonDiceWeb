@@ -6,7 +6,7 @@ import { map, catchError, switchMap } from 'rxjs/operators';
 import { CodeApiActions } from './heros.reducer';
 import { HerosService } from './code.service';
 import { PyodideService } from '../localbackend/local.service';
-import { GetprogService } from '@app/getprog.service';
+import { GetprogService } from '@app/getprog/getprog.service';
 
 // EFFECTS
 

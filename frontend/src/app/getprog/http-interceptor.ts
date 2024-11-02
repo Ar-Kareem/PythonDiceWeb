@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { ToastActions } from './toast/toast.reducer';
+import { ToastActions } from '@app/toast/toast.reducer';
 
 
 export const API_BLOCKS_UI = new HttpContextToken<boolean>(() => false);
