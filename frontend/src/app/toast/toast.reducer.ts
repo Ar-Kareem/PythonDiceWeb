@@ -69,8 +69,10 @@ const feature = createFeature({
       return { ...state, message: message, type: 'dialog-dismiss', visible: true, callback: message.callback };
     }),
   ),
-  extraSelectors: ({ selectLoadingRequests }) => ({
+  extraSelectors: ({ selectLoadingRequests, selectMessage, selectType, selectVisible, selectCallback }) => ({
     selectIsLoading: createSelector(selectLoadingRequests, (loadingRequests) => loadingRequests > 0),
+    selectMsgServiceState: createSelector(selectMessage, selectType, selectVisible, selectCallback, 
+      (message, type, visible, callback) => ({ message, type, visible, callback })),
   }),
 });
 
@@ -79,5 +81,6 @@ export const {
   reducer: toastReducer,
   selectToastState,
   selectIsLoading,
+  selectMsgServiceState,
 } = feature;
 
