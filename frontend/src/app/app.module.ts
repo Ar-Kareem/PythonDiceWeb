@@ -1,6 +1,6 @@
 import { NgModule, isDevMode } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
@@ -45,6 +45,7 @@ import { OutputareaComponent } from './outputs/outputarea/outputarea.component';
 import { OutputchartComponent } from './outputs/outputarea/outputchart/outputchart.component';
 import { RollerComponent } from './outputs/outputarea/roller/roller.component';
 import { ExporterComponent } from './outputs/outputarea/exporter/exporter.component';
+import { loadInterceptor } from './http-interceptor';
 
 @NgModule({
   declarations: [
@@ -102,7 +103,11 @@ import { ExporterComponent } from './outputs/outputarea/exporter/exporter.compon
   ],
   providers: [
     provideClientHydration(),
-    provideHttpClient(withFetch()),
+    provideHttpClient(
+      withFetch(),
+      withInterceptorsFromDi(),
+    ),
+    { provide: HTTP_INTERCEPTORS, useClass: loadInterceptor, multi: true },
     PyodideService,
   ],
   bootstrap: [AppComponent]
