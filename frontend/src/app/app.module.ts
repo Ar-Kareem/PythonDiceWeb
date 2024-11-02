@@ -25,6 +25,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { CardModule } from 'primeng/card';
+import { BlockUIModule } from 'primeng/blockui';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -83,6 +84,7 @@ import { ExporterComponent } from './outputs/outputarea/exporter/exporter.compon
     PanelMenuModule,
     FloatLabelModule,
     CardModule,
+    BlockUIModule,
     EffectsModule.forRoot([
       HerosEffects
     ]),
