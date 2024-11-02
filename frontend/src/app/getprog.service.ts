@@ -4,6 +4,8 @@ import { of } from 'rxjs';
 
 import { API_BLOCKS_UI } from './http-interceptor';
 
+const FIRST_PROG_KEY = 10000;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -14,6 +16,10 @@ export class GetprogService {
   getprog(id: number|string) {
     if (!isNumber(id)) {
       return of({"error":"key must be an integer","resp":"error"})
+    }
+    id = parseInt(id as string);
+    if (id < FIRST_PROG_KEY) {
+      return of({"error":"key not found","resp":"error"})
     }
     const url = `https://pydiceapi.abdulrahman-kareem.com/get_prog`;
     return this.http.post(url, {key: id}, {
