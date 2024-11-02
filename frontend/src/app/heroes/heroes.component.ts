@@ -188,6 +188,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     if (!data) {
       return;
     }
+    console.log('handleSharedProg:', data);
     switch (data.command + ' | ' + data.status) {
       case 'get | success':
         try {

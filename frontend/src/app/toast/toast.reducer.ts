@@ -17,6 +17,8 @@ interface ICallback {
 export const ToastActions = createActionGroup({
   source: 'Toast',
   events: {
+    'Add Loading Request': emptyProps(),
+    'Remove Loading Request': emptyProps(),
     'Error Notification': props<IMessage>(),
     'Warning Notification': props<IMessage>(),
     'Success Notification': props<IMessage>(),
@@ -27,12 +29,14 @@ export const ToastActions = createActionGroup({
 
 // REDUCER
 interface State {
+  loadingRequests: number;
   message: IMessage | null,
   type: string,
   visible: boolean,
   callback: ICallback | null,
 };
 const initialState: State = {
+  loadingRequests: 0,
   message: null,
   type: '',
   visible: false,
@@ -43,6 +47,12 @@ const feature = createFeature({
   name: 'toast',
   reducer: createReducer(
     initialState,
+    on(ToastActions.addLoadingRequest, (state) => {
+      return { ...state, loadingRequests: state.loadingRequests + 1 };
+    }),
+    on(ToastActions.removeLoadingRequest, (state) => {
+      return { ...state, loadingRequests: state.loadingRequests - 1 };
+    }),
     on(ToastActions.errorNotification, (state, message) => {
       return { ...state, message: message, type: 'error', visible: true };
     }),
@@ -59,11 +69,15 @@ const feature = createFeature({
       return { ...state, message: message, type: 'dialog-dismiss', visible: true, callback: message.callback };
     }),
   ),
+  extraSelectors: ({ selectLoadingRequests }) => ({
+    selectIsLoading: createSelector(selectLoadingRequests, (loadingRequests) => loadingRequests > 0),
+  }),
 });
 
 export const {
   name: toastFeatureKey,
   reducer: toastReducer,
   selectToastState,
+  selectIsLoading,
 } = feature;
 
