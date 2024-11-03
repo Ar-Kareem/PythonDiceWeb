@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { of } from 'rxjs';
 
 import { API_BLOCKS_UI } from './http-interceptor';
+import { EXAMPLE_PROGS } from './example-progs';
 
 const FIRST_PROG_KEY = 10000;
 
@@ -19,6 +20,10 @@ export class GetprogService {
     }
     id = parseInt(id as string);
     if (id < FIRST_PROG_KEY) {
+      const exampleProg = EXAMPLE_PROGS[id];  // search in docs
+      if (!!exampleProg) {
+        return of({prog: exampleProg.prog, name: exampleProg.name, 'resp': 'success'});
+      }
       return of({"error":"key not found","resp":"error"})
     }
     const url = `https://pydiceapi.abdulrahman-kareem.com/get_prog`;
