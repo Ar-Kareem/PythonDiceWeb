@@ -3,7 +3,7 @@ import { Store } from '@ngrx/store';
 
 import { ConfirmationService, MessageService } from 'primeng/api';
 
-import { selectToastState } from './toast.reducer';
+import { selectMsgServiceState } from './toast.reducer';
 
 
 @Component({
@@ -27,7 +27,7 @@ export class ToastComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.store.select(selectToastState).subscribe((state) => {
+    this.store.select(selectMsgServiceState).subscribe((state) => {
       if (state.visible && state.type === 'dialog') {
         this.confirmationService.confirm({
           message: state.message?.message,

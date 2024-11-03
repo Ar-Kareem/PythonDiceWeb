@@ -130,7 +130,7 @@ export class OutputchartComponent {
     // boxplot
     const boxData = rvs.map(({min_x, q1_x, median_x, mean, q3_x, max_x}) => ({whiskerMax: min_x, min: min_x, q1: q1_x, mean, median: median_x, q3: q3_x, whiskerMin: max_x, max: max_x}));
     const boxLabels = rvs.map(({named}) => named);
-    console.log('boxplot', boxLabels, boxData, min_x, max_x);
+    // console.log('boxplot', boxLabels, boxData, min_x, max_x);
     const boxChartObj = getHorizBoxPlot(boxLabels, boxData, 'Box Plot', min_x, max_x);
     this.chartsData[1] = new Chart(this.chartsRef.last.nativeElement, boxChartObj);
     const h2 = CHART_HEIGHT_PX.base + (CHART_HEIGHT_PX.per_row) * boxLabels.length + CHART_HEIGHT_PX.for_title;

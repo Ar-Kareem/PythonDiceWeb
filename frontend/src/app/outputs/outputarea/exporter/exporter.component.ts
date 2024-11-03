@@ -52,7 +52,7 @@ export class ExporterComponent {
         this.setupExportMeans(data)
         return
     }
-    console.log('initExporter', data, type);
+    // console.log('initExporter', data, type);
   }
 
   setupExportRegular(data: MULTI_RV_DATA, type: DISPLAY_TYPE) {

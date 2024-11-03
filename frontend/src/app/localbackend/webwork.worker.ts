@@ -2,9 +2,9 @@
 importScripts('https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js');
 
 const BASE_PYODIDE_URL = 'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/';
-const BASE_CALC_DICE_URL = 'https://files.pythonhosted.org/packages/82/74/1f4b30eedce31f09a61f2b54a88b6ba7ea876fdf5187a3ac4d65df3c7371/dice_calc-0.3.2.dev0-py3-none-any.whl';
+const BASE_CALC_DICE_URL = 'https://files.pythonhosted.org/packages/8a/c3/99d899387842e1c16c12e882f7651d558e6115987ccebd945907e85387fb/dice_calc-0.3.2.dev1-py3-none-any.whl';
 
-type RV = [val: number, prob: number][]
+type RV = [val: number|string, prob: number][]
 
 
 declare let loadPyodide: any;
@@ -88,6 +88,15 @@ function exec_python_code(code:string) {
   const rvs: [RV, string | undefined][] = result.get('rvs');
   rvs.forEach((rv_output, i) => {
     const rv: RV = (rv_output[0] as any).get_vals_probs().toJs();
+    // fixing the case where value is a polynomial-string
+    rv.forEach(([val, prob], ind) => {
+      console.assert(typeof prob === 'number', `Invalid prob type: ${typeof prob}`);
+      console.assert(typeof val === 'number' || typeof val === 'object', `Invalid val type: ${typeof val}`);
+      if (typeof val === 'object') {
+        // @ts-ignore val is a python string polyhomial thingy
+        rv[ind][0] = val.toString();
+      }
+    });
     const named = rv_output.length > 1 ? rv_output[1] : undefined;
     rvs[i] = [rv, named];
   });
@@ -109,8 +118,10 @@ def coerce_to_rv(rv):
   from typing import Iterable
   if isinstance(rv, RV):
     return rv
-  if rv is None or isinstance(rv, int) or isinstance(rv, Iterable) or isinstance(rv, bool):
+  if rv is None or isinstance(rv, int) or isinstance(rv, bool):
     return RV.from_seq([rv])
+  if isinstance(rv, Iterable):
+    return RV.from_seq(rv)
   assert False, f'Invalid rv: {type(rv)}'
 
 def compile(code, flags):
