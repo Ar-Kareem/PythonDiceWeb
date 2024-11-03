@@ -138,6 +138,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       this.isLoading = false;
       this.loadExecTime = data.time/1000;
       this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: data.result, rvs: data.rvs}}))
+      this.cd.detectChanges();
     });
 
     this.store.select(herosSelectors.selectDiceExecFailure).pipe(
@@ -146,6 +147,7 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       this.isLoading = false;
       this.loadExecTime = undefined;
       this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: this.getServerErrorMsg(response, inp_code)}}))
+      this.cd.detectChanges();
     });
 
     this.store.select(herosSelectors.selectServTranslateRes).pipe(
