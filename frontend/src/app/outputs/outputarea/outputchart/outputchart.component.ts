@@ -344,6 +344,7 @@ function getHorizBarWithErrorBars(labels: string[], data: number[], whiskers: nu
 }
 
 function getHorizBoxPlot(labels: string[], data: {min: number, whiskerMax: number, q1: number, median: number, mean: number, q3: number, max: number, whiskerMin: number}[], title: string, minval: number, maxval: number): any {
+  data = data.map((d) => ({min: d.min, whiskerMin: d.whiskerMax, q1: d.q1, median: d.median, mean: d.mean, q3: d.q3, whiskerMax: d.whiskerMin, max: d.max}))  // for some reason this is needed otherwise tooltip does not work
   return {
     type: 'boxplot',
     data: {
