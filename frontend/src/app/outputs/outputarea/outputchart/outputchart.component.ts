@@ -11,8 +11,8 @@ Chart.register(BoxPlotController, BoxAndWiskers);
 
 
 const CHART_HEIGHT_PX = {
-  base: 50,  // start with this
-  per_row: 20,  // add for each row
+  base: 30,  // start with this
+  per_row: 24,  // add for each row
   for_title: 124,  // extra if title
 }
 
@@ -379,6 +379,7 @@ const tick_style = {
       size: 14,
     },
     color: '#fff',
+    padding: 0,
   },
 };
 const plugin_settings = (title: string) => ({
@@ -391,7 +392,13 @@ const plugin_settings = (title: string) => ({
       size: 16,
       weight: 'bolder',
       family: '"Courier New", Courier, monospace',
-    }
+    },
+    padding: {
+      top: 5,
+      bottom: 0,
+      left: 0,
+      right: 0,
+    },
   },
   legend: {
     display: false,
