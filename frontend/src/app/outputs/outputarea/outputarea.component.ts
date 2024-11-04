@@ -166,7 +166,8 @@ function getRespObj(response_text?: string, response_rvs?: any, prev_display_typ
   } as TAB_DATA;
   if (!!response_rvs) {
     result.multi_rv_data = {id_order: [], rvs: {}, transposed: new Map(), transposed_unfiltered: new Map()};
-    response_rvs?.forEach(([rv, name]: ([RV, string]), i: number) => {
+    let i: number = 0;
+    response_rvs?.forEach(([rv, name]: ([RV, string])) => {
       const uuid = `uuid_${++__rv_uuid}`;
       if (isOutput0(rv) && name?.startsWith('DISPLAY ')) {  // special case for settings display type | output 0 named "DISPLAY A B"
         const {i1, i2} = parse_dd(name);
@@ -182,6 +183,7 @@ function getRespObj(response_text?: string, response_rvs?: any, prev_display_typ
       const order = i;
       const named = !!name ? name : `Output ${i+1}`;
       result.multi_rv_data!.rvs[uuid] = getCalcedRV(rv, order, named, true);
+      i++;
     });
     const {filtered, unfiltered} = getTranspose(result.multi_rv_data!.rvs, result.multi_rv_data!.id_order);
     result.multi_rv_data!.transposed = filtered;
