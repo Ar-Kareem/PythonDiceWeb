@@ -165,6 +165,10 @@ function getRespObj(response_text?: string, response_rvs?: any, prev_display_typ
     err_msg: undefined,
   } as TAB_DATA;
   if (!!response_rvs) {
+    if (response_rvs.length === 0) {
+      result.text_response = 'No outputs made. Did you forget to call output?';
+      return result;
+    }
     result.multi_rv_data = {id_order: [], rvs: {}, transposed: new Map(), transposed_unfiltered: new Map()};
     let i: number = 0;
     response_rvs?.forEach(([rv, name]: ([RV, string])) => {
