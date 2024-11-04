@@ -11,8 +11,8 @@ Chart.register(BoxPlotController, BoxAndWiskers);
 
 
 const CHART_HEIGHT_PX = {
-  base: 50,  // start with this
-  per_row: 20,  // add for each row
+  base: 30,  // start with this
+  per_row: 24,  // add for each row
   for_title: 124,  // extra if title
 }
 
@@ -75,15 +75,6 @@ export class OutputchartComponent {
     // console.log('creating chart for', multiRvData, displayType);
     switch (displayType) {
 
-      // do nothing for the following
-      case DISPLAY_TYPE.TEXT:
-      case DISPLAY_TYPE.ROLLER:
-      case DISPLAY_TYPE.EXPORT_NORMAL:
-      case DISPLAY_TYPE.EXPORT_ATLEAST:
-      case DISPLAY_TYPE.EXPORT_ATMOST:
-      case DISPLAY_TYPE.EXPORT_TRANSPOSE:
-      case DISPLAY_TYPE.EXPORT_MEANS:
-        break;
       case DISPLAY_TYPE.MEANS:
         this.setupMeanChart(multiRvData);
         break;
@@ -105,6 +96,15 @@ export class OutputchartComponent {
         break;
       case DISPLAY_TYPE.GRAPH_MEANS:
         this.setupGraphMeans(multiRvData);
+        break;
+      // do nothing for the following
+      case DISPLAY_TYPE.TEXT:
+      case DISPLAY_TYPE.ROLLER:
+      case DISPLAY_TYPE.EXPORT_NORMAL:
+      case DISPLAY_TYPE.EXPORT_ATLEAST:
+      case DISPLAY_TYPE.EXPORT_ATMOST:
+      case DISPLAY_TYPE.EXPORT_TRANSPOSE:
+      case DISPLAY_TYPE.EXPORT_MEANS:
         break;
       default:
         console.error('Unknown display type', displayType);
@@ -228,7 +228,6 @@ export class OutputchartComponent {
     this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, getLineChart(x_labels, datasets, 'Graph'));
     const h = getGraphHeight();
     this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
-
   }
 
 }
@@ -290,8 +289,9 @@ function getHorizBarChart(labels: string[], data: number[], title: string, maxpr
       ],
     },
     options: {
-      plugins: plugin_settings(title),
+      responsive: true,
       maintainAspectRatio: false,
+      plugins: plugin_settings(title),
       indexAxis: 'y',
       scales: {
         y: tick_style,
@@ -328,8 +328,9 @@ function getHorizBarWithErrorBars(labels: string[], data: number[], whiskers: nu
       ],
     },
     options: {
-      plugins: plugin_settings(title),
+      responsive: true,
       maintainAspectRatio: false,
+      plugins: plugin_settings(title),
       indexAxis: 'y',
       scales: {
         y: tick_style,
@@ -344,21 +345,21 @@ function getHorizBarWithErrorBars(labels: string[], data: number[], whiskers: nu
 }
 
 function getHorizBoxPlot(labels: string[], data: {min: number, whiskerMax: number, q1: number, median: number, mean: number, q3: number, max: number, whiskerMin: number}[], title: string, minval: number, maxval: number): any {
+  data = data.map((d) => ({min: d.min, whiskerMin: d.whiskerMax, q1: d.q1, median: d.median, mean: d.mean, q3: d.q3, whiskerMax: d.whiskerMin, max: d.max}))  // for some reason this is needed otherwise tooltip does not work
   return {
     type: 'boxplot',
     data: {
       labels: labels,
       datasets: [
         {
-          label: title,
           data: data,
-          borderWidth: 1,
         },
       ],
     },
     options: {
-      plugins: plugin_settings(title),
+      responsive: true,
       maintainAspectRatio: false,
+      plugins: plugin_settings(title),
       indexAxis: 'y',
       scales: {
         y: tick_style,
@@ -378,6 +379,7 @@ const tick_style = {
       size: 14,
     },
     color: '#fff',
+    padding: 0,
   },
 };
 const plugin_settings = (title: string) => ({
@@ -390,7 +392,13 @@ const plugin_settings = (title: string) => ({
       size: 16,
       weight: 'bolder',
       family: '"Courier New", Courier, monospace',
-    }
+    },
+    padding: {
+      top: 5,
+      bottom: 0,
+      left: 0,
+      right: 0,
+    },
   },
   legend: {
     display: false,

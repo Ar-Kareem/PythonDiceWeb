@@ -6,6 +6,7 @@ import { herosSelectors } from '@app/heroes/heros.reducer';
 import { TabTitles } from '@app/tabview/tabview.component';
 import { ITab, tabviewSelectors } from '@app/tabview/tabview.reducer';
 import { WorkerStatus } from '@app/localbackend/local.service';
+import { ToastActions } from '@app/toast/toast.reducer';
 
 type RV = [val: number, prob: number][]
 export type SINGLE_RV_DATA = {
@@ -59,6 +60,7 @@ type TAB_DATA = {
   display_type?: DISPLAY_TYPE,
   multi_rv_data?: MULTI_RV_DATA,
   text_response?: string,
+  err_msg?: string,
 }
 
 @Component({
@@ -112,6 +114,9 @@ export class OutputareaComponent implements AfterViewInit {
         return;
       }
       this.allResults[title] = getRespObj(response?.text, response?.rvs, this.allResults[title]?.display_type);
+      if (!!this.allResults[title].err_msg) {
+        this.store.dispatch(ToastActions.errorNotification({ title: 'Output Error', message: this.allResults[title].err_msg }));
+      }
       this.updateDropdownItems();
       this.cd.detectChanges();
     });
@@ -157,15 +162,32 @@ function getRespObj(response_text?: string, response_rvs?: any, prev_display_typ
     display_type: prev_display_type,
     text_response: response_text,
     multi_rv_data: undefined,
+    err_msg: undefined,
   } as TAB_DATA;
   if (!!response_rvs) {
+    if (response_rvs.length === 0) {
+      result.text_response = 'No outputs made. Did you forget to call output?';
+      return result;
+    }
     result.multi_rv_data = {id_order: [], rvs: {}, transposed: new Map(), transposed_unfiltered: new Map()};
-    response_rvs?.forEach(([rv, name]: ([RV, string]), i: number) => {
+    let i: number = 0;
+    response_rvs?.forEach(([rv, name]: ([RV, string])) => {
       const uuid = `uuid_${++__rv_uuid}`;
+      if (isOutput0(rv) && name?.startsWith('DISPLAY ')) {  // special case for settings display type | output 0 named "DISPLAY A B"
+        const {i1, i2} = parse_dd(name);
+        try {
+          result.display_type = selectedToDisplayType(i1 as DD1ENUM, i2 as DD2ENUM);
+        } catch (error) {
+          console.assert(false, 'Invalid DISPLAY type', i1, i2);
+          result.err_msg = `Invalid DISPLAY type: ${i1} ${i2}`;
+        }
+        return;
+      }
       result.multi_rv_data!.id_order.push(uuid);
       const order = i;
       const named = !!name ? name : `Output ${i+1}`;
       result.multi_rv_data!.rvs[uuid] = getCalcedRV(rv, order, named, true);
+      i++;
     });
     const {filtered, unfiltered} = getTranspose(result.multi_rv_data!.rvs, result.multi_rv_data!.id_order);
     result.multi_rv_data!.transposed = filtered;
@@ -362,8 +384,7 @@ function selectedToDisplayType(i1?: DD1ENUM, i2?: DD2ENUM): DISPLAY_TYPE {
   } else if (i1 === undefined) {
     return DISPLAY_TYPE.BAR_NORMAL;
   }
-  console.assert(false, 'SHOULD NEVER HAPPEN', i1, i2);
-  return DISPLAY_TYPE.BAR_NORMAL;
+  throw new Error(`Invalid dropdown selection: ${i1} ${i2}`);
 }
 function dropdownItemsToDisplay(i1: DD1ENUM, i2: DD2ENUM): { i1s: DD1ENUM[]; i2s: DD2ENUM[]; } {
   // text on screen => all possible dropdown items
@@ -387,4 +408,19 @@ function dropdownItemsToDisplay(i1: DD1ENUM, i2: DD2ENUM): { i1s: DD1ENUM[]; i2s
     case DD1ENUM.ROLLER:
       return {i1s: i1s, i2s: [] }
   }
+}
+
+function isOutput0(rv: RV) {
+  return rv.length === 1 && rv[0][0] === 0 && rv[0][1] === 1;
+}
+function parse_dd(name: string) {
+  const combined = name.substring('DISPLAY '.length)
+  const i = combined.indexOf(' ');
+  let i1, i2;
+  if (i >= 0) {
+    [i1, i2] = [combined.slice(0,i), combined.slice(i+1)];
+  } else {
+    i1 = combined;
+  }
+  return {i1, i2};
 }

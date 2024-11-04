@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { map, catchError, switchMap } from 'rxjs/operators';
+import { map, catchError, switchMap, tap } from 'rxjs/operators';
 
 import { CodeApiActions } from './heros.reducer';
 import { HerosService } from './code.service';
@@ -20,6 +20,7 @@ export class HerosEffects {
           // this.herosService.postCode(action.code)
           this.pyodideService.exec_dice_code(action.code)
         .pipe(
+        // tap((response) => console.log('response', response)),
         map(response => CodeApiActions.execDiceCodeSuccess({ response })),
         catchError((response) => of(CodeApiActions.execDiceCodeFailure({ error: {response: response, inp_code: action.code} })))
       ))
