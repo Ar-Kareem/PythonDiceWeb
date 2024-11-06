@@ -3,8 +3,9 @@ import { debounceTime, distinctUntilChanged, filter, ReplaySubject } from 'rxjs'
 import { Store } from '@ngrx/store';
 import { OverlayPanel } from 'primeng/overlaypanel';
 
-import { xmldocToGUIElement, ParseError, GUIElement } from '@models/GUIModels';
+import { ParseError, GUIElement } from '@models/GUIModels';
 import { SidebarActions } from '@app/heroes/heros.reducer';
+import { xmldocToGUIElement } from './parser_xml';
 
 @Component({
   selector: 'app-gui-output',
