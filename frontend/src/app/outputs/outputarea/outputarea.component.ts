@@ -74,7 +74,7 @@ export class OutputareaComponent implements AfterViewInit {
   readonly WorkerStatus = WorkerStatus;
   readonly TabsWithOutput: string[] = [TabTitles.DICE_CODE, TabTitles.PYTHON, TabTitles.GUISHOW];
 
-  @Input() guiXML: string = '';
+  @Input() guiCode: string = '';
   @Output() onCalculate = new EventEmitter();
 
   allTabs: ITab[] = [];  // from store

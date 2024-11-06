@@ -14,8 +14,8 @@ import { xmldocToGUIElement } from './parser_xml';
 })
 export class GuiOutputComponent implements AfterViewInit {
 
-  @Input() set inputXML(v: string) { this.inputXML$.next(v); }
-  protected readonly inputXML$ = new ReplaySubject<string>(1);
+  @Input() set inputCode(v: string) { this.inputCode$.next(v); }
+  protected readonly inputCode$ = new ReplaySubject<string>(1);
 
   @ViewChild('overlayTarget') overlayTarget: ElementRef | undefined;
   @ViewChild('op') errorOverlayPanel: OverlayPanel | undefined;
@@ -28,7 +28,7 @@ export class GuiOutputComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.inputXML$.pipe(
+    this.inputCode$.pipe(
       debounceTime(200),
       distinctUntilChanged(),
       filter(xml => xml.trim().length > 0),
