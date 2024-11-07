@@ -47,6 +47,7 @@ import { RollerComponent } from './outputs/outputarea/roller/roller.component';
 import { ExporterComponent } from './outputs/outputarea/exporter/exporter.component';
 import { loadInterceptor } from './getprog/http-interceptor';
 import { SidebarComponent } from './heroes/sidebar/sidebar.component';
+import { DocsComponent } from './heroes/docs/docs.component';
 
 @NgModule({
   declarations: [
@@ -62,6 +63,7 @@ import { SidebarComponent } from './heroes/sidebar/sidebar.component';
     RollerComponent,
     ExporterComponent,
     SidebarComponent,
+    DocsComponent,
   ],
   imports: [
     BrowserModule,

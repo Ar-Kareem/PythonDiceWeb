@@ -20,6 +20,7 @@ export const SidebarActions = createActionGroup({
     'GUI Variable Change': props<{ varname: string, value: any }>(),
     'Set GUI Tree': props<{ element: GUIElement }>(),
     'Set Current Response': props<{ response: any }>(),
+    'Set Docs Visible': props<{ visible: boolean }>(),
   },
 });
 
@@ -55,6 +56,7 @@ interface State {
   WorkerStatus: string|null,
   OutputResponse: any,
   progResponse: any,
+  docsVisible: boolean,
 };
 const initialState: State = {
   sidebarVisible: false,
@@ -66,6 +68,7 @@ const initialState: State = {
   WorkerStatus: null,
   OutputResponse: null,
   progResponse: null,
+  docsVisible: false,
 };
 
 export const feature = createFeature({
@@ -77,6 +80,9 @@ export const feature = createFeature({
     }),
     on(SidebarActions.setSidebar, (state, { newState }) => {
       return { ...state, sidebarVisible: newState };
+    }),
+    on(SidebarActions.setDocsVisible, (state, { visible }) => {
+      return { ...state, docsVisible: visible };
     }),
     on(CodeApiActions.execDiceCodeSuccess, CodeApiActions.execPythonCodeSuccess, (state, payload) => {
       return { ...state, diceExecResult: payload, diceExecFailure: null };
@@ -140,5 +146,6 @@ export const herosSelectors = {
   selectWorkerStatus: feature.selectWorkerStatus,
   selectOutputResponse: feature.selectOutputResponse,
   selectProgResponse: feature.selectProgResponse,
+  selectDocsVisible: feature.selectDocsVisible,
   factorySelectSingleGUIVariable: factorySelectSingleGUIVariable,
 };

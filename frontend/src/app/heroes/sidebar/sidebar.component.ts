@@ -69,10 +69,7 @@ export class SidebarComponent {
   }
 
   private onExamplesClick() {
-    this.store.dispatch(ToastActions.dialogOnlyDismissNotification({ message: 'Examples are coming soon!', title: 'Examples', callback: {
-      onConfirm: () => {},
-      onReject: () => {}
-    }}));
+    this.store.dispatch(SidebarActions.setDocsVisible({ visible: true }));
   }
 
 }
