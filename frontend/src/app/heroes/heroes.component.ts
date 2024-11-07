@@ -322,7 +322,7 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
         return `Runtime Error:\n${payload.message}`;
       }
     } else {
-      return `${response}`;
+      return `Error encountered (sorry for the horrible error messages, will improve this in future updates):\n\n${response}`;
     }
   }
 
