@@ -26,12 +26,12 @@ export const SidebarActions = createActionGroup({
 export const CodeApiActions = createActionGroup({
   source: 'Code API',
   events: {
-    'Exec dice code Request': props<{ code: string }>(),
-    'Exec dice code Success': props<{ response: any }>(),
-    'Exec dice code Failure': props<{ error: any }>(),
-    'Exec python code Request': props<{ code: string }>(),
-    'Exec python code Success': props<{ response: any }>(),
-    'Exec python code Failure': props<{ error: any }>(),
+    'Exec dice code Request': props<{ code: string, tabTitle: string }>(),
+    'Exec dice code Success': props<{ response: any, tabTitle: string }>(),
+    'Exec dice code Failure': props<{ error: any, inp_code: string, tabTitle: string }>(),
+    'Exec python code Request': props<{ code: string, tabTitle: string }>(),
+    'Exec python code Success': props<{ response: any, tabTitle: string }>(),
+    'Exec python code Failure': props<{ error: any, inp_code: string, tabTitle: string }>(),
     'Translate dice code Request': props<{ code: string }>(),
     'Translate dice code Respone': props<TranslateResp>(),
     'Set Worker Status': props<{ status: string }>(),
@@ -47,8 +47,8 @@ export const CodeApiActions = createActionGroup({
 // REDUCER
 interface State {
   sidebarVisible: boolean,
-  diceExecResult: any,
-  diceExecFailure: any,
+  diceExecResult: { response: any, tabTitle: string }|null,
+  diceExecFailure: { error: any, inp_code: string, tabTitle: string }|null,
   servTranslateRes: TranslateResp | null, 
   GUIVariables: { [varname: string]: any },
   GUITree: GUIElement | null,
@@ -78,11 +78,11 @@ export const feature = createFeature({
     on(SidebarActions.setSidebar, (state, { newState }) => {
       return { ...state, sidebarVisible: newState };
     }),
-    on(CodeApiActions.execDiceCodeSuccess, CodeApiActions.execPythonCodeSuccess, (state, { response }) => {
-      return { ...state, diceExecResult: response, diceExecFailure: null };
+    on(CodeApiActions.execDiceCodeSuccess, CodeApiActions.execPythonCodeSuccess, (state, payload) => {
+      return { ...state, diceExecResult: payload, diceExecFailure: null };
     }),
-    on(CodeApiActions.execDiceCodeFailure, CodeApiActions.execPythonCodeFailure, (state, { error }) => {
-      return { ...state, diceExecFailure: error, diceExecResult: null };
+    on(CodeApiActions.execDiceCodeFailure, CodeApiActions.execPythonCodeFailure, (state, payload) => {
+      return { ...state, diceExecFailure: payload, diceExecResult: null };
     }),
     on(CodeApiActions.translateDiceCodeRespone, (state, response) => {
       return { ...state, servTranslateRes: response};

@@ -21,8 +21,8 @@ export class HerosEffects {
           this.pyodideService.exec_dice_code(action.code)
         .pipe(
         // tap((response) => console.log('response', response)),
-        map(response => CodeApiActions.execDiceCodeSuccess({ response })),
-        catchError((response) => of(CodeApiActions.execDiceCodeFailure({ error: {response: response, inp_code: action.code} })))
+        map(response => CodeApiActions.execDiceCodeSuccess({ response, tabTitle: action.tabTitle })),
+        catchError((response) => of(CodeApiActions.execDiceCodeFailure({ error: response, inp_code: action.code, tabTitle: action.tabTitle })))
       ))
     )
   );
@@ -34,8 +34,8 @@ export class HerosEffects {
       // this.herosService.postPythonCode(action.code)
       this.pyodideService.exec_python_code(action.code)
       .pipe(
-        map(response => CodeApiActions.execPythonCodeSuccess({ response })),
-        catchError((response) => of(CodeApiActions.execPythonCodeFailure({ error: {response: response, inp_code: action.code} })))
+        map(response => CodeApiActions.execPythonCodeSuccess({ response, tabTitle: action.tabTitle })),
+        catchError((response) => of(CodeApiActions.execPythonCodeFailure({ error: response, inp_code: action.code, tabTitle: action.tabTitle })))
       ))
     )
   );

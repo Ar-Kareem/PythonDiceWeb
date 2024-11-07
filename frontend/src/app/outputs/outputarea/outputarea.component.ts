@@ -108,7 +108,7 @@ export class OutputareaComponent implements AfterViewInit {
     this.store.select(herosSelectors.selectOutputResponse).pipe(
       filter(response => response !== null)
     ).subscribe((response) => {
-      const title: string|undefined = response?.title || this.selectedTab?.title;
+      const title: string|undefined = response?.title;
       if (!title) {  // no tab selected
         console.assert(false, 'Response with no tab selected. Should never happen.');
         return;

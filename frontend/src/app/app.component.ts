@@ -32,7 +32,7 @@ export class AppComponent implements AfterViewInit {
     if (!environment.production) {
       console.log('IN DEBUG MODE');
       console.log('Dispatching data');
-      this.store.dispatch(CodeApiActions.execDiceCodeSuccess({ response: environment.debugData.dataProgs[0] }));
+      this.store.dispatch(CodeApiActions.execDiceCodeSuccess({ response: environment.debugData.dataProgs[0], tabTitle: 'DiceCode' }));
     } else {
       console.log('running in production');
     }
