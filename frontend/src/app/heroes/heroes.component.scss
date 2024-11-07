@@ -12,38 +12,6 @@
     box-sizing:border-box;
 }
 
-p-sidebar.left-panel {
-  // ::ng-deep * {
-  //   color: #ffffff;
-  //   background-color: var(--surface-ground);
-  // }
-  .sidebar-title {
-    text-align: center;
-    margin-bottom: 1rem;
-    user-select: none;
-    h2 {
-      margin: 0;
-      margin-bottom: 0.5rem;
-      font-size: 3rem;
-      font-weight: bold;
-      color: var(--primary-color);
-    }
-    h3 {
-      margin: 0;
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: var(--secondary-color);
-    }
-  }
-  .sidebar-description {
-    margin: 0;
-    font-size: 16px;
-    line-height: 1.6;
-    // color: #555;
-    text-align: center;
-  }
-}
-
 .shifted {  // hidden div to push content
   margin-left: 320px; /* Margin when sidebar is open */
 }

@@ -46,6 +46,7 @@ import { OutputchartComponent } from './outputs/outputarea/outputchart/outputcha
 import { RollerComponent } from './outputs/outputarea/roller/roller.component';
 import { ExporterComponent } from './outputs/outputarea/exporter/exporter.component';
 import { loadInterceptor } from './getprog/http-interceptor';
+import { SidebarComponent } from './heroes/sidebar/sidebar.component';
 
 @NgModule({
   declarations: [
@@ -60,6 +61,7 @@ import { loadInterceptor } from './getprog/http-interceptor';
     OutputchartComponent,
     RollerComponent,
     ExporterComponent,
+    SidebarComponent,
   ],
   imports: [
     BrowserModule,

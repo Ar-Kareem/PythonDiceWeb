@@ -20,46 +20,6 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   readonly TabsWithInput: string[] = [TabTitles.DICE_CODE, TabTitles.PYTHON, TabTitles.GUI];
   readonly TabTitles = TabTitles;
 
-  readonly SIDEBAR_ITEMS: any[] = [
-    {
-      label: 'Home',
-      icon: 'pi pi-home',
-      command: () => this.store.dispatch(SidebarActions.setSidebar({ newState: false }))
-    },
-    {
-      label: 'Github',
-      icon: 'pi pi-github',
-      url: 'https://github.com/Ar-Kareem/PythonDice'
-    },
-    {
-      label: 'Examples',
-      icon: 'pi pi-book',
-      command: () => this.onExamplesClick()
-    },
-    {
-      label: 'Support',
-      icon: 'pi pi-question-circle',
-      items: [
-        {
-          label: 'Bugs / Questions',
-          icon: 'pi pi-question',
-          url: 'https://github.com/Ar-Kareem/PythonDice/issues'
-        },
-        {
-          label: 'Contact',
-          icon: 'pi pi-envelope',
-          url: 'mailto:arkareem2@gmail.com'
-        },
-        {
-          label: 'Support Us',
-          icon: 'pi pi-fw pi-heart',
-          command: () => this.onDonateClick()
-        },
-      ]
-    }
-
-];
-
   private inputSubject = new Subject<{title: string, content: string}>();  // for saving to localstorage
   ngContentsInput = new Map<string, string>();  // for input textareas
 
@@ -462,20 +422,6 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
     }
     // console.debug(JSON.stringify(JSON.stringify(toSave)));
     this.store.dispatch(CodeApiActions.saveProgramRequest({ prog: JSON.stringify(toSave) }));
-  }
-
-  private onDonateClick() {
-    this.store.dispatch(ToastActions.dialogOnlyDismissNotification({ message: 'We are currently not taking donations.\n\n Giving us a star on github is free and we greatly appreciate it.\n\n Showing us support incentivises us to improve the site.', title: 'Thank you!', callback: {
-      onConfirm: () => {},
-      onReject: () => {}
-    }}));
-  }
-
-  private onExamplesClick() {
-    this.store.dispatch(ToastActions.dialogOnlyDismissNotification({ message: 'Examples are coming soon!', title: 'Examples', callback: {
-      onConfirm: () => {},
-      onReject: () => {}
-    }}));
   }
 
   ngOnDestroy() {
