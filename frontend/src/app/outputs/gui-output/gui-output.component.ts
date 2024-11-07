@@ -3,8 +3,9 @@ import { debounceTime, distinctUntilChanged, filter, ReplaySubject } from 'rxjs'
 import { Store } from '@ngrx/store';
 import { OverlayPanel } from 'primeng/overlaypanel';
 
-import { xmldocToGUIElement, ParseError, GUIElement } from '@models/GUIModels';
+import { ParseError, GUIElement } from '@models/GUIModels';
 import { SidebarActions } from '@app/heroes/heros.reducer';
+import { xmldocToGUIElement } from './parser_xml';
 
 @Component({
   selector: 'app-gui-output',
@@ -13,8 +14,8 @@ import { SidebarActions } from '@app/heroes/heros.reducer';
 })
 export class GuiOutputComponent implements AfterViewInit {
 
-  @Input() set inputXML(v: string) { this.inputXML$.next(v); }
-  protected readonly inputXML$ = new ReplaySubject<string>(1);
+  @Input() set inputCode(v: string) { this.inputCode$.next(v); }
+  protected readonly inputCode$ = new ReplaySubject<string>(1);
 
   @ViewChild('overlayTarget') overlayTarget: ElementRef | undefined;
   @ViewChild('op') errorOverlayPanel: OverlayPanel | undefined;
@@ -27,7 +28,7 @@ export class GuiOutputComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.inputXML$.pipe(
+    this.inputCode$.pipe(
       debounceTime(200),
       distinctUntilChanged(),
       filter(xml => xml.trim().length > 0),

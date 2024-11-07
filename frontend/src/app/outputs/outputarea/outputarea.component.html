@@ -70,7 +70,7 @@
 
     <!-- GUI -->
     <div [ngClass]="{'myhidediv': !isSelected}" *ngIf="tab.title === TabTitles.GUI">
-      <app-gui-output [inputXML]="guiXML" />
+      <app-gui-output [inputCode]="guiCode" />
     </div>
   </div>
 </ng-container>
