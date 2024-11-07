@@ -32,6 +32,11 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
       url: 'https://github.com/Ar-Kareem/PythonDice'
     },
     {
+      label: 'Examples',
+      icon: 'pi pi-book',
+      command: () => this.onExamplesClick()
+    },
+    {
       label: 'Support',
       icon: 'pi pi-question-circle',
       items: [
@@ -461,6 +466,13 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
 
   private onDonateClick() {
     this.store.dispatch(ToastActions.dialogOnlyDismissNotification({ message: 'We are currently not taking donations.\n\n Giving us a star on github is free and we greatly appreciate it.\n\n Showing us support incentivises us to improve the site.', title: 'Thank you!', callback: {
+      onConfirm: () => {},
+      onReject: () => {}
+    }}));
+  }
+
+  private onExamplesClick() {
+    this.store.dispatch(ToastActions.dialogOnlyDismissNotification({ message: 'Examples are coming soon!', title: 'Examples', callback: {
       onConfirm: () => {},
       onReject: () => {}
     }}));
