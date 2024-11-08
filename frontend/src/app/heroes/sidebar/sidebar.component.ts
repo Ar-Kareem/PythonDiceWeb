@@ -24,7 +24,7 @@ export class SidebarComponent {
       url: 'https://github.com/Ar-Kareem/PythonDice'
     },
     {
-      label: 'Examples',
+      label: 'Documentation',
       icon: 'pi pi-book',
       command: () => this.onExamplesClick()
     },

@@ -26,6 +26,7 @@ import { PanelMenuModule } from 'primeng/panelmenu';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { CardModule } from 'primeng/card';
 import { BlockUIModule } from 'primeng/blockui';
+import { AccordionModule } from 'primeng/accordion';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -90,6 +91,8 @@ import { DocsComponent } from './heroes/docs/docs.component';
     FloatLabelModule,
     CardModule,
     BlockUIModule,
+    AccordionModule,
+
     EffectsModule.forRoot([
       HerosEffects
     ]),

@@ -12,6 +12,7 @@ export class DocsComponent implements AfterViewInit {
 
   visible = false
   baseHref: string = this.locationStrategy.getBaseHref();
+  activeIndex = [0];
 
   constructor(
     private store: Store,
