@@ -139,6 +139,7 @@ export class TabviewComponent implements AfterViewInit {
     if (index >= this.ngActiveIndex && this.ngActiveIndex > 0) {
       newIndex = this.ngActiveIndex - 1
     }
+    localStorage.removeItem('input.' + this.ngTabPanels[index].title);
     this.store.dispatch(tabviewActions.changeOpenTabs({openTabs: this.ngTabPanels.filter((_, i) => i !== index), newIndex: newIndex}));
   }
 
