@@ -55,7 +55,11 @@ export class SidebarComponent {
   sidebarVisible$: Observable<boolean> = this.store.select(herosSelectors.selectSidebarVisible);
   constructor(
     private store: Store, 
-  ) { }
+  ) {
+    // if (typeof localStorage !== 'undefined') {
+    //   setTimeout(() => {this.onExamplesClick();}, 200);
+    // }
+  }
 
   toggleSidebar() {
     this.store.dispatch(SidebarActions.toggleSidebar());
