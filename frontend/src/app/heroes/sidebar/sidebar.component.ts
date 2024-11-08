@@ -35,7 +35,7 @@ export class SidebarComponent {
         {
           label: 'Bugs / Questions',
           icon: 'pi pi-question',
-          url: 'https://github.com/Ar-Kareem/PythonDice/issues'
+          url: 'https://github.com/Ar-Kareem/PythonDiceWeb/issues'
         },
         {
           label: 'Contact',
