@@ -1,5 +1,6 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { LocationStrategy } from '@angular/common'; 
 import { herosSelectors, SidebarActions } from '../heros.reducer';
 
 @Component({
@@ -10,9 +11,11 @@ import { herosSelectors, SidebarActions } from '../heros.reducer';
 export class DocsComponent implements AfterViewInit {
 
   visible = false
+  baseHref: string = this.locationStrategy.getBaseHref();
 
   constructor(
     private store: Store,
+    private locationStrategy: LocationStrategy,
   ) { }
 
   ngAfterViewInit() {
