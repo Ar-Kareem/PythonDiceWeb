@@ -28,7 +28,7 @@ export const tabviewActions = createActionGroup({
   events: {
     'Change Active Index': props<{ newIndex: number }>(),
     'Change Allowed New Tabs': props<{ allowedNewTabs: string[] }>(),
-    'Change Open Tabs': props<{ openTabs: ITab[], newIndex?: number }>(),
+    'Change Open Tabs': props<{ openTabs: ITab[], newIndex?: number, autoSelectGUISHOW?: boolean }>(),
     'To Python Button Clicked': emptyProps(),
     'Share Code Button Clicked': props<{ tabTitles: string[] }>(),
   },
@@ -45,16 +45,18 @@ export const feature = createFeature({
     on(tabviewActions.changeAllowedNewTabs, (state, { allowedNewTabs }) => {
       return { ...state, allowedNewTabs: allowedNewTabs };
     }),
-    on(tabviewActions.changeOpenTabs, (state, { openTabs, newIndex }) => {
+    on(tabviewActions.changeOpenTabs, (state, { openTabs, newIndex, autoSelectGUISHOW }) => {
       // if GUI editor open then Show GUI output tab
       const curTabTitles = openTabs.map(tab => tab.title);
       if (curTabTitles.includes(TabTitles.GUI) && !curTabTitles.includes(TabTitles.GUISHOW)) {
         openTabs = [...openTabs, {title: TabTitles.GUISHOW}];
       }
-      if (newIndex !== undefined) {
-        return { ...state, openTabs: openTabs, activeIndex: newIndex, selectedTab: openTabs[newIndex] };
+      if (!!autoSelectGUISHOW && openTabs.some(tab => tab.title === TabTitles.GUISHOW)) {  // override newIndex
+        newIndex = openTabs.findIndex(tab => tab.title === TabTitles.GUISHOW);
+      } else {
+        newIndex = newIndex !== undefined ? newIndex : state.activeIndex;
       }
-      return { ...state, openTabs: openTabs, selectedTab: openTabs[state.activeIndex] };
+      return { ...state, openTabs: openTabs, activeIndex: newIndex, selectedTab: openTabs[newIndex] };
     }),
   ),
 });

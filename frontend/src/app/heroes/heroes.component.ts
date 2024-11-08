@@ -173,8 +173,11 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
           this.store.dispatch(tabviewActions.changeOpenTabs({
             openTabs: [...loaded.map(title => ({title}))],
             newIndex: 0,
+            autoSelectGUISHOW: true,
           }));
-          this.onButtonClick(loaded[0])  // initial calculate on page load
+          setTimeout(() => {
+            this.onButtonClick()
+          }, 0);  // initial calculate on page load ; TODO do this without setTimeout
           this.cd.detectChanges();
         } catch (error) {
           this.store.dispatch(ToastActions.errorNotification({ title: 'Error loading program', message: 'Invalid program data' }));
@@ -241,9 +244,12 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
       this.store.dispatch(tabviewActions.changeOpenTabs({
         openTabs: [...loaded.map(title => ({title}))],
         newIndex: selectedTabIndex,
+        autoSelectGUISHOW: true,
       }));
-      const selectedTitle = loaded[selectedTabIndex];
-      this.onButtonClick(selectedTitle)  // initial calculate on page load
+      setTimeout(() => {
+        this.onButtonClick()
+      }, 0);  // initial calculate on page load ; TODO do this without setTimeout
+
     }
     this.cd.detectChanges();
   }
@@ -390,6 +396,7 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
       this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: this.LOADING, title: title}}))
       this.store.dispatch(CodeApiActions.execPythonCodeRequest({ code: toExec, tabTitle: title }));
     } else {
+      console.error('Cant execute for this tab:', title);
       this.store.dispatch(ToastActions.errorNotification({ title: 'Cant execute for this tab', message: '' }));
     }
   }
