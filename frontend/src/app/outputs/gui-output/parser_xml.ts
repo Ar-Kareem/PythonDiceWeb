@@ -43,34 +43,35 @@ function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
       return new BoxElement(direction as ('row' | 'column'), children);
     }
     case ElemTypes.Checkbox.toLowerCase(): {
-      const label = getAttribute(node, 'label');
       const varname = getAttribute(node, 'var');
+      const label = getAttribute(node, 'label', varname);
       const valStr = getAttribute(node, 'default', 'false');
       assertAttrValues(node, 'default', valStr, ['true', 'false', '1', '0', 'on', 'off']);
       const defaultVal = (valStr === 'true') || (valStr === '1') || (valStr === 'on');
       return new CheckboxElement(label, varname, defaultVal);
     }
     case ElemTypes.Input.toLowerCase(): {
-      const label = getAttribute(node, 'label');
       const varname = getAttribute(node, 'var');
+      const label = getAttribute(node, 'label', varname);
       const valStr = getAttribute(node, 'default', '0');
       assertAttrValuesFn(node, 'default', valStr, value => !isNaN(Number(value)));
       const defaultVal = Number(valStr);
       return new InputElement(label, varname, defaultVal);
     }
     case ElemTypes.Output.toLowerCase(): {
-      const label = getAttribute(node, 'label');
       const varname = getAttribute(node, 'var');
+      const label = getAttribute(node, 'label', varname);
       return new OutputElement(label, varname);
     }
     case ElemTypes.Radio.toLowerCase(): {
-      const label = getAttribute(node, 'label');
       const varname = getAttribute(node, 'var');
+      const label = getAttribute(node, 'label', varname);
       const options = Array.from(node.children)
         .filter(child => child.type === 'element')
         .map(option => {
           assertName(option, 'option');
-          return new DropdownOption(getAttribute(option, 'label'), getAttribute(option, 'value'));
+          const val = getAttribute(option, 'value');
+          return new DropdownOption(getAttribute(option, 'label', val), val);
       });
       if (options.length === 0) {
         throw new INTERNAL_ParseError(`<Radio> must have at least 1 <option>`, node);
@@ -81,13 +82,14 @@ function xmldocToGUIElement_helper(node: XmlElement): GUIElement{
       return new RadioElement(label, varname, defaultVal, options);
     }
     case ElemTypes.Dropdown.toLowerCase(): {
-      const label = getAttribute(node, 'label');
       const varname = getAttribute(node, 'var');
+      const label = getAttribute(node, 'label', varname);
       const options = Array.from(node.children)
         .filter(child => child.type === 'element')
         .map(option => {
           assertName(option, 'option');
-          return new DropdownOption(getAttribute(option, 'label'), getAttribute(option, 'value'));
+          const val = getAttribute(option, 'value');
+          return new DropdownOption(getAttribute(option, 'label', val), val);
       });
       if (options.length === 0) {
         throw new INTERNAL_ParseError(`<Dropdown> must have at least 1 <option>`, node);

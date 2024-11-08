@@ -20,41 +20,6 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
   readonly TabsWithInput: string[] = [TabTitles.DICE_CODE, TabTitles.PYTHON, TabTitles.GUI];
   readonly TabTitles = TabTitles;
 
-  readonly SIDEBAR_ITEMS: any[] = [
-    {
-      label: 'Home',
-      icon: 'pi pi-home',
-      command: () => this.store.dispatch(SidebarActions.setSidebar({ newState: false }))
-    },
-    {
-      label: 'Github',
-      icon: 'pi pi-github',
-      url: 'https://github.com/Ar-Kareem/PythonDice'
-    },
-    {
-      label: 'Support',
-      icon: 'pi pi-question-circle',
-      items: [
-        {
-          label: 'Bugs / Questions',
-          icon: 'pi pi-question',
-          url: 'https://github.com/Ar-Kareem/PythonDice/issues'
-        },
-        {
-          label: 'Contact',
-          icon: 'pi pi-envelope',
-          url: 'mailto:arkareem2@gmail.com'
-        },
-        {
-          label: 'Support Us',
-          icon: 'pi pi-fw pi-heart',
-          command: () => this.onDonateClick()
-        },
-      ]
-    }
-
-];
-
   private inputSubject = new Subject<{title: string, content: string}>();  // for saving to localstorage
   ngContentsInput = new Map<string, string>();  // for input textareas
 
@@ -133,20 +98,21 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
     });
 
     this.store.select(herosSelectors.selectDiceExecResult).pipe(
-      filter(data => !!data)  // filter out null values
-    ).subscribe((data) => {
+      filter(payload => !!payload)  // filter out null values
+    ).subscribe((payload) => {
+      const data = payload.response
       this.isLoading = false;
       this.loadExecTime = data.time/1000;
-      this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: data.result, rvs: data.rvs}}))
+      this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: data.result, rvs: data.rvs, title: payload.tabTitle}}))
       this.cd.detectChanges();
     });
 
     this.store.select(herosSelectors.selectDiceExecFailure).pipe(
       filter(error => !!error)  // filter out null values
-    ).subscribe(({response, inp_code}) => {
+    ).subscribe(({error, inp_code, tabTitle}) => {
       this.isLoading = false;
       this.loadExecTime = undefined;
-      this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: this.getServerErrorMsg(response, inp_code)}}))
+      this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: this.getServerErrorMsg(error, inp_code), title: tabTitle}}))
       this.cd.detectChanges();
     });
 
@@ -207,8 +173,11 @@ export class HeroesComponent implements AfterViewInit, OnDestroy {
           this.store.dispatch(tabviewActions.changeOpenTabs({
             openTabs: [...loaded.map(title => ({title}))],
             newIndex: 0,
+            autoSelectGUISHOW: true,
           }));
-          this.onButtonClick(loaded[0])  // initial calculate on page load
+          setTimeout(() => {
+            this.onButtonClick()
+          }, 0);  // initial calculate on page load ; TODO do this without setTimeout
           this.cd.detectChanges();
         } catch (error) {
           this.store.dispatch(ToastActions.errorNotification({ title: 'Error loading program', message: 'Invalid program data' }));
@@ -275,9 +244,12 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
       this.store.dispatch(tabviewActions.changeOpenTabs({
         openTabs: [...loaded.map(title => ({title}))],
         newIndex: selectedTabIndex,
+        autoSelectGUISHOW: true,
       }));
-      const selectedTitle = loaded[selectedTabIndex];
-      this.onButtonClick(selectedTitle)  // initial calculate on page load
+      setTimeout(() => {
+        this.onButtonClick()
+      }, 0);  // initial calculate on page load ; TODO do this without setTimeout
+
     }
     this.cd.detectChanges();
   }
@@ -322,7 +294,7 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
         return `Runtime Error:\n${payload.message}`;
       }
     } else {
-      return `${response}`;
+      return `Error encountered (sorry for the horrible error messages, will improve this in future updates):\n\n${response}`;
     }
   }
 
@@ -354,7 +326,8 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
   }
 
   private onGUIExec() {
-    let toExec = this.ngContentsInput.get(TabTitles.DICE_CODE);
+    const tabTitle = TabTitles.DICE_CODE;  // todo later get from code
+    let toExec = this.ngContentsInput.get(tabTitle);
     if (!toExec || toExec.trim() === '') {
       this.store.dispatch(ToastActions.warningNotification({ title: 'No code to execute', message: '' }));
       return;
@@ -393,8 +366,8 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
     }
     this.isLoading = true;
     this.loadExecTime = undefined;
-    this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: this.LOADING}}))
-    this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: toExec }));
+    this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: this.LOADING, title: TabTitles.GUISHOW}}))
+    this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: toExec, tabTitle: TabTitles.GUISHOW }));
   }
 
   onButtonClick(title?: string) {
@@ -415,14 +388,15 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
     if (title === TabTitles.DICE_CODE) {
       this.isLoading = true;
       this.loadExecTime = undefined;
-      this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: this.LOADING}}))
-      this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: toExec }));
+      this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: this.LOADING, title: title}}))
+      this.store.dispatch(CodeApiActions.execDiceCodeRequest({ code: toExec, tabTitle: title }));
     } else if (title === TabTitles.PYTHON) {
       this.isLoading = true;
       this.loadExecTime = undefined;
-      this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: this.LOADING}}))
-      this.store.dispatch(CodeApiActions.execPythonCodeRequest({ code: toExec }));
+      this.store.dispatch(SidebarActions.setCurrentResponse({ response: {text: this.LOADING, title: title}}))
+      this.store.dispatch(CodeApiActions.execPythonCodeRequest({ code: toExec, tabTitle: title }));
     } else {
+      console.error('Cant execute for this tab:', title);
       this.store.dispatch(ToastActions.errorNotification({ title: 'Cant execute for this tab', message: '' }));
     }
   }
@@ -455,13 +429,6 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
     }
     // console.debug(JSON.stringify(JSON.stringify(toSave)));
     this.store.dispatch(CodeApiActions.saveProgramRequest({ prog: JSON.stringify(toSave) }));
-  }
-
-  private onDonateClick() {
-    this.store.dispatch(ToastActions.dialogOnlyDismissNotification({ message: 'We are currently not taking donations.\n\n Giving us a star on github is free and we greatly appreciate it.\n\n Showing us support incentivises us to improve the site.', title: 'Thank you!', callback: {
-      onConfirm: () => {},
-      onReject: () => {}
-    }}));
   }
 
   ngOnDestroy() {

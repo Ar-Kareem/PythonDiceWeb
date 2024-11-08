@@ -51,6 +51,7 @@ class DropdownElement implements BaseElement, DefaultVal {
 class DropdownOption {
   constructor(readonly label: string, readonly value: string) {}
 }
+// TODO slider would be good I think?
 
 
 class ParseError extends Error  {

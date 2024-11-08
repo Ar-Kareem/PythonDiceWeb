@@ -122,7 +122,7 @@ export class TabviewComponent implements AfterViewInit {
     }
   }
 
-  onDropdownChange(event: DropdownChangeEvent) {
+  onDropdownChange(event: DropdownChangeEvent) {  // new tab selected
     const selected: string = event.value;
     if (selected) {
       const newTabs = [...this.ngTabPanels, {title: selected}];
@@ -135,10 +135,11 @@ export class TabviewComponent implements AfterViewInit {
   }
 
   closeTab(index: number) {
+    let newIndex = undefined;
     if (index >= this.ngActiveIndex && this.ngActiveIndex > 0) {
-      this.store.dispatch(tabviewActions.changeActiveIndex({newIndex: this.ngActiveIndex - 1}));
+      newIndex = this.ngActiveIndex - 1
     }
-    this.store.dispatch(tabviewActions.changeOpenTabs({openTabs: this.ngTabPanels.filter((_, i) => i !== index)}));
+    this.store.dispatch(tabviewActions.changeOpenTabs({openTabs: this.ngTabPanels.filter((_, i) => i !== index), newIndex: newIndex}));
   }
 
   requestTabClose(index: number) {

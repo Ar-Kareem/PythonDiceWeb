@@ -1,0 +1,110 @@
+<p-dialog 
+  header="Documentation" 
+  [style]="{'width': '90vw'}"
+  [modal]="true"
+  [visible]="visible" 
+  (visibleChange)="onHide()">
+
+
+
+
+
+<p>
+  Welcome! Below are brief examples of how to use the website. More examples are coming soon.
+</p>
+
+<p-accordion [multiple]="true" [activeIndex]="activeIndex">
+<p-accordionTab header="Gettings Started">
+  <p>
+    The website is an easy-to-use advanced dice probability calculator. 
+  </p>
+  
+  <p>
+    To get started: Click on the "DiceCode" tab, write <code>output 1d20</code> and calculate. 
+  </p>
+
+  <p>
+    For further details, read the "DiceCode" tab.
+  </p>
+  
+  <p style="font-size: 0.8em;">
+    Under the hood, the website uses the 
+    <a href="https://github.com/Ar-Kareem/PythonDice">PythonDice</a> 
+    python package (also developed by us) to calculate everything in locally your browser.  
+  </p>
+</p-accordionTab>
+
+<p-accordionTab header="DiceCode Tab">
+  <p>
+    The "DiceCode" tab is one of the two main ways to interact with the website (the other being the "Python" tab).
+  </p>
+  <p>
+    Here you can write any code that the <a href="https://anydice.com">AnyDice</a> website can handle. To see some good examples, view the 
+    <a href="https://anydice.com/articles/">AnyDice articles</a> and for detailed descriptions, 
+    read the <a href="https://anydice.com/docs/">AnyDice documentation</a>. If you find any program output different than the AnyDice website, please contact us and let us know to fix the discrepancy.
+  </p>
+  <p>
+    To get started, <a [href]="baseHref + './program/9996'">see this simple example</a>.
+  </p>
+  <p>
+    Once you have working code, you can click the "Calculate" button to see the results. The dropdown menu allows you to change how you visualize the outputs.
+  </p>
+  <P>
+    The "Convert to Python" button will convert your code to Python code, which you can then run in the "Python" tab. See the "Python" tab for more details.
+  </P>
+  <p>
+    This tab can also execute programs that AnyDice can't handle such as <a [href]="baseHref + './program/9999'"> rolling dice with strings</a>.
+  </p>
+</p-accordionTab>
+
+<p-accordionTab header="Python Tab">
+  <p>
+    This tab executes Python code in your browser. 
+  </p>
+  <p>
+    To get started, <a [href]="baseHref + './program/9995'">see this simple example</a>.
+  </p>
+  <p>
+    As of now, describing the full capabilities of Python is beyond the scope of this documentation. 
+    However, to get started, use the "Convert to Python" button in the "DiceCode" tab.
+  </p>
+  <p>
+    In the "DiceCode" tab, there's a "Convert to Python" button in the top right which will convert your DiceCode to Python code, which you can then run in the "Python" tab. 
+    This is feature is useful for those who are familiar with the AnyDice language but want to learn how to accomplish the same things in Python (and utilize use its powerful features).
+  </p>
+  <p style="font-size: 0.8em;">
+    Note: in rare cases, the conversion may not be perfect, this is intentional as ensuring the output of python matches the anydice tab requires setting compiler flags to true which will make the output python code look very ugly. 
+    This feature is available in the python package but not in the website. In the future, this will be an optional feature.
+  </p>
+</p-accordionTab>
+
+<p-accordionTab header="GUI Tab">
+  <p>
+      This tab requires that you first understand the "DiceCode" tab.
+  </p>
+  <p>
+    Here you can create a GUI for your program to make it easier for people with no coding experience to use your calculator.
+  </p>
+  <p>
+    To get started, <a [href]="baseHref + './program/9997'">see this simple example</a>.
+  </p>
+  <p>
+    The idea of the GUI is to make an interface that changes the variables in the DiceCode tab. The valid GUI elements are "checkbox", "input", "radio", and "dropdown" and you must specify "var" the variable to edit, and optionally a "label".
+    For "radio" and "dropdown", you must also add "option" as children, each with a "value" and "label". You can also use a "box" to group elements horizontally or vertically together.  
+  </p>
+  <p>
+    You can also set the default displayed vizualization when clicking calculate such as in <a [href]="baseHref + './program/9998'">this example</a>.
+  </p>
+  <p>
+    In the future, creating a GUI will be easier. For now, see simple example above to get started and feel free to ask us questions. Additionally, the GUI only executes DiceCode but can trivially be updated (soon) to execute Python as well.
+  </p>
+</p-accordionTab>
+</p-accordion>
+
+
+
+
+
+
+</p-dialog>
+<div></div>

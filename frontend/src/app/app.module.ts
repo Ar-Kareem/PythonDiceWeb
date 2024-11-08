@@ -26,6 +26,7 @@ import { PanelMenuModule } from 'primeng/panelmenu';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { CardModule } from 'primeng/card';
 import { BlockUIModule } from 'primeng/blockui';
+import { AccordionModule } from 'primeng/accordion';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -46,6 +47,8 @@ import { OutputchartComponent } from './outputs/outputarea/outputchart/outputcha
 import { RollerComponent } from './outputs/outputarea/roller/roller.component';
 import { ExporterComponent } from './outputs/outputarea/exporter/exporter.component';
 import { loadInterceptor } from './getprog/http-interceptor';
+import { SidebarComponent } from './heroes/sidebar/sidebar.component';
+import { DocsComponent } from './heroes/docs/docs.component';
 
 @NgModule({
   declarations: [
@@ -60,6 +63,8 @@ import { loadInterceptor } from './getprog/http-interceptor';
     OutputchartComponent,
     RollerComponent,
     ExporterComponent,
+    SidebarComponent,
+    DocsComponent,
   ],
   imports: [
     BrowserModule,
@@ -86,6 +91,8 @@ import { loadInterceptor } from './getprog/http-interceptor';
     FloatLabelModule,
     CardModule,
     BlockUIModule,
+    AccordionModule,
+
     EffectsModule.forRoot([
       HerosEffects
     ]),
