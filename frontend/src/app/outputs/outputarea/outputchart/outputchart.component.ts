@@ -125,7 +125,7 @@ export class OutputchartComponent {
     const chartObj = getHorizBarWithErrorBars(labelsFormatted, valuesFormatted, whiskers, 'Mean Roll');
     this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, chartObj);
     const h = CHART_HEIGHT_PX.base + (CHART_HEIGHT_PX.per_row) * labelsFormatted.length + CHART_HEIGHT_PX.for_title;
-    this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
+    setHeight(this.chartsRef.first.nativeElement.parentNode, h);
 
     // boxplot
     const boxData = rvs.map(({min_x, q1_x, median_x, mean, q3_x, max_x}) => ({whiskerMax: min_x, min: min_x, q1: q1_x, mean, median: median_x, q3: q3_x, whiskerMin: max_x, max: max_x}));
@@ -134,7 +134,7 @@ export class OutputchartComponent {
     const boxChartObj = getHorizBoxPlot(boxLabels, boxData, 'Box Plot', min_x, max_x);
     this.chartsData[1] = new Chart(this.chartsRef.last.nativeElement, boxChartObj);
     const h2 = CHART_HEIGHT_PX.base + (CHART_HEIGHT_PX.per_row) * boxLabels.length + CHART_HEIGHT_PX.for_title;
-    this.chartsRef.last.nativeElement.parentNode.style.height = `${h2}px`;
+    setHeight(this.chartsRef.last.nativeElement.parentNode, h2);
 }
 
   private setupPdfChart(multiRvData: MULTI_RV_DATA, type: DISPLAY_TYPE) {
@@ -149,7 +149,7 @@ export class OutputchartComponent {
       const chartObj = getHorizBarChart(labelsFormatted, valuesFormatted, title, 100);
       this.chartsData[i] = new Chart(chart.nativeElement, chartObj);
       const h = CHART_HEIGHT_PX.base + CHART_HEIGHT_PX.per_row * labelsFormatted.length;
-      chart.nativeElement.parentNode.style.height = `${h}px`;
+      setHeight(chart.nativeElement.parentNode, h);
     });
   }
 
@@ -164,7 +164,7 @@ export class OutputchartComponent {
       const chart = this.chartsRef.get(i);
       this.chartsData[i] = new Chart(chart!.nativeElement, chartObj);
       const h = CHART_HEIGHT_PX.base + CHART_HEIGHT_PX.per_row * labelsFormatted.length;
-      chart!.nativeElement.parentNode.style.height = `${h}px`;
+      setHeight(chart!.nativeElement.parentNode, h);
       i += 1;
     });
   }
@@ -187,7 +187,7 @@ export class OutputchartComponent {
     });
     this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, getLineChart(x_labels, datasets, 'Graph'));
     const h = getGraphHeight();
-    this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
+    setHeight(this.chartsRef.first.nativeElement.parentNode, h);
   }
 
   private setupGraphTranspose(multiRvData: MULTI_RV_DATA) {
@@ -206,7 +206,7 @@ export class OutputchartComponent {
     });
     this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, getLineChart(x_labels, datasets, 'Graph'));
     const h = getGraphHeight();
-    this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
+    setHeight(this.chartsRef.first.nativeElement.parentNode, h);
   }
 
   private setupGraphMeans(multiRvData: MULTI_RV_DATA) {
@@ -227,9 +227,17 @@ export class OutputchartComponent {
 
     this.chartsData[0] = new Chart(this.chartsRef.first.nativeElement, getLineChart(x_labels, datasets, 'Graph'));
     const h = getGraphHeight();
-    this.chartsRef.first.nativeElement.parentNode.style.height = `${h}px`;
+    setHeight(this.chartsRef.first.nativeElement.parentNode, h);
   }
 
+}
+
+function setHeight(element: any, h: number) {
+  if (h > 32_767) {
+    console.error('Chart height too large', h);
+    h = 32_767;
+  }
+  element.style.height = `${h}px`;
 }
 
 function getGraphHeight() {
