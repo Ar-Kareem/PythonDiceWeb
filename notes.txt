@@ -1,0 +1,6 @@
+# To update Python package
+
+1- Go to pypi and get the .whl url https://pypi.org/project/dice-calc/#history
+
+2- Edit `frontend\src\app\localbackend\webwork.worker.ts` variable `BASE_CALC_DICE_URL`
+

@@ -31,6 +31,7 @@ export class PyodideService {
 
   private setWorkerStatus(status: WorkerStatus) {
     this.store.dispatch(CodeApiActions.setWorkerStatus({ status }));
+    // console.log('current time', new Date().toLocaleTimeString(), 'worker status set to', status); 
     this.currentWorkerStatus = status;
   }
 
