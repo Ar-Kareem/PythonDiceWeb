@@ -21,5 +21,9 @@ export const EXAMPLE_PROGS: {[key: number]: {name: string, prog: string}} = {
     9995: {
         "name": "Simple Python",
         "prog": "{\"Python\":\"output(roll(1, 20), named=f\\\"Just D20\\\")\\noutput((3 @ roll(4, 20)), named=f\\\"3rd of 4D20\\\")\\n@anydice_casting()\\ndef dmg_X_saveroll_X_savetarget_X(D: int, S: int, T: int):\\n  if S >= T:\\n    return D // 2\\n  else:\\n    return D\\n  \\noutput(dmg_X_saveroll_X_savetarget_X(roll(4, 6), roll(20) + 4, 16), named=f\\\"Lvl 4 Fireball, +4DEX vs 16DC\\\")\\n\"}"
+    },
+    9994: {
+        "name": "Fractional Dice",
+        "prog": "{\"DiceCode\":\"A: {1.5, 3.5, 14.5}\\n\\noutput A named \\\"A special 3-sided dice with fractional faces\\\"\\noutput 2dA named \\\"rolled twice\\\"\\noutput 3dA named \\\"3 times\\\"\\noutput 2dA + (2*A) named \\\"2dA + (2*A)\\\"\\n\\n\"}"
     }
 }

@@ -427,7 +427,7 @@ output [dmg 4d6 saveroll d20+4 savetarget 16] named "Lvl 4 Fireball, +4DEX vs 16
       this.store.dispatch(ToastActions.warningNotification({ title: 'No code to save', message: '' }));
       return;
     }
-    // console.debug(JSON.stringify(JSON.stringify(toSave)));
+    // console.debug(JSON.stringify(JSON.stringify(toSave))); // THIS IS TO SAVE DOCS ; comment the line below this
     this.store.dispatch(CodeApiActions.saveProgramRequest({ prog: JSON.stringify(toSave) }));
   }
 
