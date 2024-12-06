@@ -4,7 +4,9 @@ A website implementing [PythonDice](https://github.com/Ar-Kareem/PythonDice) usi
 
 Try it now: https://ar-kareem.github.io/PythonDiceWeb
 
-The frontend is powered by many packages: Uses [Pyodide](https://pyodide.org) to run the PythonDice python package on the users browser. Uses [Chart.js](https://www.chartjs.org) for visualization. Uses [PrimeNG](https://primeng.org) for a UI Components and [NgRx](https://ngrx.io) for frontend state management.
+## Implementation details
+
+If you are curious about the technologies used; The frontend is powered by many packages, Mainly: [Pyodide](https://pyodide.org) to run the PythonDice python package on the users browser. [Chart.js](https://www.chartjs.org) for visualization, [PrimeNG](https://primeng.org) for a UI Components,  [NgRx](https://ngrx.io) for frontend state management, and obviously [Angular](https://angular.dev/).
 
 # Starting Development
 
