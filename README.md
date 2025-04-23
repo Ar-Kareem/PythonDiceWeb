@@ -1,8 +1,8 @@
 # Description
 
-A website implementing [PythonDice](https://pdice.arkareem.com/) using Angular v18. 
+A website implementing [PythonDice](https://github.com/Ar-Kareem/PythonDice) using Angular v18. 
 
-Try it now: https://ar-kareem.github.io/PythonDiceWeb
+Try it now: https://pdice.arkareem.com/
 
 ## Implementation details
 
