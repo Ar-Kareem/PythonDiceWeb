@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1793935920718,
+  "timestamp": 1793939986234,
   "index": "https://pdice.arkareem.com/index.csr.html",
   "assetGroups": [
     {
@@ -14,7 +14,7 @@
         "https://pdice.arkareem.com/favicon.ico",
         "https://pdice.arkareem.com/index.csr.html",
         "https://pdice.arkareem.com/index.html",
-        "https://pdice.arkareem.com/main-J3PCQCDW.js",
+        "https://pdice.arkareem.com/main-SE5CBH5S.js",
         "https://pdice.arkareem.com/manifest.webmanifest",
         "https://pdice.arkareem.com/polyfills-FFHMD2TL.js",
         "https://pdice.arkareem.com/scripts-VZYOC3Q5.js",
@@ -62,9 +62,9 @@
     "https://pdice.arkareem.com/icons/icon-512x512.png": "16e0da72d33e9a6d8e68028bafc4a2eaa3fc9c10",
     "https://pdice.arkareem.com/icons/icon-72x72.png": "6cd86dd3302544c8e8e06685088c224b13b127e8",
     "https://pdice.arkareem.com/icons/icon-96x96.png": "702b2354234c53da3eaf5624f837e2f34db6c690",
-    "https://pdice.arkareem.com/index.csr.html": "dda24c724194fb42f542ddb12d248831c25e0354",
-    "https://pdice.arkareem.com/index.html": "d409bbbaddac12ff04b1955bbc826ea56e027109",
-    "https://pdice.arkareem.com/main-J3PCQCDW.js": "97cc9910bf0bf0038729012910da07d1c505d2a8",
+    "https://pdice.arkareem.com/index.csr.html": "a4e64d69e3fa8a432586eb6d093525cc8dc1b808",
+    "https://pdice.arkareem.com/index.html": "74aed9f43e325d219212c494e0f11fd03e3aa04a",
+    "https://pdice.arkareem.com/main-SE5CBH5S.js": "e309f33148cc2f1c0e7a1e604ed560c393457357",
     "https://pdice.arkareem.com/manifest.webmanifest": "aab8d2272e494c7c6f69a291f4eb15ddbc7b79fb",
     "https://pdice.arkareem.com/media/Inter-italic.var-SWFAXF2C.woff2": "6f20a046917bf86d4b6cc29c4e2515bd64d2cb9b",
     "https://pdice.arkareem.com/media/Inter-roman.var-WIJJYAE4.woff2": "7a2602d2ebb08ce895e33addb6fe595f1029431e",
