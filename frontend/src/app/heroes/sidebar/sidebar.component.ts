@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
+import { version } from '../../../../package.json';
 
 import { ToastActions } from '@app/toast/toast.reducer';
 import { herosSelectors, SidebarActions } from '../heros.reducer';
@@ -11,6 +12,7 @@ import { herosSelectors, SidebarActions } from '../heros.reducer';
   styleUrl: './sidebar.component.scss'
 })
 export class SidebarComponent {
+  readonly version = version;
 
   readonly SIDEBAR_ITEMS: any[] = [
     {
